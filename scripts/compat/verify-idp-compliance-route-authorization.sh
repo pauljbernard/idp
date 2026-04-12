@@ -1,0 +1,294 @@
+#!/bin/bash
+set -euo pipefail
+
+API_BASE_URL="${API_BASE_URL:-http://127.0.0.1:3000}"
+REALM_ID=""
+CLIENT_ID=""
+CLIENT_SECRET=""
+ADMIN_TENANT_ID="${ADMIN_TENANT_ID:-northstar-holdings}"
+ADMIN_EMAIL="${ADMIN_EMAIL:-alex.morgan@northstar.example}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-StandaloneIAM!TenantAdmin2026}"
+MACHINE_CLIENT_ID="${MACHINE_CLIENT_ID:-machine-api-demo}"
+MACHINE_CLIENT_SECRET="${MACHINE_CLIENT_SECRET:-StandaloneIAM!machine-api-demo!Secret2026}"
+OPERATOR_ROLE_ID="${OPERATOR_ROLE_ID:-role-default-service-operator}"
+
+TMP_DIR="$(mktemp -d)"
+cleanup() {
+  if [[ "${KEEP_TMP_DIR:-0}" == "1" ]]; then
+    echo "Keeping tmp dir: ${TMP_DIR}" >&2
+    return
+  fi
+  rm -rf "${TMP_DIR}"
+}
+
+ORIGINAL_SERVICE_ACCOUNT_ROLE_IDS_JSON='[]'
+ORIGINAL_SERVICE_ACCOUNT_STATUS='ACTIVE'
+SERVICE_ACCOUNT_ID=''
+ADMIN_TOKEN=''
+
+assert_status() {
+  local actual="$1"
+  local expected="$2"
+  local label="$3"
+  if [[ "${actual}" != "${expected}" ]]; then
+    echo "${label} expected HTTP ${expected}, got ${actual}" >&2
+    exit 1
+  fi
+}
+
+resolve_auth_config() {
+  local auth_config_json="${TMP_DIR}/auth-config.json"
+  curl -sS -o "${auth_config_json}" "${API_BASE_URL}/api/v1/auth/iam/config"
+  REALM_ID="$(jq -r '.realm_id' "${auth_config_json}")"
+  CLIENT_ID="$(jq -r '.client_id' "${auth_config_json}")"
+  CLIENT_SECRET="StandaloneIAM!${CLIENT_ID}!Secret2026"
+}
+
+issue_password_grant_token() {
+  local label="$1"
+  local email="$2"
+  local password="$3"
+  local token_response_json="${TMP_DIR}/${label}-token.json"
+  local basic_auth
+  basic_auth="$(printf '%s' "${CLIENT_ID}:${CLIENT_SECRET}" | base64 | tr -d '\n')"
+
+  curl -sS -o "${token_response_json}" \
+    -X POST "${API_BASE_URL}/api/v1/iam/realms/${REALM_ID}/protocol/openid-connect/token" \
+    -H 'Content-Type: application/x-www-form-urlencoded' \
+    -H "Authorization: Basic ${basic_auth}" \
+    --data-urlencode 'grant_type=password' \
+    --data-urlencode "client_id=${CLIENT_ID}" \
+    --data-urlencode "username=${email}" \
+    --data-urlencode "password=${password}" \
+    --data-urlencode 'scope=openid profile email roles groups'
+
+  jq -e '.access_token != null and .token_type == "Bearer"' "${token_response_json}" > /dev/null
+  jq -r '.access_token' "${token_response_json}"
+}
+
+issue_client_credentials_token() {
+  local label="$1"
+  local client_id="$2"
+  local client_secret="$3"
+  local token_response_json="${TMP_DIR}/${label}-token.json"
+  local basic_auth
+  basic_auth="$(printf '%s' "${client_id}:${client_secret}" | base64 | tr -d '\n')"
+
+  curl -sS -o "${token_response_json}" \
+    -X POST "${API_BASE_URL}/api/v1/iam/realms/${REALM_ID}/protocol/openid-connect/token" \
+    -H 'Content-Type: application/x-www-form-urlencoded' \
+    -H "Authorization: Basic ${basic_auth}" \
+    --data-urlencode 'grant_type=client_credentials' \
+    --data-urlencode "client_id=${client_id}" \
+    --data-urlencode 'scope=roles groups'
+
+  jq -e '.access_token != null and .token_type == "Bearer"' "${token_response_json}" > /dev/null
+  jq -r '.access_token' "${token_response_json}"
+}
+
+authorized_get() {
+  local token="$1"
+  local tenant_id="$2"
+  local path="$3"
+  local output_json="$4"
+  local status
+  status="$(curl -sS -o "${output_json}" -w '%{http_code}' \
+    -H "Authorization: Bearer ${token}" \
+    -H "X-Tenant-ID: ${tenant_id}" \
+    "${API_BASE_URL}${path}")"
+  assert_status "${status}" "200" "GET ${path}"
+}
+
+authorized_post_json() {
+  local token="$1"
+  local tenant_id="$2"
+  local path="$3"
+  local request_json="$4"
+  local output_json="$5"
+  local expected_status="${6:-200}"
+  local status
+  status="$(curl -sS -o "${output_json}" -w '%{http_code}' \
+    -X POST "${API_BASE_URL}${path}" \
+    -H 'Content-Type: application/json' \
+    -H "Authorization: Bearer ${token}" \
+    -H "X-Tenant-ID: ${tenant_id}" \
+    --data @"${request_json}")"
+  assert_status "${status}" "${expected_status}" "POST ${path}"
+}
+
+authorized_put_json() {
+  local token="$1"
+  local tenant_id="$2"
+  local path="$3"
+  local request_json="$4"
+  local output_json="$5"
+  local status
+  status="$(curl -sS -o "${output_json}" -w '%{http_code}' \
+    -X PUT "${API_BASE_URL}${path}" \
+    -H 'Content-Type: application/json' \
+    -H "Authorization: Bearer ${token}" \
+    -H "X-Tenant-ID: ${tenant_id}" \
+    --data @"${request_json}")"
+  assert_status "${status}" "200" "PUT ${path}"
+}
+
+forbidden_post_json() {
+  local token="$1"
+  local tenant_id="$2"
+  local path="$3"
+  local request_json="$4"
+  local output_json="$5"
+  local status
+  status="$(curl -sS -o "${output_json}" -w '%{http_code}' \
+    -X POST "${API_BASE_URL}${path}" \
+    -H 'Content-Type: application/json' \
+    -H "Authorization: Bearer ${token}" \
+    -H "X-Tenant-ID: ${tenant_id}" \
+    --data @"${request_json}")"
+  assert_status "${status}" "403" "POST ${path}"
+}
+
+restore_service_account() {
+  if [[ -z "${SERVICE_ACCOUNT_ID}" || -z "${ADMIN_TOKEN}" ]]; then
+    return
+  fi
+
+  local restore_request_json="${TMP_DIR}/service-account-restore-request.json"
+  jq -n \
+    --argjson role_ids "${ORIGINAL_SERVICE_ACCOUNT_ROLE_IDS_JSON}" \
+    --arg status "${ORIGINAL_SERVICE_ACCOUNT_STATUS}" \
+    '{
+      role_ids: $role_ids,
+      status: $status
+    }' > "${restore_request_json}"
+
+  curl -sS -o /dev/null \
+    -X PUT "${API_BASE_URL}/api/v1/iam/service-accounts/${SERVICE_ACCOUNT_ID}" \
+    -H 'Content-Type: application/json' \
+    -H "Authorization: Bearer ${ADMIN_TOKEN}" \
+    --data @"${restore_request_json}" || true
+}
+
+on_exit() {
+  restore_service_account
+  cleanup
+}
+trap on_exit EXIT
+
+resolve_auth_config
+ADMIN_TOKEN="$(issue_password_grant_token "compliance-admin" "${ADMIN_EMAIL}" "${ADMIN_PASSWORD}")"
+
+SERVICE_ACCOUNTS_JSON="${TMP_DIR}/service-accounts.json"
+authorized_get "${ADMIN_TOKEN}" "${ADMIN_TENANT_ID}" "/api/v1/iam/service-accounts?realm_id=${REALM_ID}" "${SERVICE_ACCOUNTS_JSON}"
+SERVICE_ACCOUNT_ID="$(jq -r --arg client_id "${MACHINE_CLIENT_ID}" '.service_accounts[] | select(.client_id == $client_id) | .id' "${SERVICE_ACCOUNTS_JSON}" | head -n 1)"
+if [[ -z "${SERVICE_ACCOUNT_ID}" ]]; then
+  echo "Unable to resolve machine service account for ${MACHINE_CLIENT_ID}" >&2
+  exit 1
+fi
+ORIGINAL_SERVICE_ACCOUNT_ROLE_IDS_JSON="$(jq -c --arg client_id "${MACHINE_CLIENT_ID}" '.service_accounts[] | select(.client_id == $client_id) | .role_ids' "${SERVICE_ACCOUNTS_JSON}" | head -n 1)"
+ORIGINAL_SERVICE_ACCOUNT_STATUS="$(jq -r --arg client_id "${MACHINE_CLIENT_ID}" '.service_accounts[] | select(.client_id == $client_id) | .status' "${SERVICE_ACCOUNTS_JSON}" | head -n 1)"
+
+OPERATOR_ASSIGNMENT_REQUEST_JSON="${TMP_DIR}/service-account-operator-request.json"
+jq -n \
+  --arg operator_role_id "${OPERATOR_ROLE_ID}" \
+  '{
+    role_ids: [$operator_role_id],
+    status: "ACTIVE"
+  }' > "${OPERATOR_ASSIGNMENT_REQUEST_JSON}"
+
+OPERATOR_ASSIGNMENT_RESPONSE_JSON="${TMP_DIR}/service-account-operator-response.json"
+authorized_put_json "${ADMIN_TOKEN}" "${ADMIN_TENANT_ID}" "/api/v1/iam/service-accounts/${SERVICE_ACCOUNT_ID}" "${OPERATOR_ASSIGNMENT_REQUEST_JSON}" "${OPERATOR_ASSIGNMENT_RESPONSE_JSON}"
+
+OPERATOR_MACHINE_TOKEN="$(issue_client_credentials_token "compliance-operator-machine" "${MACHINE_CLIENT_ID}" "${MACHINE_CLIENT_SECRET}")"
+
+OPERATOR_DASHBOARD_JSON="${TMP_DIR}/operator-dashboard.json"
+OPERATOR_REGULATORY_JSON="${TMP_DIR}/operator-regulatory.json"
+OPERATOR_SAFETY_JSON="${TMP_DIR}/operator-safety.json"
+OPERATOR_INCIDENTS_JSON="${TMP_DIR}/operator-incidents.json"
+OPERATOR_MISSIONS_JSON="${TMP_DIR}/operator-missions.json"
+
+authorized_get "${OPERATOR_MACHINE_TOKEN}" "${ADMIN_TENANT_ID}" '/api/v1/compliance/dashboard' "${OPERATOR_DASHBOARD_JSON}"
+authorized_get "${OPERATOR_MACHINE_TOKEN}" "${ADMIN_TENANT_ID}" '/api/v1/regulatory/requirements' "${OPERATOR_REGULATORY_JSON}"
+authorized_get "${OPERATOR_MACHINE_TOKEN}" "${ADMIN_TENANT_ID}" '/api/v1/safety/protocols' "${OPERATOR_SAFETY_JSON}"
+authorized_get "${OPERATOR_MACHINE_TOKEN}" "${ADMIN_TENANT_ID}" '/api/v1/incidents' "${OPERATOR_INCIDENTS_JSON}"
+authorized_get "${OPERATOR_MACHINE_TOKEN}" "${ADMIN_TENANT_ID}" '/api/v1/missions' "${OPERATOR_MISSIONS_JSON}"
+
+MISSION_ID="$(jq -r '.missions[0].id' "${OPERATOR_MISSIONS_JSON}")"
+if [[ -z "${MISSION_ID}" || "${MISSION_ID}" == "null" ]]; then
+  echo "Unable to resolve mission id for compliance verification" >&2
+  exit 1
+fi
+
+INCIDENT_CREATE_REQUEST_JSON="${TMP_DIR}/incident-create-request.json"
+jq -n \
+  --arg run_id "$(date +%s)" \
+  '{
+    type: "operational",
+    severity: "medium",
+    title: ("IAM Compliance Incident " + $run_id),
+    description: "Standalone IAM compliance authorization verification incident.",
+    location: {
+      latitude: 37.7749,
+      longitude: -122.4194
+    },
+    actions: ["create_record", "notify_shift_lead"],
+    followUpRequired: true
+  }' > "${INCIDENT_CREATE_REQUEST_JSON}"
+
+OPERATOR_INCIDENT_CREATE_JSON="${TMP_DIR}/operator-incident-create.json"
+forbidden_post_json "${OPERATOR_MACHINE_TOKEN}" "${ADMIN_TENANT_ID}" '/api/v1/incidents' "${INCIDENT_CREATE_REQUEST_JSON}" "${OPERATOR_INCIDENT_CREATE_JSON}"
+
+OPERATOR_RISK_ASSESS_JSON="${TMP_DIR}/operator-risk-assess.json"
+jq -n '{}' > "${TMP_DIR}/risk-assess-request.json"
+forbidden_post_json "${OPERATOR_MACHINE_TOKEN}" "${ADMIN_TENANT_ID}" "/api/v1/risk/assess/${MISSION_ID}" "${TMP_DIR}/risk-assess-request.json" "${OPERATOR_RISK_ASSESS_JSON}"
+
+ADMIN_INCIDENT_CREATE_JSON="${TMP_DIR}/admin-incident-create.json"
+authorized_post_json "${ADMIN_TOKEN}" "${ADMIN_TENANT_ID}" '/api/v1/incidents' "${INCIDENT_CREATE_REQUEST_JSON}" "${ADMIN_INCIDENT_CREATE_JSON}" "201"
+INCIDENT_ID="$(jq -r '.id' "${ADMIN_INCIDENT_CREATE_JSON}")"
+
+INCIDENT_UPDATE_REQUEST_JSON="${TMP_DIR}/incident-update-request.json"
+jq -n '{
+  status: "investigating"
+}' > "${INCIDENT_UPDATE_REQUEST_JSON}"
+
+ADMIN_INCIDENT_UPDATE_JSON="${TMP_DIR}/admin-incident-update.json"
+authorized_put_json "${ADMIN_TOKEN}" "${ADMIN_TENANT_ID}" "/api/v1/incidents/${INCIDENT_ID}" "${INCIDENT_UPDATE_REQUEST_JSON}" "${ADMIN_INCIDENT_UPDATE_JSON}"
+
+ADMIN_RISK_ASSESS_JSON="${TMP_DIR}/admin-risk-assess.json"
+authorized_post_json "${ADMIN_TOKEN}" "${ADMIN_TENANT_ID}" "/api/v1/risk/assess/${MISSION_ID}" "${TMP_DIR}/risk-assess-request.json" "${ADMIN_RISK_ASSESS_JSON}" "200"
+RISK_ASSESSMENT_ID="$(jq -r '.id' "${ADMIN_RISK_ASSESS_JSON}")"
+
+RISK_UPDATE_REQUEST_JSON="${TMP_DIR}/risk-update-request.json"
+jq -n '{
+  acceptanceLevel: "tolerable"
+}' > "${RISK_UPDATE_REQUEST_JSON}"
+
+ADMIN_RISK_UPDATE_JSON="${TMP_DIR}/admin-risk-update.json"
+authorized_put_json "${ADMIN_TOKEN}" "${ADMIN_TENANT_ID}" "/api/v1/risk/assessments/${RISK_ASSESSMENT_ID}" "${RISK_UPDATE_REQUEST_JSON}" "${ADMIN_RISK_UPDATE_JSON}"
+
+jq -n \
+  --arg mission_id "${MISSION_ID}" \
+  --arg incident_id "${INCIDENT_ID}" \
+  --arg risk_assessment_id "${RISK_ASSESSMENT_ID}" \
+  '{
+    mission_id: $mission_id,
+    incident_id: $incident_id,
+    risk_assessment_id: $risk_assessment_id,
+    operator_dashboard_status: "ok",
+    operator_read_paths: [
+      "/api/v1/compliance/dashboard",
+      "/api/v1/regulatory/requirements",
+      "/api/v1/safety/protocols",
+      "/api/v1/incidents"
+    ],
+    operator_write_paths_blocked: [
+      "/api/v1/incidents",
+      ("/api/v1/risk/assess/" + $mission_id)
+    ],
+    admin_write_paths: [
+      "/api/v1/incidents",
+      ("/api/v1/incidents/" + $incident_id),
+      ("/api/v1/risk/assess/" + $mission_id),
+      ("/api/v1/risk/assessments/" + $risk_assessment_id)
+    ]
+  }'

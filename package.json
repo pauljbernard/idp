@@ -1,0 +1,57 @@
+{
+  "name": "idp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Standalone IDP application",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix apps/api-server && npm install --prefix apps/enterprise-ui && npm install --prefix docs-site",
+    "api:build": "npm --prefix apps/api-server run build",
+    "api:start": "npm --prefix apps/api-server run start",
+    "api:dev": "npm --prefix apps/api-server run dev",
+    "ui:build": "npm --prefix apps/enterprise-ui run build",
+    "ui:dev": "npm --prefix apps/enterprise-ui run dev",
+    "docs:dev": "npm --prefix docs-site run dev",
+    "docs:build": "npm --prefix docs-site run build",
+    "docs:preview": "npm --prefix docs-site run preview",
+    "docs:validate": "node scripts/validate-docs.js",
+    "build": "npm run api:build && npm run ui:build && npm run docs:build",
+    "verify:idp:standalone-baseline": "bash scripts/verify-idp-standalone-baseline.sh",
+    "verify:idp:runtime-cutover-readiness": "bash scripts/verify-idp-runtime-cutover-readiness.sh",
+    "verify:idp:sequence-a-bundle": "node scripts/verify-idp-sequence-a-bundle.js",
+    "update:idp:sequence-a-bundle-status": "node scripts/update-idp-sequence-a-bundle-status.js",
+    "render:idp:runtime-cutover-preflight": "node scripts/render-idp-runtime-cutover-preflight.js",
+    "render:idp:sequence-a-status-matrix": "node scripts/render-idp-sequence-a-status-matrix.js",
+    "scaffold:idp:runtime-cutover-evidence": "node scripts/scaffold-idp-runtime-cutover-evidence.js",
+    "scaffold:idp:login-transaction-evidence": "node scripts/scaffold-idp-login-transaction-evidence.js",
+    "scaffold:idp:ticket-evidence": "node scripts/scaffold-idp-ticket-evidence.js",
+    "scaffold:idp:session-evidence": "node scripts/scaffold-idp-session-evidence.js",
+    "scaffold:idp:issued-token-evidence": "node scripts/scaffold-idp-issued-token-evidence.js",
+    "prepare:idp:runtime-cutover-evidence": "bash scripts/prepare-idp-runtime-cutover-evidence.sh",
+    "prepare:idp:login-transaction-evidence": "bash scripts/prepare-idp-login-transaction-evidence.sh",
+    "prepare:idp:ticket-evidence": "bash scripts/prepare-idp-runtime-cutover-evidence.sh tickets 2 'Tickets' docs/spec/plans/Headless_IAM_Ticket_Cutover_Checklist.md",
+    "prepare:idp:session-evidence": "bash scripts/prepare-idp-runtime-cutover-evidence.sh sessions 3 'Sessions' docs/spec/plans/Headless_IAM_Session_Cutover_Checklist.md",
+    "prepare:idp:issued-token-evidence": "bash scripts/prepare-idp-runtime-cutover-evidence.sh issued-tokens 4 'Issued tokens' docs/spec/plans/Headless_IAM_Issued_Token_Cutover_Checklist.md",
+    "prepare:idp:sequence-a-evidence": "bash scripts/prepare-idp-sequence-a-evidence.sh",
+    "verify:sdk:iam-contract": "node scripts/verify-sdk-iam-contract.js",
+    "test:governance": "node scripts/verify-governance.js && npm run docs:validate",
+    "test:unit:api": "npm --prefix apps/api-server run test:coverage",
+    "test:unit:ui": "npm --prefix apps/enterprise-ui run test:coverage",
+    "test:unit": "npm run test:unit:api && npm run test:unit:ui",
+    "test:journeys": "playwright test --config tests/journeys/playwright.config.ts",
+    "test:performance": "node tests/performance/run-auth-smoke.js",
+    "test:security": "node tests/security/run-security-evaluation.js",
+    "test:all": "npm run test:governance && npm run test:unit && npm run test:journeys && npm run test:performance && npm run test:security"
+  },
+  "workspaces": [
+    "apps/*",
+    "contracts/*"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "autocannon": "^8.0.0"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "version": "2.0",
+  "last_updated": "2026-04-12",
+  "entry_points": {
+    "bootstrap": "docs/AGENT_USAGE_GUIDE.md",
+    "claude_bootstrap": "CLAUDE.md",
+    "codex_bootstrap": "AGENTS.md",
+    "docs_root": "docs/README.md",
+    "dependency_map": "docs/dependency-map.json"
+  },
+  "canonical_read_order": [
+    "docs/AGENT_USAGE_GUIDE.md",
+    "docs/foundation/constitution.md",
+    "docs/foundation/architecture.md",
+    "docs/specs/platform-requirements.md",
+    "docs/reference/maturity-model.md"
+  ],
+  "current_state_references": [
+    "docs/reference/headless-iam-status-matrix.md",
+    "docs/reference/headless-iam-requirements-gap-matrix.md",
+    "docs/implementation/planning/headless-iam-standalone-validation-review-guide.md",
+    "docs/implementation/deployment/implementation-plan.md",
+    "docs/implementation/deployment/roadmap.md"
+  ],
+  "domain_specs": {
+    "authentication": "docs/specs/authentication/oauth-flows.md",
+    "operations": "docs/specs/operations/deployment-modes.md",
+    "ui_design_system": "docs/specs/ui/design-system.md",
+    "ui_components": "docs/specs/ui/component-specs.md",
+    "ui_interactions": "docs/specs/ui/interaction-patterns.md",
+    "ui_information_architecture": "docs/specs/ui/information-architecture.md",
+    "ui_design_tokens": "docs/specs/ui/design-tokens.md"
+  },
+  "spec_claim_fields": [
+    "support_tier",
+    "maturity_state",
+    "supported_profiles",
+    "evidence_class"
+  ],
+  "conflict_resolution_order": [
+    "constitution_and_requirements",
+    "spec_frontmatter",
+    "status_and_support_matrices",
+    "planning_and_analysis"
+  ]
+}

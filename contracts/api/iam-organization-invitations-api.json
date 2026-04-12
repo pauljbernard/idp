@@ -1,0 +1,252 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM Organization Invitations API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM full-IDP Phase F endpoints for organization invitations, account acceptance, and organization-aware onboarding."
+  },
+  "tags": [
+    {
+      "name": "IAM Organization Invitations",
+      "description": "Organization invitation issuance, acceptance, and account organization visibility endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/organization-invitations": {
+      "get": {
+        "tags": ["IAM Organization Invitations"],
+        "summary": "List IAM organization invitations",
+        "responses": {
+          "200": {
+            "description": "Organization invitations resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOrganizationInvitationsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Organization Invitations"],
+        "summary": "Create IAM organization invitation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamOrganizationInvitationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Organization invitation created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOrganizationInvitationRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/organization-invitations/{invitationId}/revoke": {
+      "post": {
+        "tags": ["IAM Organization Invitations"],
+        "summary": "Revoke IAM organization invitation",
+        "parameters": [
+          { "name": "invitationId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organization invitation revoked.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOrganizationInvitationRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/organization-invitations/{invitationId}": {
+      "put": {
+        "tags": ["IAM Organization Invitations"],
+        "summary": "Update IAM organization invitation",
+        "parameters": [
+          { "name": "invitationId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamOrganizationInvitationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Organization invitation updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOrganizationInvitationRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/organizations": {
+      "get": {
+        "tags": ["IAM Organization Invitations"],
+        "summary": "List account organizations and pending invitations",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account organizations resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountOrganizationsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/organization-invitations/{invitationId}/accept": {
+      "post": {
+        "tags": ["IAM Organization Invitations"],
+        "summary": "Accept organization invitation from the account console",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "invitationId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "201": {
+            "description": "Organization invitation accepted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOrganizationMembershipRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamOrganizationRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "summary": { "type": "string" },
+          "kind": { "type": "string" },
+          "status": { "type": "string" },
+          "domain_hint": { "type": ["string", "null"] },
+          "linked_identity_provider_aliases": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "IamOrganizationMembershipRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "organization_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "role": { "type": "string" },
+          "status": { "type": "string" },
+          "joined_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "IamOrganizationInvitationRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "organization_id": { "type": "string" },
+          "email": { "type": "string" },
+          "role": { "type": "string" },
+          "status": { "type": "string" },
+          "linked_identity_provider_aliases": { "type": "array", "items": { "type": "string" } },
+          "invited_user_id": { "type": ["string", "null"] },
+          "accepted_membership_id": { "type": ["string", "null"] },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "accepted_at": { "type": ["string", "null"], "format": "date-time" },
+          "revoked_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "IamOrganizationInvitationsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "invitations": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                { "$ref": "#/components/schemas/IamOrganizationInvitationRecord" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "organization_name": { "type": "string" }
+                  }
+                }
+              ]
+            }
+          },
+          "count": { "type": "number" }
+        }
+      },
+      "CreateIamOrganizationInvitationRequest": {
+        "type": "object",
+        "required": ["realm_id", "organization_id", "email"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "organization_id": { "type": "string" },
+          "email": { "type": "string" },
+          "role": { "type": "string" },
+          "linked_identity_provider_aliases": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "UpdateIamOrganizationInvitationRequest": {
+        "type": "object",
+        "properties": {
+          "role": { "type": "string" },
+          "linked_identity_provider_aliases": { "type": "array", "items": { "type": "string" } },
+          "expires_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "IamAccountOrganizationsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "organizations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "organization": { "$ref": "#/components/schemas/IamOrganizationRecord" },
+                "membership": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/IamOrganizationMembershipRecord" },
+                    { "type": "null" }
+                  ]
+                },
+                "pending_invitations": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/IamOrganizationInvitationRecord" }
+                }
+              }
+            }
+          },
+          "count": { "type": "number" }
+        }
+      }
+    }
+  }
+}

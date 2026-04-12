@@ -1,0 +1,151 @@
+{
+  "sdk_name": "@idp/sdk-iam",
+  "contract_version": "0.1.0",
+  "openapi_contracts": [
+    "contracts/api/auth-api.json",
+    "contracts/api/security-api.json",
+    "contracts/api/iam-realms-api.json",
+    "contracts/api/iam-users-api.json",
+    "contracts/api/iam-groups-api.json",
+    "contracts/api/iam-roles-api.json",
+    "contracts/api/iam-account-console-api.json",
+    "contracts/api/iam-identity-governance-api.json"
+  ],
+  "operations": [
+    {
+      "id": "iam.getSummary",
+      "method": "GET",
+      "path": "/api/v1/iam/summary"
+    },
+    {
+      "id": "iam.listRealms",
+      "method": "GET",
+      "path": "/api/v1/iam/realms"
+    },
+    {
+      "id": "iam.createRealm",
+      "method": "POST",
+      "path": "/api/v1/iam/realms"
+    },
+    {
+      "id": "iam.updateRealm",
+      "method": "PUT",
+      "path": "/api/v1/iam/realms/{realmId}"
+    },
+    {
+      "id": "iam.listUsers",
+      "method": "GET",
+      "path": "/api/v1/iam/users"
+    },
+    {
+      "id": "iam.createUser",
+      "method": "POST",
+      "path": "/api/v1/iam/users"
+    },
+    {
+      "id": "iam.updateUser",
+      "method": "PUT",
+      "path": "/api/v1/iam/users/{userId}"
+    },
+    {
+      "id": "iam.listGroups",
+      "method": "GET",
+      "path": "/api/v1/iam/groups"
+    },
+    {
+      "id": "iam.createGroup",
+      "method": "POST",
+      "path": "/api/v1/iam/groups"
+    },
+    {
+      "id": "iam.updateGroup",
+      "method": "PUT",
+      "path": "/api/v1/iam/groups/{groupId}"
+    },
+    {
+      "id": "iam.listRoles",
+      "method": "GET",
+      "path": "/api/v1/iam/roles"
+    },
+    {
+      "id": "iam.createRole",
+      "method": "POST",
+      "path": "/api/v1/iam/roles"
+    },
+    {
+      "id": "iam.updateRole",
+      "method": "PUT",
+      "path": "/api/v1/iam/roles/{roleId}"
+    },
+    {
+      "id": "iam.getAuthSession",
+      "method": "GET",
+      "path": "/api/v1/auth/session"
+    },
+    {
+      "id": "iam.switchAuthSessionTenant",
+      "method": "POST",
+      "path": "/api/v1/auth/session/tenant"
+    },
+    {
+      "id": "iam.getSecurityContext",
+      "method": "GET",
+      "path": "/api/v1/security/context"
+    },
+    {
+      "id": "iam.listSecuritySessions",
+      "method": "GET",
+      "path": "/api/v1/security/sessions"
+    },
+    {
+      "id": "iam.revokeSecuritySession",
+      "method": "POST",
+      "path": "/api/v1/security/sessions/{sessionId}/revoke"
+    },
+    {
+      "id": "iam.revokeOtherSecuritySessions",
+      "method": "POST",
+      "path": "/api/v1/security/sessions/revoke-others"
+    },
+    {
+      "id": "iam.getAccountProfile",
+      "method": "GET",
+      "path": "/api/v1/iam/realms/{realmId}/account/profile"
+    },
+    {
+      "id": "iam.updateAccountProfile",
+      "method": "PUT",
+      "path": "/api/v1/iam/realms/{realmId}/account/profile"
+    },
+    {
+      "id": "iam.getAccountSession",
+      "method": "GET",
+      "path": "/api/v1/iam/realms/{realmId}/account/session"
+    },
+    {
+      "id": "iam.listDelegatedConsents",
+      "method": "GET",
+      "path": "/api/v1/iam/delegated-consents"
+    },
+    {
+      "id": "iam.createDelegatedConsent",
+      "method": "POST",
+      "path": "/api/v1/iam/delegated-consents"
+    },
+    {
+      "id": "iam.updateDelegatedConsent",
+      "method": "PUT",
+      "path": "/api/v1/iam/delegated-consents/{consentId}"
+    },
+    {
+      "id": "iam.listRealmPosturePresets",
+      "method": "GET",
+      "path": "/api/v1/iam/realm-posture-presets"
+    },
+    {
+      "id": "iam.listIdentityPrivacyPolicies",
+      "method": "GET",
+      "path": "/api/v1/iam/identity-privacy-policies"
+    }
+  ]
+}

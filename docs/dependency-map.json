@@ -1,0 +1,133 @@
+{
+  "title": "IDP Platform Documentation Dependency Map",
+  "description": "Canonical dependency map for maintained documentation entry points",
+  "version": "2.0",
+  "generated": "2026-04-12",
+  "documents": {
+    "platform-constitution": {
+      "id": "platform-constitution",
+      "path": "foundation/constitution.md",
+      "type": "foundation",
+      "status": "stable",
+      "dependencies": [],
+      "criticality": "critical"
+    },
+    "platform-architecture": {
+      "id": "platform-architecture",
+      "path": "foundation/architecture.md",
+      "type": "foundation",
+      "status": "stable",
+      "dependencies": ["platform-constitution"],
+      "criticality": "critical"
+    },
+    "security-model": {
+      "id": "security-model",
+      "path": "foundation/security-model.md",
+      "type": "foundation",
+      "status": "stable",
+      "dependencies": ["platform-architecture"],
+      "criticality": "critical"
+    },
+    "platform-requirements": {
+      "id": "platform-requirements",
+      "path": "specs/platform-requirements.md",
+      "type": "specification",
+      "status": "stable",
+      "dependencies": ["platform-constitution", "platform-architecture"],
+      "criticality": "critical"
+    },
+    "maturity-model": {
+      "id": "maturity-model",
+      "path": "reference/maturity-model.md",
+      "type": "reference",
+      "status": "stable",
+      "dependencies": ["platform-constitution", "platform-requirements"],
+      "criticality": "critical"
+    },
+    "headless-iam-status-matrix": {
+      "id": "headless-iam-status-matrix",
+      "path": "reference/headless-iam-status-matrix.md",
+      "type": "reference",
+      "status": "stable",
+      "dependencies": ["platform-requirements", "maturity-model"],
+      "criticality": "critical"
+    },
+    "headless-iam-standalone-validation-review-guide": {
+      "id": "headless-iam-standalone-validation-review-guide",
+      "path": "implementation/planning/headless-iam-standalone-validation-review-guide.md",
+      "type": "implementation",
+      "status": "stable",
+      "dependencies": ["platform-requirements", "headless-iam-status-matrix"],
+      "criticality": "high"
+    },
+    "implementation-plan": {
+      "id": "implementation-plan",
+      "path": "implementation/deployment/implementation-plan.md",
+      "type": "implementation",
+      "status": "stable",
+      "dependencies": ["platform-requirements", "headless-iam-status-matrix"],
+      "criticality": "high"
+    },
+    "roadmap": {
+      "id": "roadmap",
+      "path": "implementation/deployment/roadmap.md",
+      "type": "implementation",
+      "status": "stable",
+      "dependencies": ["implementation-plan", "headless-iam-status-matrix"],
+      "criticality": "high"
+    },
+    "oauth-flows": {
+      "id": "oauth-flows",
+      "path": "specs/authentication/oauth-flows.md",
+      "type": "specification",
+      "status": "stable",
+      "dependencies": ["platform-architecture", "security-model", "platform-requirements"],
+      "criticality": "high"
+    }
+  },
+  "dependency_chains": [
+    {
+      "name": "Core platform understanding",
+      "path": [
+        "platform-constitution",
+        "platform-architecture",
+        "platform-requirements",
+        "maturity-model",
+        "headless-iam-status-matrix"
+      ]
+    },
+    {
+      "name": "Readiness review",
+      "path": [
+        "platform-constitution",
+        "platform-requirements",
+        "maturity-model",
+        "headless-iam-status-matrix",
+        "headless-iam-standalone-validation-review-guide"
+      ]
+    },
+    {
+      "name": "Implementation sequencing",
+      "path": [
+        "platform-requirements",
+        "headless-iam-status-matrix",
+        "implementation-plan",
+        "roadmap"
+      ]
+    }
+  ],
+  "navigation_patterns": {
+    "agent_exploration": {
+      "entry_point": "platform-constitution",
+      "strategy": "governance-first"
+    },
+    "readiness_assessment": {
+      "entry_point": "maturity-model",
+      "strategy": "claim-boundary-first"
+    },
+    "implementation_planning": {
+      "entry_point": "implementation-plan",
+      "strategy": "current-state-plus-plan"
+    }
+  }
+}

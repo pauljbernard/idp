@@ -1,0 +1,155 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: CP
+      - generic [ref=e7]:
+        - paragraph [ref=e8]: Commercial Operating System
+        - heading "Control Layer" [level=1] [ref=e9]
+    - navigation [ref=e10]:
+      - button "Overview Queues, risks, and lifecycle signal" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]: Overview
+        - generic [ref=e13]: Queues, risks, and lifecycle signal
+      - button "Tenants Hierarchy, IDP binding, and tenant context" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]: Tenants
+        - generic [ref=e16]: Hierarchy, IDP binding, and tenant context
+      - button "CRM Prospects, leads, customers, and cases" [ref=e17] [cursor=pointer]:
+        - generic [ref=e18]: CRM
+        - generic [ref=e19]: Prospects, leads, customers, and cases
+      - button "Accounts Commercial customers and billing ownership" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: Accounts
+        - generic [ref=e22]: Commercial customers and billing ownership
+      - button "Catalog Products, offers, and packaging posture" [ref=e23] [cursor=pointer]:
+        - generic [ref=e24]: Catalog
+        - generic [ref=e25]: Products, offers, and packaging posture
+      - button "Orders Commercial intake and order execution" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: Orders
+        - generic [ref=e28]: Commercial intake and order execution
+      - button "Billing Subscriptions, invoices, and ledger history" [ref=e29] [cursor=pointer]:
+        - generic [ref=e30]: Billing
+        - generic [ref=e31]: Subscriptions, invoices, and ledger history
+      - button "Entitlements Grants, projections, and access truth" [ref=e32] [cursor=pointer]:
+        - generic [ref=e33]: Entitlements
+        - generic [ref=e34]: Grants, projections, and access truth
+      - button "Operations Fulfillment queues and exception handling" [ref=e35] [cursor=pointer]:
+        - generic [ref=e36]: Operations
+        - generic [ref=e37]: Fulfillment queues and exception handling
+      - button "Admin Contracts, bindings, and runtime posture" [ref=e38] [cursor=pointer]:
+        - generic [ref=e39]: Admin
+        - generic [ref=e40]: Contracts, bindings, and runtime posture
+  - generic [ref=e41]:
+    - banner [ref=e42]:
+      - generic [ref=e43]:
+        - paragraph [ref=e44]: Operational Workspace
+        - heading "Platform Overview" [level=2] [ref=e45]
+      - generic [ref=e46]:
+        - generic [ref=e47]: platform session
+        - textbox "Search records, IDs, or statuses" [ref=e48]
+        - button "Refresh Session" [ref=e49] [cursor=pointer]
+        - button "Sign Out" [ref=e50] [cursor=pointer]
+    - article [ref=e52]:
+      - paragraph [ref=e53]: Identity Session
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - text: Plane
+          - combobox "Plane" [ref=e56]:
+            - option "Platform" [selected]
+            - option "Tenant Consumer"
+        - generic [ref=e57]:
+          - text: Active Tenant
+          - combobox "Active Tenant" [ref=e58]:
+            - option "Select tenant" [selected]
+        - generic [ref=e59]:
+          - text: Subject
+          - textbox "Subject" [ref=e60]: local-dev-user
+        - generic [ref=e61]:
+          - text: Organization
+          - textbox "Organization" [ref=e62]:
+            - /placeholder: optional
+        - generic [ref=e63]:
+          - text: Roles
+          - textbox "Roles" [ref=e64]: platform_admin
+        - generic [ref=e65]:
+          - text: Groups
+          - textbox "Groups" [ref=e66]: system
+      - generic [ref=e67]:
+        - generic [ref=e68]: Browser session
+        - code [ref=e69]: local-dev-user | expires Apr 5, 2026, 4:30 PM
+    - generic [ref=e70]:
+      - main [ref=e71]:
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - paragraph [ref=e75]: Operator Surface
+              - heading "Tenants" [level=3] [ref=e76]
+            - paragraph [ref=e77]: Table-first view of all tenants with drill-down for detailed management.
+          - generic [ref=e79]:
+            - generic [ref=e80]:
+              - generic [ref=e81]:
+                - heading "Tenant Directory" [level=4] [ref=e82]
+                - paragraph [ref=e83]: 0 tenants configured
+              - generic [ref=e85]: "0"
+            - table [ref=e87]:
+              - rowgroup [ref=e88]:
+                - row "Tenant Slug Hierarchy Status Bindings Organizations Groups Locations" [ref=e89]:
+                  - columnheader "Tenant" [ref=e90]
+                  - columnheader "Slug" [ref=e91]
+                  - columnheader "Hierarchy Status" [ref=e92]
+                  - columnheader "Bindings" [ref=e93]
+                  - columnheader "Organizations" [ref=e94]
+                  - columnheader "Groups" [ref=e95]
+                  - columnheader "Locations" [ref=e96]
+              - rowgroup [ref=e97]:
+                - row "No records available for the current context." [ref=e98]:
+                  - cell "No records available for the current context." [ref=e99]
+      - complementary [ref=e100]:
+        - generic [ref=e101]:
+          - paragraph [ref=e102]: Current State
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - term [ref=e105]: Status
+              - definition [ref=e106]: success
+            - generic [ref=e107]:
+              - term [ref=e108]: Tenant
+              - definition [ref=e109]: No tenant selected
+            - generic [ref=e110]:
+              - term [ref=e111]: Plane
+              - definition [ref=e112]: platform
+            - generic [ref=e113]:
+              - term [ref=e114]: Subject
+              - definition [ref=e115]: local-dev-user
+            - generic [ref=e116]:
+              - term [ref=e117]: Surface
+              - definition [ref=e118]: tenants
+            - generic [ref=e119]:
+              - term [ref=e120]: API
+              - definition
+        - generic [ref=e121]:
+          - paragraph [ref=e122]: Recent Risk
+          - generic [ref=e123]:
+            - generic [ref=e124]:
+              - term [ref=e125]: Orders Awaiting Action
+              - definition [ref=e126]: "0"
+            - generic [ref=e127]:
+              - term [ref=e128]: Fulfillment Failures
+              - definition [ref=e129]: "0"
+            - generic [ref=e130]:
+              - term [ref=e131]: Invoices Due or Overdue
+              - definition [ref=e132]: "0"
+            - generic [ref=e133]:
+              - term [ref=e134]: Payment Exceptions
+              - definition [ref=e135]: "0"
+        - generic [ref=e136]:
+          - paragraph [ref=e137]: Explainability
+          - generic [ref=e138]:
+            - generic [ref=e139]:
+              - term [ref=e140]: Access
+              - definition [ref=e141]: Unavailable
+            - generic [ref=e142]:
+              - term [ref=e143]: Hierarchy Mode
+              - definition [ref=e144]: n/a
+            - generic [ref=e145]:
+              - term [ref=e146]: Principal Binding
+              - definition [ref=e147]: 47c9433a-df2c-48d4-ac00-91f82f7493f0
+            - generic [ref=e148]:
+              - term [ref=e149]: Payment Boundary
+              - definition [ref=e150]: Integrated, not processor-owned

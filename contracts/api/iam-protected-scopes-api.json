@@ -1,0 +1,130 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM Protected Scopes API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM full-IDP Phase H endpoints for protected scope administration."
+  },
+  "tags": [
+    {
+      "name": "IAM Authorization Services",
+      "description": "Protected scope administration for standalone IAM authorization services."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/authz/scopes": {
+      "get": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "List IAM protected scopes",
+        "responses": {
+          "200": {
+            "description": "Protected scopes resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamProtectedScopesResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "Create IAM protected scope",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamProtectedScopeRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Protected scope created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamProtectedScopeRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/authz/scopes/{scopeId}": {
+      "put": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "Update IAM protected scope",
+        "parameters": [
+          { "name": "scopeId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamProtectedScopeRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Protected scope updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamProtectedScopeRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamProtectedScopeRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "resource_server_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamProtectedScopesResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "scopes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamProtectedScopeRecord" }
+          },
+          "count": { "type": "number" }
+        }
+      },
+      "CreateIamProtectedScopeRequest": {
+        "type": "object",
+        "required": ["realm_id", "resource_server_id", "name", "summary"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "resource_server_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      },
+      "UpdateIamProtectedScopeRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      }
+    }
+  }
+}

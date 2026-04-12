@@ -1,0 +1,144 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM Authorization Policies API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM full-IDP Phase H endpoints for authorization policy administration."
+  },
+  "tags": [
+    {
+      "name": "IAM Authorization Services",
+      "description": "Authorization policy administration for standalone IAM authorization services."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/authz/policies": {
+      "get": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "List IAM authorization policies",
+        "responses": {
+          "200": {
+            "description": "Authorization policies resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthorizationPoliciesResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "Create IAM authorization policy",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamAuthorizationPolicyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Authorization policy created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthorizationPolicyRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/authz/policies/{policyId}": {
+      "put": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "Update IAM authorization policy",
+        "parameters": [
+          { "name": "policyId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamAuthorizationPolicyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorization policy updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthorizationPolicyRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamAuthorizationPolicyRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "resource_server_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "kind": { "type": "string" },
+          "status": { "type": "string" },
+          "principal_user_ids": { "type": "array", "items": { "type": "string" } },
+          "principal_group_ids": { "type": "array", "items": { "type": "string" } },
+          "principal_role_ids": { "type": "array", "items": { "type": "string" } },
+          "principal_client_ids": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamAuthorizationPoliciesResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "policies": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamAuthorizationPolicyRecord" }
+          },
+          "count": { "type": "number" }
+        }
+      },
+      "CreateIamAuthorizationPolicyRequest": {
+        "type": "object",
+        "required": ["realm_id", "resource_server_id", "name", "summary", "kind"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "resource_server_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "kind": { "type": "string" },
+          "status": { "type": "string" },
+          "principal_user_ids": { "type": "array", "items": { "type": "string" } },
+          "principal_group_ids": { "type": "array", "items": { "type": "string" } },
+          "principal_role_ids": { "type": "array", "items": { "type": "string" } },
+          "principal_client_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "UpdateIamAuthorizationPolicyRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" },
+          "principal_user_ids": { "type": "array", "items": { "type": "string" } },
+          "principal_group_ids": { "type": "array", "items": { "type": "string" } },
+          "principal_role_ids": { "type": "array", "items": { "type": "string" } },
+          "principal_client_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

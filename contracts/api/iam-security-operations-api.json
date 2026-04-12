@@ -1,0 +1,372 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Security Operations API",
+    "version": "1.0.0",
+    "description": "Phase 6 standalone IAM hardening endpoints for security summary, request-level audit review, validation gates, user login history, administrative password reset, lockout clearance, and forced session revocation."
+  },
+  "tags": [
+    {
+      "name": "IAM Security Operations",
+      "description": "Standalone IAM hardening and security-operations endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/security/summary": {
+      "get": {
+        "tags": ["IAM Security Operations"],
+        "summary": "Get standalone IAM security operations summary",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM security summary resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamSecuritySummaryResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/security/events": {
+      "get": {
+        "tags": ["IAM Security Operations"],
+        "summary": "List standalone IAM request-level security audit events",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "outcome", "in": "query", "required": false, "schema": { "type": "string", "enum": ["SUCCESS", "FAILURE"] } },
+          { "name": "limit", "in": "query", "required": false, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Standalone IAM security audit events resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamSecurityEventsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/security/validation": {
+      "get": {
+        "tags": ["IAM Security Operations"],
+        "summary": "Get standalone IAM review and validation gates",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM validation summary resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamValidationSummaryResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/users/{userId}/security": {
+      "get": {
+        "tags": ["IAM Security Operations"],
+        "summary": "Get standalone IAM security posture for one user",
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Standalone IAM user security summary resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamUserSecuritySummaryResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/users/{userId}/login-history": {
+      "get": {
+        "tags": ["IAM Security Operations"],
+        "summary": "List standalone IAM login history for one user",
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "limit", "in": "query", "required": false, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Standalone IAM user login history resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamUserLoginHistoryResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/users/{userId}/reset-password": {
+      "post": {
+        "tags": ["IAM Security Operations"],
+        "summary": "Perform standalone IAM administrative password reset",
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AdminResetIamUserPasswordRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Standalone IAM administrative password reset completed.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAdminPasswordResetResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/users/{userId}/revoke-sessions": {
+      "post": {
+        "tags": ["IAM Security Operations"],
+        "summary": "Force revoke standalone IAM user sessions and tokens",
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RevokeIamUserSessionsRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Standalone IAM user sessions revoked.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAdminRevokeUserSessionsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/users/{userId}/clear-lockout": {
+      "post": {
+        "tags": ["IAM Security Operations"],
+        "summary": "Clear standalone IAM user lockout state",
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Standalone IAM user lockout cleared.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamUserSecuritySummaryResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamSecuritySummaryResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "failed_login_attempt_count": { "type": "integer" },
+          "active_lockout_count": { "type": "integer" },
+          "request_audit": { "$ref": "#/components/schemas/IamSecurityAuditSummary" },
+          "admin_security_actions": { "type": "integer" }
+        },
+        "required": ["generated_at", "failed_login_attempt_count", "active_lockout_count", "request_audit", "admin_security_actions"]
+      },
+      "IamSecurityAuditSummary": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "request_count": { "type": "integer" },
+          "success_count": { "type": "integer" },
+          "failure_count": { "type": "integer" },
+          "last_24h_request_count": { "type": "integer" },
+          "last_24h_failure_count": { "type": "integer" },
+          "category_counts": { "type": "object", "additionalProperties": { "type": "integer" } }
+        },
+        "required": ["generated_at", "request_count", "success_count", "failure_count", "last_24h_request_count", "last_24h_failure_count", "category_counts"]
+      },
+      "IamSecurityAuditEvent": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "occurred_at": { "type": "string" },
+          "method": { "type": "string" },
+          "path": { "type": "string" },
+          "realm_id": { "type": ["string", "null"] },
+          "actor_user_id": { "type": ["string", "null"] },
+          "iam_session_id": { "type": ["string", "null"] },
+          "correlation_id": { "type": ["string", "null"] },
+          "status_code": { "type": "integer" },
+          "outcome": { "type": "string", "enum": ["SUCCESS", "FAILURE"] },
+          "category": { "type": "string" }
+        },
+        "required": ["id", "occurred_at", "method", "path", "realm_id", "actor_user_id", "iam_session_id", "correlation_id", "status_code", "outcome", "category"]
+      },
+      "IamSecurityEventsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "events": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamSecurityAuditEvent" }
+          },
+          "count": { "type": "integer" }
+        },
+        "required": ["generated_at", "events", "count"]
+      },
+      "IamLoginFlowUser": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" }
+        },
+        "required": ["id", "username", "email", "first_name", "last_name"]
+      },
+      "IamUserSecuritySummaryResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user": { "$ref": "#/components/schemas/IamLoginFlowUser" },
+          "status": { "type": "string" },
+          "mfa_enabled": { "type": "boolean" },
+          "email_verified_at": { "type": ["string", "null"] },
+          "last_login_at": { "type": ["string", "null"] },
+          "last_password_updated_at": { "type": ["string", "null"] },
+          "last_mfa_authenticated_at": { "type": ["string", "null"] },
+          "failed_login_attempt_count": { "type": "integer" },
+          "last_failed_login_at": { "type": ["string", "null"] },
+          "lockout_until": { "type": ["string", "null"] },
+          "active_session_count": { "type": "integer" },
+          "active_token_count": { "type": "integer" }
+        },
+        "required": ["generated_at", "realm_id", "user", "status", "mfa_enabled", "email_verified_at", "last_login_at", "last_password_updated_at", "last_mfa_authenticated_at", "failed_login_attempt_count", "last_failed_login_at", "lockout_until", "active_session_count", "active_token_count"]
+      },
+      "IamUserLoginHistoryRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": ["string", "null"] },
+          "username_or_email": { "type": "string" },
+          "client_identifier": { "type": ["string", "null"] },
+          "outcome": { "type": "string", "enum": ["SUCCESS", "FAILED_CREDENTIALS", "FAILED_MFA", "LOCKED"] },
+          "summary": { "type": "string" },
+          "occurred_at": { "type": "string" }
+        },
+        "required": ["id", "realm_id", "user_id", "username_or_email", "client_identifier", "outcome", "summary", "occurred_at"]
+      },
+      "IamUserLoginHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "login_attempts": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamUserLoginHistoryRecord" }
+          },
+          "count": { "type": "integer" }
+        },
+        "required": ["generated_at", "realm_id", "user_id", "login_attempts", "count"]
+      },
+      "AdminResetIamUserPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "new_password": { "type": "string" },
+          "force_update_on_login": { "type": "boolean" },
+          "revoke_existing_sessions": { "type": "boolean" },
+          "clear_lockout": { "type": "boolean" }
+        }
+      },
+      "IamAdminPasswordResetResponse": {
+        "type": "object",
+        "properties": {
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "password_updated_at": { "type": "string" },
+          "issued_temporary_password": { "type": ["string", "null"] },
+          "requires_update_password": { "type": "boolean" },
+          "revoked_session_count": { "type": "integer" },
+          "revoked_token_count": { "type": "integer" },
+          "lockout_cleared": { "type": "boolean" }
+        },
+        "required": ["realm_id", "user_id", "password_updated_at", "issued_temporary_password", "requires_update_password", "revoked_session_count", "revoked_token_count", "lockout_cleared"]
+      },
+      "RevokeIamUserSessionsRequest": {
+        "type": "object",
+        "properties": {
+          "revoke_tokens": { "type": "boolean" }
+        }
+      },
+      "IamAdminRevokeUserSessionsResponse": {
+        "type": "object",
+        "properties": {
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "revoked_session_count": { "type": "integer" },
+          "revoked_token_count": { "type": "integer" },
+          "revoked_at": { "type": ["string", "null"] }
+        },
+        "required": ["realm_id", "user_id", "revoked_session_count", "revoked_token_count", "revoked_at"]
+      },
+      "IamValidationCheck": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "status": { "type": "string", "enum": ["PASS", "WARN"] },
+          "summary": { "type": "string" }
+        },
+        "required": ["id", "name", "status", "summary"]
+      },
+      "IamValidationSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "review_state": { "type": "string", "enum": ["READY_FOR_REVIEW"] },
+          "integration_state": { "type": "string", "enum": ["NOT_INTEGRATED_WITH_DOWNSTREAM_APPLICATIONS"] },
+          "migration_state": {
+            "type": "string",
+            "enum": [
+              "BLOCKED_PENDING_REVIEW_AND_STANDALONE_ADOPTION",
+              "BLOCKED_PENDING_STANDALONE_ADOPTION"
+            ]
+          },
+          "checks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamValidationCheck" }
+          },
+          "agentic_development_notes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "count": { "type": "integer" }
+        },
+        "required": ["generated_at", "review_state", "integration_state", "migration_state", "checks", "agentic_development_notes", "count"]
+      }
+    }
+  }
+}

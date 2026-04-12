@@ -1,0 +1,42 @@
+{
+  "version": "2.0",
+  "project_type": "standalone_iam_platform",
+  "documentation_first": true,
+  "canonical_bootstrap": [
+    "CLAUDE.md",
+    "docs/AGENT_USAGE_GUIDE.md",
+    "docs/foundation/constitution.md",
+    "docs/foundation/architecture.md",
+    "docs/specs/platform-requirements.md",
+    "docs/reference/maturity-model.md"
+  ],
+  "claim_model": {
+    "required_spec_fields": [
+      "support_tier",
+      "maturity_state",
+      "supported_profiles",
+      "evidence_class"
+    ],
+    "rules": [
+      "do_not_infer_support_from_implementation_presence",
+      "prefer_status_matrices_for_current_support_claims",
+      "prefer_validation_guides_for_readiness_and_adoption_gates",
+      "treat_conflicting_or_missing_docs_as_risk_not_license_to_guess"
+    ]
+  },
+  "current_state_sources": {
+    "status_matrix": "docs/reference/headless-iam-status-matrix.md",
+    "requirements_gap_matrix": "docs/reference/headless-iam-requirements-gap-matrix.md",
+    "validation_review_guide": "docs/implementation/planning/headless-iam-standalone-validation-review-guide.md"
+  },
+  "domain_specifications": {
+    "platform_requirements": "docs/specs/platform-requirements.md",
+    "authentication": "docs/specs/authentication/oauth-flows.md",
+    "operations": "docs/specs/operations/deployment-modes.md",
+    "ui_design_system": "docs/specs/ui/design-system.md"
+  },
+  "validation_commands": [
+    "npm run docs:validate",
+    "node scripts/verify-governance.js"
+  ]
+}

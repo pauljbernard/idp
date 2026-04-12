@@ -1,0 +1,184 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Realm Branding API",
+    "version": "1.0.0",
+    "description": "Phase 5 standalone IAM realm-experience endpoints for branding, theme, localization, and public realm experience reads."
+  },
+  "tags": [
+    {
+      "name": "IAM Realm Experience",
+      "description": "Standalone headless IAM realm branding, theme, and localization endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/realms/{realmId}/experience": {
+      "get": {
+        "tags": ["IAM Realm Experience"],
+        "summary": "Get public realm experience",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Realm experience resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RealmExperienceResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/theme": {
+      "put": {
+        "tags": ["IAM Realm Experience"],
+        "summary": "Update realm theme and branding",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateRealmThemeRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Realm theme updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RealmTheme" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/localization": {
+      "put": {
+        "tags": ["IAM Realm Experience"],
+        "summary": "Update realm localization",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateRealmLocalizationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Realm localization updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RealmLocalization" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RealmTheme": {
+        "type": "object",
+        "properties": {
+          "realm_id": { "type": "string" },
+          "realm_name": { "type": "string" },
+          "preset": { "type": "string", "enum": ["PLATFORM_DEFAULT", "OCEAN", "FOREST", "SUNSET", "SLATE"] },
+          "brand_name": { "type": "string" },
+          "logo_label": { "type": "string" },
+          "support_email": { "type": "string" },
+          "support_url": { "type": ["string", "null"] },
+          "docs_url": { "type": ["string", "null"] },
+          "primary_color": { "type": "string" },
+          "accent_color": { "type": "string" },
+          "surface_tint": { "type": "string" },
+          "login_title": { "type": "string" },
+          "login_subtitle": { "type": "string" },
+          "account_title": { "type": "string" },
+          "account_subtitle": { "type": "string" },
+          "admin_title": { "type": "string" },
+          "admin_subtitle": { "type": "string" },
+          "footer_note": { "type": "string" }
+        }
+      },
+      "RealmLocalization": {
+        "type": "object",
+        "properties": {
+          "realm_id": { "type": "string" },
+          "default_locale": { "type": "string" },
+          "supported_locales": { "type": "array", "items": { "type": "string" } },
+          "mode": { "type": "string", "enum": ["REALM_DEFAULT", "CUSTOM"] },
+          "translations": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            }
+          }
+        }
+      },
+      "RealmExperienceResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "realm": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "summary": { "type": "string" }
+            }
+          },
+          "theme": { "$ref": "#/components/schemas/RealmTheme" },
+          "localization": { "$ref": "#/components/schemas/RealmLocalization" }
+        }
+      },
+      "UpdateRealmThemeRequest": {
+        "type": "object",
+        "properties": {
+          "preset": { "type": "string", "enum": ["PLATFORM_DEFAULT", "OCEAN", "FOREST", "SUNSET", "SLATE"] },
+          "brand_name": { "type": "string" },
+          "logo_label": { "type": "string" },
+          "support_email": { "type": "string" },
+          "support_url": { "type": ["string", "null"] },
+          "docs_url": { "type": ["string", "null"] },
+          "primary_color": { "type": "string" },
+          "accent_color": { "type": "string" },
+          "surface_tint": { "type": "string" },
+          "login_title": { "type": "string" },
+          "login_subtitle": { "type": "string" },
+          "account_title": { "type": "string" },
+          "account_subtitle": { "type": "string" },
+          "admin_title": { "type": "string" },
+          "admin_subtitle": { "type": "string" },
+          "footer_note": { "type": "string" }
+        }
+      },
+      "UpdateRealmLocalizationRequest": {
+        "type": "object",
+        "properties": {
+          "default_locale": { "type": "string" },
+          "supported_locales": { "type": "array", "items": { "type": "string" } },
+          "mode": { "type": "string", "enum": ["REALM_DEFAULT", "CUSTOM"] },
+          "translations": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

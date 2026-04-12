@@ -1,0 +1,143 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Device Authorization API",
+    "version": "1.0.0",
+    "description": "Standalone IAM Phase B endpoints for device authorization grant initiation, browser approval, and authorization ledgers."
+  },
+  "tags": [
+    {
+      "name": "IAM Device Authorization",
+      "description": "Device authorization grant validation for standalone OIDC realms."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/device-authorizations": {
+      "get": {
+        "tags": ["IAM Device Authorization"],
+        "summary": "List device authorizations",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "client_id", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Device authorizations resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["device_authorizations", "count"],
+                  "properties": {
+                    "device_authorizations": { "type": "array", "items": { "$ref": "#/components/schemas/IamDeviceAuthorizationRecord" } },
+                    "count": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/openid-connect/auth/device": {
+      "post": {
+        "tags": ["IAM Device Authorization"],
+        "summary": "Create device authorization",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["client_id"],
+                "properties": {
+                  "client_id": { "type": "string" },
+                  "scope": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Device authorization created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDeviceAuthorizationResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/device/verify": {
+      "post": {
+        "tags": ["IAM Device Authorization"],
+        "summary": "Approve or deny device authorization",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["user_code"],
+                "properties": {
+                  "user_code": { "type": "string" },
+                  "approve": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Device authorization decision recorded.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDeviceAuthorizationRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamDeviceAuthorizationRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "client_id", "user_code", "status", "expires_at", "created_at"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "user_code": { "type": "string" },
+          "device_code": { "type": "string" },
+          "verification_uri": { "type": "string" },
+          "verification_uri_complete": { "type": "string" },
+          "status": { "type": "string", "enum": ["PENDING", "APPROVED", "DENIED", "EXPIRED", "CONSUMED"] },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "IamDeviceAuthorizationResponse": {
+        "type": "object",
+        "required": ["device_code", "user_code", "verification_uri", "verification_uri_complete", "expires_in", "interval"],
+        "properties": {
+          "device_code": { "type": "string" },
+          "user_code": { "type": "string" },
+          "verification_uri": { "type": "string" },
+          "verification_uri_complete": { "type": "string" },
+          "expires_in": { "type": "integer" },
+          "interval": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

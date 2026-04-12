@@ -1,0 +1,196 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Clients API",
+    "version": "1.0.0",
+    "description": "Phase 2 standalone IAM client registry and secret-management endpoints."
+  },
+  "tags": [
+    {
+      "name": "IAM Clients",
+      "description": "Standalone headless IAM client administration."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/clients": {
+      "get": {
+        "tags": ["IAM Clients"],
+        "summary": "List IAM clients",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "protocol", "in": "query", "required": false, "schema": { "$ref": "#/components/schemas/IamClientProtocol" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM clients resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamClientsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Clients"],
+        "summary": "Create IAM client",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamClientRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "IAM client created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamClientSecretResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/clients/{clientId}": {
+      "put": {
+        "tags": ["IAM Clients"],
+        "summary": "Update IAM client",
+        "parameters": [
+          { "name": "clientId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamClientRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM client updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamClientRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/clients/{clientId}/rotate-secret": {
+      "post": {
+        "tags": ["IAM Clients"],
+        "summary": "Rotate IAM client secret",
+        "parameters": [
+          { "name": "clientId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM client secret rotated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamClientSecretResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamClientProtocol": { "type": "string", "enum": ["OIDC", "SAML"] },
+      "IamClientAccessType": { "type": "string", "enum": ["PUBLIC", "CONFIDENTIAL", "BEARER_ONLY"] },
+      "IamClientStatus": { "type": "string", "enum": ["ACTIVE", "DISABLED", "ARCHIVED"] },
+      "IamClientRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "client_id", "name", "summary", "protocol", "access_type", "status", "synthetic", "redirect_uris", "base_url", "root_url", "default_scope_ids", "optional_scope_ids", "direct_protocol_mapper_ids", "standard_flow_enabled", "direct_access_grants_enabled", "service_account_enabled", "secret_preview", "created_at", "updated_at", "created_by_user_id", "updated_by_user_id"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "protocol": { "$ref": "#/components/schemas/IamClientProtocol" },
+          "access_type": { "$ref": "#/components/schemas/IamClientAccessType" },
+          "status": { "$ref": "#/components/schemas/IamClientStatus" },
+          "synthetic": { "type": "boolean" },
+          "redirect_uris": { "type": "array", "items": { "type": "string" } },
+          "base_url": { "type": ["string", "null"] },
+          "root_url": { "type": ["string", "null"] },
+          "default_scope_ids": { "type": "array", "items": { "type": "string" } },
+          "optional_scope_ids": { "type": "array", "items": { "type": "string" } },
+          "direct_protocol_mapper_ids": { "type": "array", "items": { "type": "string" } },
+          "standard_flow_enabled": { "type": "boolean" },
+          "direct_access_grants_enabled": { "type": "boolean" },
+          "service_account_enabled": { "type": "boolean" },
+          "secret_preview": { "type": ["string", "null"] },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamClientsResponse": {
+        "type": "object",
+        "required": ["generated_at", "clients", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "clients": { "type": "array", "items": { "$ref": "#/components/schemas/IamClientRecord" } },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamClientSecretResponse": {
+        "type": "object",
+        "required": ["client", "issued_client_secret"],
+        "properties": {
+          "client": { "$ref": "#/components/schemas/IamClientRecord" },
+          "issued_client_secret": { "type": ["string", "null"] }
+        }
+      },
+      "CreateIamClientRequest": {
+        "type": "object",
+        "required": ["realm_id", "client_id", "name"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "protocol": { "$ref": "#/components/schemas/IamClientProtocol" },
+          "access_type": { "$ref": "#/components/schemas/IamClientAccessType" },
+          "status": { "$ref": "#/components/schemas/IamClientStatus" },
+          "redirect_uris": { "type": "array", "items": { "type": "string" } },
+          "base_url": { "type": ["string", "null"] },
+          "root_url": { "type": ["string", "null"] },
+          "default_scope_ids": { "type": "array", "items": { "type": "string" } },
+          "optional_scope_ids": { "type": "array", "items": { "type": "string" } },
+          "direct_protocol_mapper_ids": { "type": "array", "items": { "type": "string" } },
+          "standard_flow_enabled": { "type": "boolean" },
+          "direct_access_grants_enabled": { "type": "boolean" },
+          "service_account_enabled": { "type": "boolean" }
+        }
+      },
+      "UpdateIamClientRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamClientStatus" },
+          "redirect_uris": { "type": "array", "items": { "type": "string" } },
+          "base_url": { "type": ["string", "null"] },
+          "root_url": { "type": ["string", "null"] },
+          "default_scope_ids": { "type": "array", "items": { "type": "string" } },
+          "optional_scope_ids": { "type": "array", "items": { "type": "string" } },
+          "direct_protocol_mapper_ids": { "type": "array", "items": { "type": "string" } },
+          "standard_flow_enabled": { "type": "boolean" },
+          "direct_access_grants_enabled": { "type": "boolean" },
+          "service_account_enabled": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

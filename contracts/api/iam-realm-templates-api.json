@@ -1,0 +1,97 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Realm Templates API",
+    "version": "1.2.0",
+    "description": "Phase 1 standalone IAM endpoints for reusable realm template visibility, clone-and-bind realm administration, and foundational posture presets."
+  },
+  "tags": [
+    {
+      "name": "IAM Realm Templates",
+      "description": "Standalone headless IAM realm-template endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/realm-templates": {
+      "get": {
+        "tags": ["IAM Realm Templates"],
+        "summary": "List standalone IAM realm templates",
+        "responses": {
+          "200": {
+            "description": "Realm templates resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IamRealmTemplatesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamRealmTemplateKind": {
+        "type": "string",
+        "enum": ["FOUNDATION", "FIRST_PARTY", "EMBEDDED_PARTNER", "TENANT_OVERRIDE"]
+      },
+      "IamRealmTemplateStatus": {
+        "type": "string",
+        "enum": ["DRAFT", "ACTIVE", "ARCHIVED"]
+      },
+      "IamRealmTemplateRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "summary",
+          "kind",
+          "status",
+          "baseline_roles",
+          "baseline_clients",
+          "supported_protocols",
+          "posture_preset_ids",
+          "synthetic"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "kind": { "$ref": "#/components/schemas/IamRealmTemplateKind" },
+          "status": { "$ref": "#/components/schemas/IamRealmTemplateStatus" },
+          "baseline_roles": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "baseline_clients": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "supported_protocols": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["OIDC", "OAUTH2", "SAML"] }
+          },
+          "posture_preset_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "synthetic": { "type": "boolean" }
+        }
+      },
+      "IamRealmTemplatesResponse": {
+        "type": "object",
+        "required": ["generated_at", "realm_templates", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "realm_templates": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamRealmTemplateRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,523 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Operations API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM Phase 6 operations endpoints for diagnostics, backups, restore rehearsal and execution, signing-key rotation, resilience evidence, and readiness review."
+  },
+  "tags": [
+    {
+      "name": "IAM Operations",
+      "description": "Standalone IAM operations, recovery, and readiness endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/operations/summary": {
+      "get": {
+        "tags": ["IAM Operations"],
+        "summary": "Get standalone IAM operations summary",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM operations summary resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOperationsSummaryResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/operations/diagnostics": {
+      "get": {
+        "tags": ["IAM Operations"],
+        "summary": "Get standalone IAM diagnostics, runbooks, and SLOs",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM diagnostics resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOperationsDiagnosticsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/operations/backups": {
+      "get": {
+        "tags": ["IAM Operations"],
+        "summary": "List standalone IAM backups",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM backup artifacts resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamBackupsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Operations"],
+        "summary": "Create standalone IAM backup artifact",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "label": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Standalone IAM backup artifact created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamBackupArtifactRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/operations/restores": {
+      "get": {
+        "tags": ["IAM Operations"],
+        "summary": "List standalone IAM restore evidence records",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM restore records resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamRestoresResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Operations"],
+        "summary": "Run standalone IAM restore rehearsal or execute restore",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "backup_id": { "type": "string" },
+                  "mode": { "type": "string", "enum": ["DRY_RUN", "EXECUTE"] }
+                },
+                "required": ["backup_id", "mode"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Standalone IAM restore record created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamRestoreRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/operations/keys": {
+      "get": {
+        "tags": ["IAM Operations"],
+        "summary": "List standalone IAM signing keys",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Standalone IAM signing keys resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamSigningKeysResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/operations/keys/rotate": {
+      "post": {
+        "tags": ["IAM Operations"],
+        "summary": "Rotate standalone IAM signing key",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "realm_id": { "type": ["string", "null"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Standalone IAM signing key rotated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamSigningKeyRotationRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/operations/resilience": {
+      "get": {
+        "tags": ["IAM Operations"],
+        "summary": "List standalone IAM resilience runs",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM resilience runs resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamResilienceRunsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/operations/resilience/run": {
+      "post": {
+        "tags": ["IAM Operations"],
+        "summary": "Run standalone IAM resilience suite",
+        "responses": {
+          "201": {
+            "description": "Standalone IAM resilience run recorded.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamResilienceRunRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/operations/readiness-review": {
+      "get": {
+        "tags": ["IAM Operations"],
+        "summary": "Get standalone IAM readiness review posture",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM readiness review resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamReadinessReviewResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Operations"],
+        "summary": "Record standalone IAM readiness review",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Standalone IAM readiness review recorded.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamReadinessReviewRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamOperationsSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "health": { "type": "string", "enum": ["HEALTHY", "DEGRADED", "FAILED"] },
+          "backup_count": { "type": "integer" },
+          "restore_count": { "type": "integer" },
+          "key_rotation_count": { "type": "integer" },
+          "resilience_run_count": { "type": "integer" },
+          "readiness_review_count": { "type": "integer" },
+          "latest_readiness_decision": { "type": ["string", "null"], "enum": ["APPROVED", "BLOCKED", null] }
+        },
+        "required": ["generated_at", "health", "backup_count", "restore_count", "key_rotation_count", "resilience_run_count", "readiness_review_count", "latest_readiness_decision"]
+      },
+      "IamRunbookRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "summary": { "type": "string" }
+        },
+        "required": ["id", "title", "summary"]
+      },
+      "IamSloDefinition": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "target": { "type": "string" },
+          "summary": { "type": "string" }
+        },
+        "required": ["id", "name", "target", "summary"]
+      },
+      "IamOperationsDiagnosticsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "health": { "type": "string", "enum": ["HEALTHY", "DEGRADED", "FAILED"] },
+          "subsystem_scope_model": { "type": "string" },
+          "counts": { "type": "object", "additionalProperties": { "type": "integer" } },
+          "runbooks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamRunbookRecord" }
+          },
+          "slo_definitions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamSloDefinition" }
+          }
+        },
+        "required": ["generated_at", "health", "subsystem_scope_model", "counts", "runbooks", "slo_definitions"]
+      },
+      "IamBackupArtifactRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "status": { "type": "string", "enum": ["READY"] },
+          "checksum_sha256": { "type": "string" },
+          "object_key": { "type": "string" },
+          "created_at": { "type": "string" },
+          "created_by_user_id": { "type": "string" },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "realm_count": { "type": "integer" },
+              "user_count": { "type": "integer" },
+              "client_count": { "type": "integer" },
+              "active_session_count": { "type": "integer" },
+              "active_signing_key_count": { "type": "integer" }
+            },
+            "required": ["realm_count", "user_count", "client_count", "active_session_count", "active_signing_key_count"]
+          }
+        },
+        "required": ["id", "label", "status", "checksum_sha256", "object_key", "created_at", "created_by_user_id", "summary"]
+      },
+      "IamBackupsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "backups": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamBackupArtifactRecord" }
+          },
+          "count": { "type": "integer" }
+        },
+        "required": ["generated_at", "backups", "count"]
+      },
+      "IamRestoreRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "backup_id": { "type": "string" },
+          "mode": { "type": "string", "enum": ["DRY_RUN", "EXECUTE"] },
+          "status": { "type": "string", "enum": ["VALIDATED", "APPLIED"] },
+          "created_at": { "type": "string" },
+          "created_by_user_id": { "type": "string" },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "realm_count": { "type": "integer" },
+              "user_count": { "type": "integer" },
+              "client_count": { "type": "integer" },
+              "active_session_count": { "type": "integer" }
+            },
+            "required": ["realm_count", "user_count", "client_count", "active_session_count"]
+          },
+          "checksum_sha256": { "type": "string" }
+        },
+        "required": ["id", "backup_id", "mode", "status", "created_at", "created_by_user_id", "summary", "checksum_sha256"]
+      },
+      "IamRestoresResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "restores": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamRestoreRecord" }
+          },
+          "count": { "type": "integer" }
+        },
+        "required": ["generated_at", "restores", "count"]
+      },
+      "IamSigningKeyRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": ["string", "null"] },
+          "key_id": { "type": "string" },
+          "algorithm": { "type": "string", "enum": ["RS256"] },
+          "created_at": { "type": "string" },
+          "status": { "type": "string", "enum": ["ACTIVE", "RETIRED"] }
+        },
+        "required": ["id", "realm_id", "key_id", "algorithm", "created_at", "status"]
+      },
+      "IamSigningKeysResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "signing_keys": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamSigningKeyRecord" }
+          },
+          "count": { "type": "integer" }
+        },
+        "required": ["generated_at", "signing_keys", "count"]
+      },
+      "IamSigningKeyRotationRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": ["string", "null"] },
+          "retired_key_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "activated_key_id": { "type": "string" },
+          "created_at": { "type": "string" },
+          "created_by_user_id": { "type": "string" }
+        },
+        "required": ["id", "realm_id", "retired_key_ids", "activated_key_id", "created_at", "created_by_user_id"]
+      },
+      "IamResilienceCheck": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "status": { "type": "string", "enum": ["PASS", "WARN", "FAIL"] },
+          "summary": { "type": "string" }
+        },
+        "required": ["id", "name", "status", "summary"]
+      },
+      "IamResilienceRunRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "executed_at": { "type": "string" },
+          "executed_by_user_id": { "type": "string" },
+          "overall_status": { "type": "string", "enum": ["PASS", "WARN", "FAIL"] },
+          "checks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamResilienceCheck" }
+          },
+          "count": { "type": "integer" }
+        },
+        "required": ["id", "executed_at", "executed_by_user_id", "overall_status", "checks", "count"]
+      },
+      "IamResilienceRunsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "runs": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamResilienceRunRecord" }
+          },
+          "count": { "type": "integer" }
+        },
+        "required": ["generated_at", "runs", "count"]
+      },
+      "IamReadinessCheck": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "status": { "type": "string", "enum": ["PASS", "WARN", "FAIL"] },
+          "summary": { "type": "string" }
+        },
+        "required": ["id", "name", "status", "summary"]
+      },
+      "IamReadinessReviewRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "created_at": { "type": "string" },
+          "created_by_user_id": { "type": "string" },
+          "decision": { "type": "string", "enum": ["APPROVED", "BLOCKED"] },
+          "notes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "checks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamReadinessCheck" }
+          },
+          "count": { "type": "integer" }
+        },
+        "required": ["id", "created_at", "created_by_user_id", "decision", "notes", "checks", "count"]
+      },
+      "IamReadinessReviewResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string" },
+          "checks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamReadinessCheck" }
+          },
+          "latest_review": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/IamReadinessReviewRecord" },
+              { "type": "null" }
+            ]
+          },
+          "runbooks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamRunbookRecord" }
+          },
+          "slo_definitions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamSloDefinition" }
+          },
+          "agentic_development_notes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "count": { "type": "integer" }
+        },
+        "required": ["generated_at", "checks", "latest_review", "runbooks", "slo_definitions", "agentic_development_notes", "count"]
+      }
+    }
+  }
+}

@@ -1,0 +1,311 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Review API",
+    "version": "1.0.0",
+    "description": "Standalone IAM Phase L review endpoints for standards evaluation, interoperability validation, differentiation analysis, and formal market-position review."
+  },
+  "tags": [
+    {
+      "name": "IAM Review",
+      "description": "Standalone IAM product-readiness and market-position review endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/review/summary": {
+      "get": {
+        "tags": ["IAM Review"],
+        "summary": "Get standalone IAM review summary",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM review summary resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamReviewSummaryResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/review/standards-matrix": {
+      "get": {
+        "tags": ["IAM Review"],
+        "summary": "Get standalone IAM standards matrix",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM standards matrix resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamStandardsMatrixResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/review/interoperability": {
+      "get": {
+        "tags": ["IAM Review"],
+        "summary": "Get standalone IAM interoperability review",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM interoperability review resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamInteroperabilityReviewResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/review/differentiation": {
+      "get": {
+        "tags": ["IAM Review"],
+        "summary": "Get standalone IAM differentiation review",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM differentiation review resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDifferentiationReviewResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/review/formal": {
+      "get": {
+        "tags": ["IAM Review"],
+        "summary": "Get standalone IAM formal review history",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM formal review history resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamFormalReviewResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Review"],
+        "summary": "Record standalone IAM formal review",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Standalone IAM formal review recorded.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamFormalReviewRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamReviewStatus": {
+        "type": "string",
+        "enum": ["PASS", "WARN", "FAIL"]
+      },
+      "IamMarketPosition": {
+        "type": "string",
+        "enum": ["KEYCLOAK_COMPETITIVE", "KEYCLOAK_PLUS_DIFFERENTIATED", "NOT_YET_COMPETITIVE"]
+      },
+      "IamAdoptionRecommendation": {
+        "type": "string",
+        "enum": ["PROCEED_TO_PHASE_M_ADOPTION_PLANNING", "HOLD_FOR_REMEDIATION"]
+      },
+      "IamStandardsMatrixItem": {
+        "type": "object",
+        "required": ["id", "family", "capability", "status", "summary"],
+        "properties": {
+          "id": { "type": "string" },
+          "family": { "type": "string" },
+          "capability": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamReviewStatus" },
+          "summary": { "type": "string" }
+        }
+      },
+      "IamStandardsMatrixResponse": {
+        "type": "object",
+        "required": ["generated_at", "overall_status", "items", "count"],
+        "properties": {
+          "generated_at": { "type": "string" },
+          "overall_status": { "$ref": "#/components/schemas/IamReviewStatus" },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamStandardsMatrixItem" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamInteroperabilityCheck": {
+        "type": "object",
+        "required": ["id", "protocol_family", "name", "status", "summary", "evidence"],
+        "properties": {
+          "id": { "type": "string" },
+          "protocol_family": { "type": "string" },
+          "name": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamReviewStatus" },
+          "summary": { "type": "string" },
+          "evidence": { "type": "string" }
+        }
+      },
+      "IamInteroperabilityReviewResponse": {
+        "type": "object",
+        "required": ["generated_at", "overall_status", "checks", "count"],
+        "properties": {
+          "generated_at": { "type": "string" },
+          "overall_status": { "$ref": "#/components/schemas/IamReviewStatus" },
+          "checks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamInteroperabilityCheck" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamDifferentiationArea": {
+        "type": "object",
+        "required": ["id", "name", "status", "comparative_position", "summary"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamReviewStatus" },
+          "comparative_position": { "type": "string" },
+          "summary": { "type": "string" }
+        }
+      },
+      "IamDifferentiationReviewResponse": {
+        "type": "object",
+        "required": ["generated_at", "overall_status", "areas", "count"],
+        "properties": {
+          "generated_at": { "type": "string" },
+          "overall_status": { "$ref": "#/components/schemas/IamReviewStatus" },
+          "areas": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamDifferentiationArea" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamFormalReviewRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "created_by_user_id",
+          "overall_status",
+          "market_position",
+          "adoption_recommendation",
+          "standalone_validation_complete",
+          "standalone_production_ready",
+          "keycloak_competitive",
+          "strategically_differentiated",
+          "notes",
+          "standards_status",
+          "interoperability_status",
+          "security_operations_status",
+          "differentiation_status"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "created_at": { "type": "string" },
+          "created_by_user_id": { "type": "string" },
+          "overall_status": { "$ref": "#/components/schemas/IamReviewStatus" },
+          "market_position": { "$ref": "#/components/schemas/IamMarketPosition" },
+          "adoption_recommendation": { "$ref": "#/components/schemas/IamAdoptionRecommendation" },
+          "standalone_validation_complete": { "type": "boolean" },
+          "standalone_production_ready": { "type": "boolean" },
+          "keycloak_competitive": { "type": "boolean" },
+          "strategically_differentiated": { "type": "boolean" },
+          "notes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "standards_status": { "$ref": "#/components/schemas/IamReviewStatus" },
+          "interoperability_status": { "$ref": "#/components/schemas/IamReviewStatus" },
+          "security_operations_status": { "$ref": "#/components/schemas/IamReviewStatus" },
+          "differentiation_status": { "$ref": "#/components/schemas/IamReviewStatus" }
+        }
+      },
+      "IamFormalReviewResponse": {
+        "type": "object",
+        "required": ["generated_at", "latest_review", "reviews", "count"],
+        "properties": {
+          "generated_at": { "type": "string" },
+          "latest_review": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/IamFormalReviewRecord" },
+              { "type": "null" }
+            ]
+          },
+          "reviews": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamFormalReviewRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamReviewSummaryResponse": {
+        "type": "object",
+        "required": [
+          "generated_at",
+          "standards_matrix_count",
+          "interoperability_check_count",
+          "differentiation_area_count",
+          "formal_review_count",
+          "latest_market_position",
+          "latest_adoption_recommendation",
+          "latest_overall_status"
+        ],
+        "properties": {
+          "generated_at": { "type": "string" },
+          "standards_matrix_count": { "type": "integer" },
+          "interoperability_check_count": { "type": "integer" },
+          "differentiation_area_count": { "type": "integer" },
+          "formal_review_count": { "type": "integer" },
+          "latest_market_position": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/IamMarketPosition" },
+              { "type": "null" }
+            ]
+          },
+          "latest_adoption_recommendation": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/IamAdoptionRecommendation" },
+              { "type": "null" }
+            ]
+          },
+          "latest_overall_status": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/IamReviewStatus" },
+              { "type": "null" }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,231 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Notifications API",
+    "version": "1.0.0",
+    "description": "Phase 5 standalone IAM notification-template, preview, test-delivery, and delivery-history endpoints."
+  },
+  "tags": [
+    {
+      "name": "IAM Notifications",
+      "description": "Standalone headless IAM notification templates and delivery endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/realms/{realmId}/notification-templates": {
+      "get": {
+        "tags": ["IAM Notifications"],
+        "summary": "List realm notification templates",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification templates",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/NotificationTemplatesResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/notification-templates/{templateId}": {
+      "put": {
+        "tags": ["IAM Notifications"],
+        "summary": "Update one realm notification template",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "templateId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateNotificationTemplateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification template updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/NotificationTemplate" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/notification-templates/{templateId}/preview": {
+      "post": {
+        "tags": ["IAM Notifications"],
+        "summary": "Preview a notification template",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "templateId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/NotificationPreviewRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification preview rendered.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/NotificationPreviewResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/notifications/test": {
+      "post": {
+        "tags": ["IAM Notifications"],
+        "summary": "Send a test notification into the local delivery ledger",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TestNotificationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Test notification delivered.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/NotificationDelivery" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/notification-deliveries": {
+      "get": {
+        "tags": ["IAM Notifications"],
+        "summary": "List realm notification deliveries",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "template_key", "in": "query", "schema": { "type": "string", "enum": ["EMAIL_VERIFICATION", "PASSWORD_RESET", "MFA_ENROLLMENT", "DELEGATED_CONSENT_REQUESTED", "DELEGATED_CONSENT_APPROVED", "DELEGATED_CONSENT_DENIED", "DELEGATED_CONSENT_CANCELLED", "TEST_NOTIFICATION"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification deliveries",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/NotificationDeliveriesResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "NotificationTemplate": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "key": { "type": "string", "enum": ["EMAIL_VERIFICATION", "PASSWORD_RESET", "MFA_ENROLLMENT", "DELEGATED_CONSENT_REQUESTED", "DELEGATED_CONSENT_APPROVED", "DELEGATED_CONSENT_DENIED", "DELEGATED_CONSENT_CANCELLED", "TEST_NOTIFICATION"] },
+          "channel": { "type": "string", "enum": ["EMAIL"] },
+          "name": { "type": "string" },
+          "subject_template": { "type": "string" },
+          "body_template": { "type": "string" },
+          "cta_label": { "type": ["string", "null"] }
+        }
+      },
+      "NotificationTemplatesResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "notification_templates": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/NotificationTemplate" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "UpdateNotificationTemplateRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "subject_template": { "type": "string" },
+          "body_template": { "type": "string" },
+          "cta_label": { "type": ["string", "null"] }
+        }
+      },
+      "NotificationPreviewRequest": {
+        "type": "object",
+        "properties": {
+          "variables": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          }
+        }
+      },
+      "NotificationPreviewResponse": {
+        "type": "object",
+        "properties": {
+          "template": { "$ref": "#/components/schemas/NotificationTemplate" },
+          "subject": { "type": "string" },
+          "body": { "type": "string" }
+        }
+      },
+      "TestNotificationRequest": {
+        "type": "object",
+        "required": ["template_key", "recipient_email"],
+        "properties": {
+          "template_key": { "type": "string", "enum": ["EMAIL_VERIFICATION", "PASSWORD_RESET", "MFA_ENROLLMENT", "DELEGATED_CONSENT_REQUESTED", "DELEGATED_CONSENT_APPROVED", "DELEGATED_CONSENT_DENIED", "DELEGATED_CONSENT_CANCELLED", "TEST_NOTIFICATION"] },
+          "recipient_email": { "type": "string" },
+          "variables": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          }
+        }
+      },
+      "NotificationDelivery": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "template_key": { "type": "string", "enum": ["EMAIL_VERIFICATION", "PASSWORD_RESET", "MFA_ENROLLMENT", "DELEGATED_CONSENT_REQUESTED", "DELEGATED_CONSENT_APPROVED", "DELEGATED_CONSENT_DENIED", "DELEGATED_CONSENT_CANCELLED", "TEST_NOTIFICATION"] },
+          "channel": { "type": "string", "enum": ["EMAIL"] },
+          "delivery_mode": { "type": "string", "enum": ["LOCAL_DELIVERY_LEDGER"] },
+          "status": { "type": "string", "enum": ["DELIVERED"] },
+          "recipient_user_id": { "type": ["string", "null"] },
+          "recipient_email": { "type": "string" },
+          "subject": { "type": "string" },
+          "body": { "type": "string" },
+          "sent_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "NotificationDeliveriesResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "notification_deliveries": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/NotificationDelivery" }
+          },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,251 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM Authorization Permissions API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM full-IDP Phase H endpoints for authorization permissions and evaluation."
+  },
+  "tags": [
+    {
+      "name": "IAM Authorization Services",
+      "description": "Authorization permission and evaluation endpoints for standalone IAM authorization services."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/authz/permissions": {
+      "get": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "List IAM authorization permissions",
+        "responses": {
+          "200": {
+            "description": "Authorization permissions resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthorizationPermissionsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "Create IAM authorization permission",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamAuthorizationPermissionRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Authorization permission created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthorizationPermissionRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/authz/permissions/{permissionId}": {
+      "put": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "Update IAM authorization permission",
+        "parameters": [
+          { "name": "permissionId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamAuthorizationPermissionRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorization permission updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthorizationPermissionRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/authz/evaluations": {
+      "get": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "List IAM authorization evaluations",
+        "responses": {
+          "200": {
+            "description": "Authorization evaluations resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthorizationEvaluationsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/authz/evaluate": {
+      "post": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "Evaluate IAM authorization request",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EvaluateIamAuthorizationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorization decision computed.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthorizationEvaluationResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamAuthorizationPermissionRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "resource_server_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" },
+          "resource_ids": { "type": "array", "items": { "type": "string" } },
+          "scope_ids": { "type": "array", "items": { "type": "string" } },
+          "policy_ids": { "type": "array", "items": { "type": "string" } },
+          "decision_strategy": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamAuthorizationPermissionsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "permissions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamAuthorizationPermissionRecord" }
+          },
+          "count": { "type": "number" }
+        }
+      },
+      "CreateIamAuthorizationPermissionRequest": {
+        "type": "object",
+        "required": ["realm_id", "resource_server_id", "name", "summary", "resource_ids", "scope_ids", "policy_ids"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "resource_server_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" },
+          "resource_ids": { "type": "array", "items": { "type": "string" } },
+          "scope_ids": { "type": "array", "items": { "type": "string" } },
+          "policy_ids": { "type": "array", "items": { "type": "string" } },
+          "decision_strategy": { "type": "string" }
+        }
+      },
+      "UpdateIamAuthorizationPermissionRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" },
+          "resource_ids": { "type": "array", "items": { "type": "string" } },
+          "scope_ids": { "type": "array", "items": { "type": "string" } },
+          "policy_ids": { "type": "array", "items": { "type": "string" } },
+          "decision_strategy": { "type": "string" }
+        }
+      },
+      "EvaluateIamAuthorizationRequest": {
+        "type": "object",
+        "required": ["realm_id", "resource_server_id", "subject_kind", "subject_id", "resource_id", "requested_scope_names"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "resource_server_id": { "type": "string" },
+          "subject_kind": { "type": "string" },
+          "subject_id": { "type": "string" },
+          "requester_client_id": { "type": ["string", "null"] },
+          "resource_id": { "type": "string" },
+          "requested_purpose": { "type": ["string", "null"] },
+          "requested_scope_names": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          }
+        }
+      },
+      "IamAuthorizationEvaluationRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "resource_server_id": { "type": "string" },
+          "requester_client_id": { "type": ["string", "null"] },
+          "subject_kind": { "type": "string" },
+          "subject_id": { "type": "string" },
+          "resource_id": { "type": "string" },
+          "requested_purpose": { "type": ["string", "null"] },
+          "requested_scope_names": { "type": "array", "items": { "type": "string" } },
+          "granted_scope_names": { "type": "array", "items": { "type": "string" } },
+          "allowed": { "type": "boolean" },
+          "reason": { "type": "string" },
+          "matched_policy_ids": { "type": "array", "items": { "type": "string" } },
+          "matched_permission_ids": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "IamAuthorizationEvaluationsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "evaluations": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamAuthorizationEvaluationRecord" }
+          },
+          "count": { "type": "number" }
+        }
+      },
+      "IamAuthorizationEvaluationResponse": {
+        "type": "object",
+        "properties": {
+          "realm_id": { "type": "string" },
+          "resource_server_id": { "type": "string" },
+          "subject_kind": { "type": "string" },
+          "subject_id": { "type": "string" },
+          "requester_client_id": { "type": ["string", "null"] },
+          "resource_id": { "type": "string" },
+          "requested_purpose": { "type": ["string", "null"] },
+          "requested_scope_names": { "type": "array", "items": { "type": "string" } },
+          "granted_scope_names": { "type": "array", "items": { "type": "string" } },
+          "allowed": { "type": "boolean" },
+          "reason": { "type": "string" },
+          "matched_policy_ids": { "type": "array", "items": { "type": "string" } },
+          "matched_permission_ids": { "type": "array", "items": { "type": "string" } },
+          "evaluation": { "$ref": "#/components/schemas/IamAuthorizationEvaluationRecord" }
+        }
+      }
+    }
+  }
+}

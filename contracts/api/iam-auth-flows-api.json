@@ -1,0 +1,386 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Auth Flows API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM full-IDP Phase D endpoints for configurable authentication flows, execution graphs, and realm/client flow bindings."
+  },
+  "tags": [
+    {
+      "name": "IAM Auth Flows",
+      "description": "Standalone flow-registry, execution-graph, and binding-management endpoints for the IAM authentication plane."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/auth-flows": {
+      "get": {
+        "tags": ["IAM Auth Flows"],
+        "summary": "List standalone IAM auth flows",
+        "responses": {
+          "200": {
+            "description": "IAM auth flows resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthFlowsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Auth Flows"],
+        "summary": "Create standalone IAM auth flow",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamAuthFlowRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "IAM auth flow created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthFlowRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/auth-flows/{flowId}": {
+      "put": {
+        "tags": ["IAM Auth Flows"],
+        "summary": "Update standalone IAM auth flow",
+        "parameters": [
+          { "name": "flowId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamAuthFlowRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM auth flow updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthFlowRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/auth-executions": {
+      "get": {
+        "tags": ["IAM Auth Flows"],
+        "summary": "List standalone IAM auth executions",
+        "responses": {
+          "200": {
+            "description": "IAM auth executions resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthExecutionsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Auth Flows"],
+        "summary": "Create standalone IAM auth execution",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamAuthExecutionRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "IAM auth execution created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthExecutionRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/auth-executions/{executionId}": {
+      "put": {
+        "tags": ["IAM Auth Flows"],
+        "summary": "Update standalone IAM auth execution",
+        "parameters": [
+          { "name": "executionId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamAuthExecutionRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM auth execution updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthExecutionRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/auth-flow-bindings": {
+      "get": {
+        "tags": ["IAM Auth Flows"],
+        "summary": "List standalone IAM auth-flow bindings",
+        "responses": {
+          "200": {
+            "description": "IAM auth-flow bindings resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthFlowBindingsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/auth-flow-bindings": {
+      "put": {
+        "tags": ["IAM Auth Flows"],
+        "summary": "Update realm-level standalone IAM auth-flow bindings",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamRealmAuthFlowBindingsRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Realm auth-flow bindings updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamRealmAuthFlowBindingRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/clients/{clientId}/auth-flow-bindings": {
+      "put": {
+        "tags": ["IAM Auth Flows"],
+        "summary": "Update client-level standalone IAM auth-flow bindings",
+        "parameters": [
+          { "name": "clientId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamClientAuthFlowBindingsRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Client auth-flow bindings updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamClientAuthFlowBindingRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamAuthFlowRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "kind": { "type": "string" },
+          "status": { "type": "string" },
+          "synthetic": { "type": "boolean" },
+          "top_level": { "type": "boolean" },
+          "built_in": { "type": "boolean" },
+          "execution_ids": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamAuthExecutionRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "flow_id": { "type": "string" },
+          "display_name": { "type": "string" },
+          "execution_kind": { "type": "string" },
+          "authenticator_kind": { "type": ["string", "null"] },
+          "subflow_id": { "type": ["string", "null"] },
+          "requirement": { "type": "string" },
+          "condition_kind": { "type": "string" },
+          "priority": { "type": "integer" },
+          "synthetic": { "type": "boolean" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamRealmAuthFlowBindingRecord": {
+        "type": "object",
+        "properties": {
+          "realm_id": { "type": "string" },
+          "browser_flow_id": { "type": "string" },
+          "direct_grant_flow_id": { "type": "string" },
+          "account_console_flow_id": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamClientAuthFlowBindingRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "browser_flow_id": { "type": ["string", "null"] },
+          "direct_grant_flow_id": { "type": ["string", "null"] },
+          "account_console_flow_id": { "type": ["string", "null"] },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamAuthFlowsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "flows": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamAuthFlowRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamAuthExecutionsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "executions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamAuthExecutionRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamAuthFlowBindingsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "realm_bindings": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamRealmAuthFlowBindingRecord" }
+          },
+          "client_bindings": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamClientAuthFlowBindingRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "CreateIamAuthFlowRequest": {
+        "type": "object",
+        "properties": {
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "kind": { "type": "string" },
+          "status": { "type": "string" },
+          "top_level": { "type": "boolean" }
+        },
+        "required": ["realm_id", "name", "kind"]
+      },
+      "UpdateIamAuthFlowRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      },
+      "CreateIamAuthExecutionRequest": {
+        "type": "object",
+        "properties": {
+          "realm_id": { "type": "string" },
+          "flow_id": { "type": "string" },
+          "display_name": { "type": "string" },
+          "execution_kind": { "type": "string" },
+          "authenticator_kind": { "type": ["string", "null"] },
+          "subflow_id": { "type": ["string", "null"] },
+          "requirement": { "type": "string" },
+          "condition_kind": { "type": "string" },
+          "priority": { "type": "integer" }
+        },
+        "required": ["realm_id", "flow_id", "display_name", "execution_kind"]
+      },
+      "UpdateIamAuthExecutionRequest": {
+        "type": "object",
+        "properties": {
+          "display_name": { "type": "string" },
+          "authenticator_kind": { "type": ["string", "null"] },
+          "subflow_id": { "type": ["string", "null"] },
+          "requirement": { "type": "string" },
+          "condition_kind": { "type": "string" },
+          "priority": { "type": "integer" }
+        }
+      },
+      "UpdateIamRealmAuthFlowBindingsRequest": {
+        "type": "object",
+        "properties": {
+          "browser_flow_id": { "type": "string" },
+          "direct_grant_flow_id": { "type": "string" },
+          "account_console_flow_id": { "type": "string" }
+        }
+      },
+      "UpdateIamClientAuthFlowBindingsRequest": {
+        "type": "object",
+        "properties": {
+          "browser_flow_id": { "type": ["string", "null"] },
+          "direct_grant_flow_id": { "type": ["string", "null"] },
+          "account_console_flow_id": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

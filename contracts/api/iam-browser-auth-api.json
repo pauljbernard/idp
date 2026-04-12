@@ -1,0 +1,480 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Browser Authentication API",
+    "version": "1.0.0",
+    "description": "Phase 3 standalone IAM browser-authentication endpoints for public realm discovery, login, required actions, consent, MFA, password reset, email verification, and logout."
+  },
+  "tags": [
+    {
+      "name": "IAM Browser Authentication",
+      "description": "Standalone headless IAM browser-authentication and account-recovery endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/public/catalog": {
+      "get": {
+        "tags": ["IAM Browser Authentication"],
+        "summary": "Get public IAM realm and client catalog",
+        "responses": {
+          "200": {
+            "description": "Public IAM catalog resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamPublicRealmCatalogResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/login": {
+      "post": {
+        "tags": ["IAM Browser Authentication"],
+        "summary": "Perform standalone IAM browser login",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RequestIamLoginRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM login flow advanced.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamLoginResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/login/required-actions": {
+      "post": {
+        "tags": ["IAM Browser Authentication"],
+        "summary": "Complete required actions for standalone IAM login",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CompleteIamRequiredActionsRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Required actions completed and login flow advanced.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamLoginResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/login/consent": {
+      "post": {
+        "tags": ["IAM Browser Authentication"],
+        "summary": "Grant or deny client consent during standalone IAM login",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CompleteIamConsentRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Consent recorded and login flow advanced.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamLoginResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/login/mfa": {
+      "post": {
+        "tags": ["IAM Browser Authentication"],
+        "summary": "Complete standalone IAM MFA challenge",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CompleteIamMfaRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MFA challenge completed and account session issued.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamLoginResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/password-reset/request": {
+      "post": {
+        "tags": ["IAM Browser Authentication"],
+        "summary": "Request standalone IAM password reset",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RequestIamPasswordResetRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Password reset challenge issued.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamPasswordResetTicketResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/password-reset/confirm": {
+      "post": {
+        "tags": ["IAM Browser Authentication"],
+        "summary": "Confirm standalone IAM password reset",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ConfirmIamPasswordResetRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset completed.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ConfirmIamPasswordResetResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/email-verification/request": {
+      "post": {
+        "tags": ["IAM Browser Authentication"],
+        "summary": "Request standalone IAM email verification",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RequestIamEmailVerificationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Email verification challenge issued.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamEmailVerificationTicketResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/email-verification/confirm": {
+      "post": {
+        "tags": ["IAM Browser Authentication"],
+        "summary": "Confirm standalone IAM email verification",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ConfirmIamEmailVerificationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email verification completed.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ConfirmIamEmailVerificationResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/logout": {
+      "post": {
+        "tags": ["IAM Browser Authentication"],
+        "summary": "Logout standalone IAM account session",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM account session revoked.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LogoutIamAccountResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamClientProtocol": {
+        "type": "string",
+        "enum": ["OIDC", "SAML"]
+      },
+      "IamLoginNextStep": {
+        "type": "string",
+        "enum": ["AUTHENTICATED", "REQUIRED_ACTIONS", "CONSENT_REQUIRED", "MFA_REQUIRED"]
+      },
+      "IamPublicRealmCatalogClient": {
+        "type": "object",
+        "required": ["id", "client_id", "name", "protocol", "base_url", "root_url"],
+        "properties": {
+          "id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "name": { "type": "string" },
+          "protocol": { "$ref": "#/components/schemas/IamClientProtocol" },
+          "base_url": { "type": ["string", "null"] },
+          "root_url": { "type": ["string", "null"] }
+        }
+      },
+      "IamPublicRealmCatalogRealm": {
+        "type": "object",
+        "required": ["id", "name", "summary", "supported_protocols", "clients"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "supported_protocols": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["OIDC", "OAUTH2", "SAML"] }
+          },
+          "clients": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamPublicRealmCatalogClient" }
+          }
+        }
+      },
+      "IamPublicRealmCatalogResponse": {
+        "type": "object",
+        "required": ["generated_at", "realms", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "realms": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamPublicRealmCatalogRealm" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamLoginFlowUser": {
+        "type": "object",
+        "required": ["id", "username", "email", "first_name", "last_name"],
+        "properties": {
+          "id": { "type": "string" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" }
+        }
+      },
+      "IamLoginFlowClient": {
+        "type": ["object", "null"],
+        "required": ["id", "client_id", "name", "protocol"],
+        "properties": {
+          "id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "name": { "type": "string" },
+          "protocol": { "$ref": "#/components/schemas/IamClientProtocol" }
+        }
+      },
+      "IamLoginResponse": {
+        "type": "object",
+        "required": ["realm_id", "next_step", "login_transaction_id", "session_id", "user", "client", "pending_required_actions", "pending_scope_consent", "pending_mfa", "post_login_destination"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "next_step": { "$ref": "#/components/schemas/IamLoginNextStep" },
+          "login_transaction_id": { "type": ["string", "null"] },
+          "session_id": { "type": ["string", "null"] },
+          "user": { "$ref": "#/components/schemas/IamLoginFlowUser" },
+          "client": { "$ref": "#/components/schemas/IamLoginFlowClient" },
+          "pending_required_actions": { "type": "array", "items": { "type": "string" } },
+          "pending_scope_consent": { "type": "array", "items": { "type": "string" } },
+          "pending_mfa": { "type": "boolean" },
+          "post_login_destination": { "type": "string" }
+        }
+      },
+      "RequestIamLoginRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": { "type": "string" },
+          "password": { "type": "string" },
+          "client_id": { "type": ["string", "null"] },
+          "scope": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          }
+        }
+      },
+      "CompleteIamRequiredActionsRequest": {
+        "type": "object",
+        "required": ["login_transaction_id"],
+        "properties": {
+          "login_transaction_id": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "email": { "type": "string" },
+          "new_password": { "type": "string" }
+        }
+      },
+      "CompleteIamConsentRequest": {
+        "type": "object",
+        "required": ["login_transaction_id", "approve"],
+        "properties": {
+          "login_transaction_id": { "type": "string" },
+          "approve": { "type": "boolean" }
+        }
+      },
+      "CompleteIamMfaRequest": {
+        "type": "object",
+        "required": ["login_transaction_id", "code"],
+        "properties": {
+          "login_transaction_id": { "type": "string" },
+          "code": { "type": "string" }
+        }
+      },
+      "IamPasswordResetTicketResponse": {
+        "type": "object",
+        "required": ["ticket_id", "realm_id", "user_id", "delivery_mode", "code_preview", "expires_at"],
+        "properties": {
+          "ticket_id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "delivery_mode": { "type": "string", "enum": ["LOCAL_VALIDATION_PREVIEW"] },
+          "code_preview": { "type": "string" },
+          "expires_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "RequestIamPasswordResetRequest": {
+        "type": "object",
+        "required": ["username_or_email"],
+        "properties": {
+          "username_or_email": { "type": "string" }
+        }
+      },
+      "ConfirmIamPasswordResetRequest": {
+        "type": "object",
+        "required": ["ticket_id", "code", "new_password"],
+        "properties": {
+          "ticket_id": { "type": "string" },
+          "code": { "type": "string" },
+          "new_password": { "type": "string" }
+        }
+      },
+      "ConfirmIamPasswordResetResponse": {
+        "type": "object",
+        "required": ["realm_id", "user_id", "password_updated_at"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "password_updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "IamEmailVerificationTicketResponse": {
+        "type": "object",
+        "required": ["ticket_id", "realm_id", "user_id", "delivery_mode", "code_preview", "expires_at"],
+        "properties": {
+          "ticket_id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "delivery_mode": { "type": "string", "enum": ["LOCAL_VALIDATION_PREVIEW"] },
+          "code_preview": { "type": "string" },
+          "expires_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "RequestIamEmailVerificationRequest": {
+        "type": "object",
+        "required": ["username_or_email"],
+        "properties": {
+          "username_or_email": { "type": "string" }
+        }
+      },
+      "ConfirmIamEmailVerificationRequest": {
+        "type": "object",
+        "required": ["ticket_id", "code"],
+        "properties": {
+          "ticket_id": { "type": "string" },
+          "code": { "type": "string" }
+        }
+      },
+      "ConfirmIamEmailVerificationResponse": {
+        "type": "object",
+        "required": ["realm_id", "user_id", "email_verified_at"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "email_verified_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "LogoutIamAccountResponse": {
+        "type": "object",
+        "required": ["revoked", "revoked_at"],
+        "properties": {
+          "revoked": { "type": "boolean" },
+          "revoked_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      }
+    }
+  }
+}
