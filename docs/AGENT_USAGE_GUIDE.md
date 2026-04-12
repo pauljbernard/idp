@@ -13,6 +13,10 @@ related: [docs-root, dependency-map, headless-iam-status-matrix]
 
 This guide defines how agents should navigate the current documentation corpus in this repository. It is intentionally constrained to real documents that exist now.
 
+If token efficiency is important, start with [agent-bootstrap.json](agent-bootstrap.json) and use this guide only when you need the fuller narrative interpretation rules.
+
+This guide is tool-agnostic. Root-level agent files such as `AGENTS.md` should point here, while tool-specific config directories should be treated as adapters onto this documentation model rather than separate authorities.
+
 ## Primary Directive
 
 Agents must not infer product support from architecture intent alone. Implementation guidance must be grounded in:
@@ -22,15 +26,20 @@ Agents must not infer product support from architecture intent alone. Implementa
 3. support and maturity references,
 4. and current planning or readiness artifacts.
 
+For capability-bearing work, agents must also consult the machine-readable [capability-registry.json](capability-registry.json) so support posture is derived from structured metadata instead of narrative summaries.
+
 ## Canonical Read Order
 
 ### Platform orientation
+
+For the lowest-token bootstrap, read [agent-bootstrap.json](agent-bootstrap.json) first.
 
 1. [Platform Constitution](foundation/constitution.md)
 2. [Platform Architecture](foundation/architecture.md)
 3. [Security Model](foundation/security-model.md) when the task affects auth, security, federation, or operations
 4. [Platform Requirements](specs/platform-requirements.md)
 5. [Capability Maturity Standard](reference/maturity-model.md)
+6. [Capability Registry](capability-registry.json)
 
 ### Readiness and delivery context
 
@@ -59,6 +68,7 @@ Before giving implementation or readiness advice, verify all of the following:
 4. Any migration or downstream adoption advice is checked against [Standalone Validation Review Guide](implementation/planning/headless-iam-standalone-validation-review-guide.md).
 5. If documents conflict, prefer constitution and requirements over summaries, and prefer status matrices and validation guides over aspirational index language.
 6. For maintained feature specifications, read `support_tier`, `maturity_state`, `supported_profiles`, and `evidence_class` from frontmatter before relying on prose.
+7. For capability-family questions, resolve the governing specifications and current-state references from [capability-registry.json](capability-registry.json) before broadening or narrowing a support claim.
 
 ## Interpretation Rules
 
@@ -67,11 +77,13 @@ Before giving implementation or readiness advice, verify all of the following:
 - `Modeled` and `Implemented` do not mean generally supported.
 - `Supported` and `Production-grade` require explicit profile boundaries and evidence posture.
 - If a feature spec lacks support-tier or maturity language, use the status matrix before making a claim.
+- If prose and structured metadata conflict, prefer maintained spec frontmatter and [capability-registry.json](capability-registry.json), then confirm against status matrices.
 
 ### Missing or stale docs
 
 - Do not follow links that are not present in the repository.
 - Treat historical references to `docs/spec/*.idp.md` or `docs/spec/plans/*` as legacy path references unless they are mirrored by current files under `docs/`.
+- Treat stray root-level summary documents as non-canonical unless a maintained index explicitly adopts them; planning material belongs under `implementation/planning/` or `implementation/deployment/`, and status material belongs under `reference/`.
 - Use `last_updated` as a signal, but when body text and metadata conflict, call out the conflict explicitly and defer to the most concrete current evidence.
 
 ## Task Routing
@@ -107,6 +119,7 @@ Read:
 When answering from this documentation set:
 
 - cite the governing document and the current-state document,
+- cite the capability id from [capability-registry.json](capability-registry.json) when the answer is feature- or support-related,
 - state whether you are describing intent, implemented behavior, or supported posture,
 - and call out missing evidence rather than filling gaps with assumptions.
 

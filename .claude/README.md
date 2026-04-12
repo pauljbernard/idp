@@ -13,6 +13,8 @@ related: [docs-root]
 
 This directory contains repo-local bootstrap files for Claude-style agents.
 
+These files are adapters onto the generic repository documentation model. They are not an independent source of truth and should remain thinner than `AGENTS.md`, `docs/agent-bootstrap.json`, and `docs/AGENT_USAGE_GUIDE.md`.
+
 ## Files
 
 - `agent_instructions.md`: immediate bootstrap steps
@@ -26,9 +28,10 @@ These files defer to the maintained documentation system under `docs/`.
 
 Start with:
 
-1. `../CLAUDE.md`
-2. `../docs/AGENT_USAGE_GUIDE.md`
-3. `../docs/README.md`
+1. `../docs/agent-bootstrap.json`
+2. `../CLAUDE.md`
+3. `../docs/AGENT_USAGE_GUIDE.md`
+4. `../docs/README.md`
 
 ## Validation
 

@@ -11,14 +11,18 @@ related: [docs-root, dependency-map]
 ---
 # Agent Instructions for IDP Platform
 
+This file is a Claude-specific adapter. Follow the generic bootstrap in `../docs/agent-bootstrap.json` and the repository bootstrap in `../AGENTS.md` when deciding authority.
+
 ## Immediate Actions
 
-1. Read `../CLAUDE.md`.
-2. Read `../docs/AGENT_USAGE_GUIDE.md`.
-3. Read `../docs/foundation/constitution.md`.
-4. Read `../docs/foundation/architecture.md`.
-5. Read `../docs/specs/platform-requirements.md`.
-6. Read `../docs/reference/maturity-model.md`.
+1. Read `../docs/agent-bootstrap.json`.
+2. Read `../CLAUDE.md`.
+3. Read `../docs/AGENT_USAGE_GUIDE.md`.
+4. Read `../docs/foundation/constitution.md`.
+5. Read `../docs/foundation/architecture.md`.
+6. Read `../docs/specs/platform-requirements.md`.
+7. Read `../docs/reference/maturity-model.md`.
+8. Read `../docs/capability-registry.json`.
 
 ## How To Reason About Claims
 
@@ -37,7 +41,9 @@ Treat:
 
 ## Canonical References
 
+- `../docs/agent-bootstrap.json`
 - `../docs/README.md`
+- `../docs/capability-registry.json`
 - `../docs/dependency-map.json`
 - `../docs/reference/headless-iam-status-matrix.md`
 - `../docs/reference/headless-iam-requirements-gap-matrix.md`
