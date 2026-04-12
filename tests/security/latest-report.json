@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-04-04T20:25:49.934Z",
+  "environment": "http://127.0.0.1:4101",
+  "http_checks": {
+    "health_status": 200,
+    "public_catalog_status": 200,
+    "protected_clients_status": 401,
+    "account_session_status": 401,
+    "x_powered_by_present": false,
+    "x_content_type_options": "nosniff",
+    "x_frame_options": "SAMEORIGIN",
+    "account_session_cache_control": "no-store"
+  },
+  "dependency_audit": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "high_or_critical_count": 0
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Issued Tokens API",
+    "version": "1.0.0",
+    "description": "Phase 2 standalone IAM issued-token visibility endpoints."
+  },
+  "tags": [
+    {
+      "name": "IAM Issued Tokens",
+      "description": "Standalone headless IAM issued-token visibility."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/issued-tokens": {
+      "get": {
+        "tags": ["IAM Issued Tokens"],
+        "summary": "List issued IAM tokens",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "client_id", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Issued IAM tokens resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamIssuedTokensResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamSubjectKind": { "type": "string", "enum": ["USER", "SERVICE_ACCOUNT"] },
+      "IamTokenStatus": { "type": "string", "enum": ["ACTIVE", "REVOKED", "EXPIRED"] },
+      "IamIssuedTokenRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "client_id", "subject_kind", "subject_id", "grant_type", "scope", "scope_ids", "issued_at", "expires_at", "refresh_expires_at", "status", "revoked_at", "requested_purpose"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "subject_kind": { "$ref": "#/components/schemas/IamSubjectKind" },
+          "subject_id": { "type": "string" },
+          "grant_type": { "type": "string", "enum": ["authorization_code", "client_credentials", "password", "refresh_token", "urn:ietf:params:oauth:grant-type:device_code", "urn:openid:params:grant-type:ciba", "urn:ietf:params:oauth:grant-type:uma-ticket", "urn:ietf:params:oauth:grant-type:token-exchange"] },
+          "scope": { "type": "string" },
+          "scope_ids": { "type": "array", "items": { "type": "string" } },
+          "issued_at": { "type": "string", "format": "date-time" },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "refresh_expires_at": { "type": ["string", "null"], "format": "date-time" },
+          "status": { "$ref": "#/components/schemas/IamTokenStatus" },
+          "revoked_at": { "type": ["string", "null"], "format": "date-time" },
+          "requested_purpose": { "type": ["string", "null"] }
+        }
+      },
+      "IamIssuedTokensResponse": {
+        "type": "object",
+        "required": ["generated_at", "issued_tokens", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "issued_tokens": { "type": "array", "items": { "$ref": "#/components/schemas/IamIssuedTokenRecord" } },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

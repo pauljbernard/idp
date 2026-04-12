@@ -1,0 +1,38 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM External Identity Bindings API",
+    "version": "1.0.0",
+    "description": "Generic IAM external identity-binding contracts for product-owned adapters. Application-specific adapter APIs are intentionally not owned by the IDP."
+  },
+  "tags": [
+    {
+      "name": "IAM External Identity Bindings",
+      "description": "Generic external identity-binding administration contracts used by product adapters."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/external-identity-bindings": {
+      "get": {
+        "tags": ["IAM External Identity Bindings"],
+        "summary": "List external identity bindings",
+        "responses": { "200": { "description": "External identity bindings resolved." } }
+      },
+      "post": {
+        "tags": ["IAM External Identity Bindings"],
+        "summary": "Create external identity binding",
+        "responses": { "201": { "description": "External identity binding created." } }
+      }
+    },
+    "/api/v1/iam/external-identity-bindings/{bindingId}": {
+      "put": {
+        "tags": ["IAM External Identity Bindings"],
+        "summary": "Update external identity binding",
+        "parameters": [
+          { "name": "bindingId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "External identity binding updated." } }
+      }
+    }
+  }
+}

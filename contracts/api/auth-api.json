@@ -1,0 +1,458 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IDP Authentication API",
+    "version": "1.0.0",
+    "description": "Public authentication contract for restricted local recovery login, standalone IAM browser authorization bootstrap, provider-backed token exchange, bearer-or-session restoration, and logout in the standalone IDP entry flow."
+  },
+  "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "Authenticate with restricted local recovery email and password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authenticated bootstrap payload returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthBootstrapResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid email or password."
+          },
+          "403": {
+            "description": "The account is provider-managed and must use the primary standalone IAM sign-in flow."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/iam/config": {
+      "get": {
+        "summary": "Resolve the active standalone IAM realm, client binding, and claim-mapping profile for standalone IDP sign-in",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM client-binding configuration returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdpIamConfigResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The standalone IDP IAM binding configuration could not be resolved."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/iam/authorization-request": {
+      "post": {
+        "summary": "Create a standalone IAM authorization request for the standalone primary browser sign-in flow",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdpIamAuthorizationRequestCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorization request bootstrap returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdpIamAuthorizationRequestCreateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The authorization request is invalid."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/provider-login": {
+      "post": {
+        "summary": "Exchange a provider-backed assertion for an application session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authenticated bootstrap payload returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthBootstrapResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Assertion or provider selection is invalid."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/session": {
+      "get": {
+        "summary": "Restore the active authenticated session from either a persisted local session or a standalone IAM bearer token",
+        "responses": {
+          "200": {
+            "description": "Authenticated bootstrap payload returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthBootstrapResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required or session is invalid."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/session/tenant": {
+      "post": {
+        "summary": "Update the active tenant bound to the current persisted local session or standalone IAM bearer session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthSessionTenantSelectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authenticated bootstrap payload returned for the newly selected tenant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthBootstrapResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Tenant selection request is invalid."
+          },
+          "401": {
+            "description": "Authentication required or session is invalid."
+          },
+          "403": {
+            "description": "The authenticated user does not have access to the requested tenant."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "summary": "Revoke the active local session or clear the current standalone IAM bearer-backed browser session",
+        "responses": {
+          "204": {
+            "description": "Session revoked."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuthLoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "login_mode": {
+            "type": "string",
+            "enum": ["customer_portal"]
+          }
+        }
+      },
+      "ProviderLoginRequest": {
+        "type": "object",
+        "required": ["tenant_id", "assertion"],
+        "properties": {
+          "tenant_id": {
+            "type": "string"
+          },
+          "provider_id": {
+            "type": "string"
+          },
+          "assertion": {
+            "type": "string",
+            "description": "Short-lived provider bridge assertion issued by the configured identity adapter."
+          }
+        }
+      },
+      "IdpIamConfigResponse": {
+        "type": "object",
+        "required": [
+          "client_id",
+          "realm_id",
+          "realm_name",
+          "binding_id",
+          "binding_mode",
+          "fallback_binding_used",
+          "authorization_profile_id",
+          "authorization_projection_mode",
+          "tenant_membership_strategy",
+          "managed_role_assignment_candidates",
+          "notes",
+          "timestamp"
+        ],
+        "properties": {
+          "client_id": {
+            "type": "string"
+          },
+          "realm_id": {
+            "type": "string"
+          },
+          "realm_name": {
+            "type": "string"
+          },
+          "binding_id": {
+            "type": ["string", "null"]
+          },
+          "binding_mode": {
+            "type": "string",
+            "enum": ["DIRECT", "DEFAULT", "OVERRIDE"]
+          },
+          "fallback_binding_used": {
+            "type": "boolean"
+          },
+          "authorization_profile_id": {
+            "type": "string"
+          },
+          "authorization_projection_mode": {
+            "type": "string",
+            "enum": ["APPLICATION_BINDING_CLAIM_MAPPING"]
+          },
+          "tenant_membership_strategy": {
+            "type": "string",
+            "enum": ["PLATFORM_ADMIN_ALL_TENANTS_OR_EXPLICIT_IDENTITY_MEMBERSHIP_WITH_LOCAL_USER_FALLBACK"]
+          },
+          "managed_role_assignment_candidates": {
+            "type": "object",
+            "required": ["admin", "operator", "pilot", "viewer"],
+            "properties": {
+              "admin": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "operator": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "pilot": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "viewer": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "IdpIamAuthorizationRequestCreateRequest": {
+        "type": "object",
+        "required": ["redirect_uri", "state", "nonce", "code_challenge", "code_challenge_method"],
+        "properties": {
+          "realm_id": {
+            "type": "string"
+          },
+          "redirect_uri": {
+            "type": "string",
+            "format": "uri"
+          },
+          "state": {
+            "type": "string"
+          },
+          "nonce": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "requested_purpose": {
+            "type": "string"
+          },
+          "login_hint": {
+            "type": "string"
+          },
+          "flow_context": {
+            "type": "string"
+          },
+          "code_challenge": {
+            "type": "string"
+          },
+          "code_challenge_method": {
+            "type": "string",
+            "enum": ["S256"]
+          }
+        }
+      },
+      "IdpIamAuthorizationRequestCreateResponse": {
+        "type": "object",
+        "required": ["realm_id", "client_id", "authorization_request_id", "redirect_url", "expires_at"],
+        "properties": {
+          "realm_id": {
+            "type": "string"
+          },
+          "client_id": {
+            "type": "string"
+          },
+          "authorization_request_id": {
+            "type": "string"
+          },
+          "redirect_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AuthSessionTenantSelectionRequest": {
+        "type": "object",
+        "required": ["tenant_id"],
+        "properties": {
+          "tenant_id": {
+            "type": "string"
+          }
+        }
+      },
+      "AuthBootstrapResponse": {
+        "type": "object",
+        "required": ["authenticated", "current_user", "auth", "timestamp"],
+        "properties": {
+          "authenticated": {
+            "type": "boolean"
+          },
+          "current_user": {
+            "type": "object",
+            "required": ["id", "name", "email"],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string",
+                "format": "email"
+              }
+            }
+          },
+          "selected_tenant": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "subscription_tier": {
+                "type": "string"
+              },
+              "deployment_profile": {
+                "type": "string"
+              }
+            }
+          },
+          "auth": {
+            "type": "object",
+            "required": ["user_id", "tenant_id", "session_id", "next_route"],
+            "properties": {
+              "user_id": {
+                "type": "string"
+              },
+              "tenant_id": {
+                "type": "string",
+                "nullable": true
+              },
+              "session_id": {
+                "type": "string"
+              },
+              "next_route": {
+                "type": "string"
+              }
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "correlation_id": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

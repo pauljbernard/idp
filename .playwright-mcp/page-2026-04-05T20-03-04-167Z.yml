@@ -1,0 +1,229 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: CP
+      - generic [ref=e7]:
+        - paragraph [ref=e8]: Commercial Operating System
+        - heading "Control Layer" [level=1] [ref=e9]
+    - navigation [ref=e10]:
+      - button "Overview Queues, risks, and lifecycle signal" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]: Overview
+        - generic [ref=e13]: Queues, risks, and lifecycle signal
+      - button "Tenants Hierarchy, IDP binding, and tenant context" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]: Tenants
+        - generic [ref=e16]: Hierarchy, IDP binding, and tenant context
+      - button "CRM Prospects, leads, customers, and cases" [ref=e17] [cursor=pointer]:
+        - generic [ref=e18]: CRM
+        - generic [ref=e19]: Prospects, leads, customers, and cases
+      - button "Accounts Commercial customers and billing ownership" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: Accounts
+        - generic [ref=e22]: Commercial customers and billing ownership
+      - button "Catalog Products, offers, and packaging posture" [ref=e23] [cursor=pointer]:
+        - generic [ref=e24]: Catalog
+        - generic [ref=e25]: Products, offers, and packaging posture
+      - button "Orders Commercial intake and order execution" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: Orders
+        - generic [ref=e28]: Commercial intake and order execution
+      - button "Billing Subscriptions, invoices, and ledger history" [ref=e29] [cursor=pointer]:
+        - generic [ref=e30]: Billing
+        - generic [ref=e31]: Subscriptions, invoices, and ledger history
+      - button "Entitlements Grants, projections, and access truth" [ref=e32] [cursor=pointer]:
+        - generic [ref=e33]: Entitlements
+        - generic [ref=e34]: Grants, projections, and access truth
+      - button "Operations Fulfillment queues and exception handling" [ref=e35] [cursor=pointer]:
+        - generic [ref=e36]: Operations
+        - generic [ref=e37]: Fulfillment queues and exception handling
+      - button "Admin Contracts, bindings, and runtime posture" [ref=e38] [cursor=pointer]:
+        - generic [ref=e39]: Admin
+        - generic [ref=e40]: Contracts, bindings, and runtime posture
+    - generic [ref=e41]:
+      - paragraph [ref=e42]: Queue Pressure
+      - list [ref=e43]:
+        - listitem [ref=e44]:
+          - generic [ref=e45]: Orders Awaiting Action
+          - strong [ref=e46]: "0"
+        - listitem [ref=e47]:
+          - generic [ref=e48]: Fulfillment Failures
+          - strong [ref=e49]: "0"
+        - listitem [ref=e50]:
+          - generic [ref=e51]: Invoices Due or Overdue
+          - strong [ref=e52]: "0"
+        - listitem [ref=e53]:
+          - generic [ref=e54]: Payment Exceptions
+          - strong [ref=e55]: "0"
+        - listitem [ref=e56]:
+          - generic [ref=e57]: Entitlement Conflicts
+          - strong [ref=e58]: "0"
+  - generic [ref=e59]:
+    - banner [ref=e60]:
+      - generic [ref=e61]:
+        - paragraph [ref=e62]: Operational Workspace
+        - heading "Crew Demo Tenant" [level=2] [ref=e63]
+      - generic [ref=e64]:
+        - generic [ref=e65]: platform session
+        - textbox "Search records, IDs, or statuses" [ref=e66]
+        - button "Refresh Session" [ref=e67] [cursor=pointer]
+        - button "Sign Out" [ref=e68] [cursor=pointer]
+    - article [ref=e70]:
+      - paragraph [ref=e71]: Identity Session
+      - generic [ref=e72]:
+        - generic [ref=e73]:
+          - text: Plane
+          - combobox "Plane" [ref=e74]:
+            - option "Platform" [selected]
+            - option "Tenant Consumer"
+        - generic [ref=e75]:
+          - text: Active Tenant
+          - combobox "Active Tenant" [ref=e76]:
+            - option "Select tenant"
+            - option "Crew Demo Tenant" [selected]
+        - generic [ref=e77]:
+          - text: Subject
+          - textbox "Subject" [ref=e78]: local-dev-user
+        - generic [ref=e79]:
+          - text: Organization
+          - textbox "Organization" [ref=e80]:
+            - /placeholder: optional
+        - generic [ref=e81]:
+          - text: Roles
+          - textbox "Roles" [ref=e82]: platform_admin
+        - generic [ref=e83]:
+          - text: Groups
+          - textbox "Groups" [ref=e84]: system
+      - generic [ref=e85]:
+        - generic [ref=e86]: Browser session
+        - code [ref=e87]: local-dev-user | expires Apr 5, 2026, 4:30 PM
+    - generic [ref=e88]:
+      - main [ref=e89]:
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - paragraph [ref=e93]: Operator Surface
+              - heading "Orders and Payment Orchestration" [level=3] [ref=e94]
+            - paragraph [ref=e95]: Run intake as a work queue, then inspect downstream payment and billing trace for the selected order.
+          - generic [ref=e96]:
+            - generic [ref=e97]:
+              - generic [ref=e98]:
+                - generic [ref=e99]:
+                  - heading "Orders Queue" [level=4] [ref=e100]
+                  - paragraph [ref=e101]: Draft, normalized, submitted, and canceled order work.
+                - generic [ref=e102]:
+                  - generic [ref=e103]:
+                    - generic "Orders View" [ref=e104]:
+                      - button "Actionable" [ref=e105] [cursor=pointer]
+                      - button "External" [ref=e106] [cursor=pointer]
+                      - button "All" [ref=e107] [cursor=pointer]
+                    - button "New Order" [ref=e108] [cursor=pointer]
+                  - generic [ref=e109]: "0"
+              - table [ref=e111]:
+                - rowgroup [ref=e112]:
+                  - row "Order Status Source Amount" [ref=e113]:
+                    - columnheader "Order" [ref=e114]
+                    - columnheader "Status" [ref=e115]
+                    - columnheader "Source" [ref=e116]
+                    - columnheader "Amount" [ref=e117]
+                - rowgroup [ref=e118]:
+                  - row "No records available for the current context." [ref=e119]:
+                    - cell "No records available for the current context." [ref=e120]
+            - generic [ref=e121]:
+              - generic [ref=e122]:
+                - generic [ref=e124]:
+                  - heading "Selected Order" [level=4] [ref=e125]
+                  - paragraph [ref=e126]: Current commercial execution anchor.
+                - generic [ref=e127]:
+                  - generic [ref=e128]:
+                    - term [ref=e129]: Order
+                    - definition [ref=e130]: none
+                  - generic [ref=e131]:
+                    - term [ref=e132]: Account
+                    - definition [ref=e133]: n/a
+                  - generic [ref=e134]:
+                    - term [ref=e135]: Status
+                    - definition [ref=e136]: n/a
+                  - generic [ref=e137]:
+                    - term [ref=e138]: Source
+                    - definition [ref=e139]: n/a
+              - generic [ref=e140]:
+                - generic [ref=e141]:
+                  - generic [ref=e142]:
+                    - heading "Selected Order Trace" [level=4] [ref=e143]
+                    - paragraph [ref=e144]: Account -> order lines -> downstream billing.
+                  - generic [ref=e146]: "0"
+                - table [ref=e148]:
+                  - rowgroup [ref=e149]:
+                    - row "Line Product Quantity Subtotal" [ref=e150]:
+                      - columnheader "Line" [ref=e151]
+                      - columnheader "Product" [ref=e152]
+                      - columnheader "Quantity" [ref=e153]
+                      - columnheader "Subtotal" [ref=e154]
+                  - rowgroup [ref=e155]:
+                    - row "No records available for the current context." [ref=e156]:
+                      - cell "No records available for the current context." [ref=e157]
+              - generic [ref=e158]:
+                - generic [ref=e159]:
+                  - generic [ref=e160]:
+                    - heading "Payment Gateways" [level=4] [ref=e161]
+                    - paragraph [ref=e162]: Configured processors shown as connected systems.
+                  - generic [ref=e164]: "0"
+                - table [ref=e166]:
+                  - rowgroup [ref=e167]:
+                    - row "Provider Display Name Priority Active" [ref=e168]:
+                      - columnheader "Provider" [ref=e169]
+                      - columnheader "Display Name" [ref=e170]
+                      - columnheader "Priority" [ref=e171]
+                      - columnheader "Active" [ref=e172]
+                  - rowgroup [ref=e173]:
+                    - row "No records available for the current context." [ref=e174]:
+                      - cell "No records available for the current context." [ref=e175]
+      - complementary [ref=e176]:
+        - generic [ref=e177]:
+          - paragraph [ref=e178]: Current State
+          - generic [ref=e179]:
+            - generic [ref=e180]:
+              - term [ref=e181]: Status
+              - definition [ref=e182]: success
+            - generic [ref=e183]:
+              - term [ref=e184]: Tenant
+              - definition [ref=e185]: Crew Demo Tenant
+            - generic [ref=e186]:
+              - term [ref=e187]: Plane
+              - definition [ref=e188]: platform
+            - generic [ref=e189]:
+              - term [ref=e190]: Subject
+              - definition [ref=e191]: local-dev-user
+            - generic [ref=e192]:
+              - term [ref=e193]: Surface
+              - definition [ref=e194]: orders
+            - generic [ref=e195]:
+              - term [ref=e196]: API
+              - definition
+        - generic [ref=e197]:
+          - paragraph [ref=e198]: Recent Risk
+          - generic [ref=e199]:
+            - generic [ref=e200]:
+              - term [ref=e201]: Orders Awaiting Action
+              - definition [ref=e202]: "0"
+            - generic [ref=e203]:
+              - term [ref=e204]: Fulfillment Failures
+              - definition [ref=e205]: "0"
+            - generic [ref=e206]:
+              - term [ref=e207]: Invoices Due or Overdue
+              - definition [ref=e208]: "0"
+            - generic [ref=e209]:
+              - term [ref=e210]: Payment Exceptions
+              - definition [ref=e211]: "0"
+        - generic [ref=e212]:
+          - paragraph [ref=e213]: Explainability
+          - generic [ref=e214]:
+            - generic [ref=e215]:
+              - term [ref=e216]: Access
+              - definition [ref=e217]: Unavailable
+            - generic [ref=e218]:
+              - term [ref=e219]: Hierarchy Mode
+              - definition [ref=e220]: n/a
+            - generic [ref=e221]:
+              - term [ref=e222]: Principal Binding
+              - definition [ref=e223]: 47c9433a-df2c-48d4-ac00-91f82f7493f0
+            - generic [ref=e224]:
+              - term [ref=e225]: Payment Boundary
+              - definition [ref=e226]: Integrated, not processor-owned

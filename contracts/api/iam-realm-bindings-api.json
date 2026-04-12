@@ -1,0 +1,180 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Realm Bindings API",
+    "version": "1.1.0",
+    "description": "Phase 1 standalone IAM endpoints for application bindings, tenant-space bindings, and validation domains."
+  },
+  "tags": [
+    {
+      "name": "IAM Bindings",
+      "description": "Standalone headless IAM realm-binding and validation endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/realm-bindings": {
+      "get": {
+        "tags": ["IAM Bindings"],
+        "summary": "List standalone IAM realm bindings",
+        "parameters": [
+          {
+            "name": "binding_target_kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/IamBindingTargetKind"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Realm bindings resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IamRealmBindingsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realm-bindings/{bindingId}": {
+      "put": {
+        "tags": ["IAM Bindings"],
+        "summary": "Update standalone IAM realm binding",
+        "parameters": [
+          {
+            "name": "bindingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateIamRealmBindingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Realm binding updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IamRealmBindingRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/validation-domains": {
+      "get": {
+        "tags": ["IAM Bindings"],
+        "summary": "List standalone IAM validation domains",
+        "responses": {
+          "200": {
+            "description": "Validation domains resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IamValidationDomainsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamBindingTargetKind": {
+        "type": "string",
+        "enum": ["APPLICATION", "TENANT_SPACE"]
+      },
+      "IamRealmBindingMode": {
+        "type": "string",
+        "enum": ["DIRECT", "DEFAULT", "OVERRIDE"]
+      },
+      "IamRealmBindingRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "binding_target_kind",
+          "binding_target_id",
+          "binding_target_name",
+          "binding_mode",
+          "realm_id",
+          "realm_name",
+          "source_realm_id",
+          "notes",
+          "created_at",
+          "updated_at",
+          "updated_by_user_id"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "binding_target_kind": { "$ref": "#/components/schemas/IamBindingTargetKind" },
+          "binding_target_id": { "type": "string" },
+          "binding_target_name": { "type": "string" },
+          "binding_mode": { "$ref": "#/components/schemas/IamRealmBindingMode" },
+          "realm_id": { "type": "string" },
+          "realm_name": { "type": "string" },
+          "source_realm_id": { "type": ["string", "null"] },
+          "notes": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamRealmBindingsResponse": {
+        "type": "object",
+        "required": ["generated_at", "realm_bindings", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "realm_bindings": { "type": "array", "items": { "$ref": "#/components/schemas/IamRealmBindingRecord" } },
+          "count": { "type": "integer" }
+        }
+      },
+      "UpdateIamRealmBindingRequest": {
+        "type": "object",
+        "properties": {
+          "binding_mode": { "$ref": "#/components/schemas/IamRealmBindingMode" },
+          "realm_id": { "type": "string" },
+          "notes": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "IamValidationDomain": {
+        "type": "object",
+        "required": ["id", "name", "summary", "proves", "migration_blocked"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "proves": { "type": "array", "items": { "type": "string" } },
+          "migration_blocked": { "type": "boolean" }
+        }
+      },
+      "IamValidationDomainsResponse": {
+        "type": "object",
+        "required": ["generated_at", "validation_domains", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "validation_domains": { "type": "array", "items": { "$ref": "#/components/schemas/IamValidationDomain" } },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

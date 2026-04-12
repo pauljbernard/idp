@@ -1,0 +1,144 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Client Scopes API",
+    "version": "1.0.0",
+    "description": "Phase 2 standalone IAM client-scope administration endpoints."
+  },
+  "tags": [
+    {
+      "name": "IAM Client Scopes",
+      "description": "Standalone headless IAM client-scope administration."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/client-scopes": {
+      "get": {
+        "tags": ["IAM Client Scopes"],
+        "summary": "List IAM client scopes",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "protocol", "in": "query", "required": false, "schema": { "$ref": "#/components/schemas/IamClientProtocol" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM client scopes resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamClientScopesResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Client Scopes"],
+        "summary": "Create IAM client scope",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamClientScopeRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "IAM client scope created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamClientScopeRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/client-scopes/{scopeId}": {
+      "put": {
+        "tags": ["IAM Client Scopes"],
+        "summary": "Update IAM client scope",
+        "parameters": [
+          { "name": "scopeId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamClientScopeRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM client scope updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamClientScopeRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamClientProtocol": { "type": "string", "enum": ["OIDC", "SAML"] },
+      "IamScopeAssignmentType": { "type": "string", "enum": ["DEFAULT", "OPTIONAL"] },
+      "IamClientScopeStatus": { "type": "string", "enum": ["ACTIVE", "ARCHIVED"] },
+      "IamClientScopeRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "name", "description", "protocol", "assignment_type", "status", "synthetic", "protocol_mapper_ids", "assigned_client_ids", "created_at", "updated_at", "created_by_user_id", "updated_by_user_id"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "protocol": { "$ref": "#/components/schemas/IamClientProtocol" },
+          "assignment_type": { "$ref": "#/components/schemas/IamScopeAssignmentType" },
+          "status": { "$ref": "#/components/schemas/IamClientScopeStatus" },
+          "synthetic": { "type": "boolean" },
+          "protocol_mapper_ids": { "type": "array", "items": { "type": "string" } },
+          "assigned_client_ids": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamClientScopesResponse": {
+        "type": "object",
+        "required": ["generated_at", "client_scopes", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "client_scopes": { "type": "array", "items": { "$ref": "#/components/schemas/IamClientScopeRecord" } },
+          "count": { "type": "integer" }
+        }
+      },
+      "CreateIamClientScopeRequest": {
+        "type": "object",
+        "required": ["realm_id", "name"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "protocol": { "$ref": "#/components/schemas/IamClientProtocol" },
+          "assignment_type": { "$ref": "#/components/schemas/IamScopeAssignmentType" },
+          "status": { "$ref": "#/components/schemas/IamClientScopeStatus" },
+          "protocol_mapper_ids": { "type": "array", "items": { "type": "string" } },
+          "assigned_client_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "UpdateIamClientScopeRequest": {
+        "type": "object",
+        "properties": {
+          "description": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamClientScopeStatus" },
+          "protocol_mapper_ids": { "type": "array", "items": { "type": "string" } },
+          "assigned_client_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

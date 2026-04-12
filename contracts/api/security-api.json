@@ -1,0 +1,274 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IDP Security Control Plane API",
+    "version": "1.0.0",
+    "description": "Identity-provider session context, active session administration, secret-store posture, and immutable admin-audit endpoints."
+  },
+  "paths": {
+    "/api/v1/security/context": {
+      "get": {
+        "summary": "Get security control-plane context",
+        "description": "Returns the active session, identity-provider bridge summary, secret-store posture, and user security state for the active tenant-scoped user.",
+        "responses": {
+          "200": {
+            "description": "Security context resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecurityControlPlaneSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/security/sessions": {
+      "get": {
+        "summary": "List active security sessions",
+        "description": "Returns every active session for the authenticated user, including provider, assurance, and expiry metadata.",
+        "responses": {
+          "200": {
+            "description": "Active sessions resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecuritySessionListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/security/sessions/revoke-others": {
+      "post": {
+        "summary": "Revoke all other active sessions",
+        "description": "Terminates every other active session for the authenticated user while preserving the current session.",
+        "responses": {
+          "200": {
+            "description": "Other sessions revoked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecuritySessionRevokeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/security/sessions/{sessionId}/revoke": {
+      "post": {
+        "summary": "Revoke a specific active session",
+        "description": "Terminates a specific non-current active session for the authenticated user.",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Session revoked."
+          }
+        }
+      }
+    },
+    "/api/v1/security/admin-audit": {
+      "get": {
+        "summary": "List admin audit events",
+        "description": "Returns immutable hash-chained privileged-action events for the active tenant.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Admin audit events resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAuditLogResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IdentitySessionContext": {
+        "type": "object",
+        "properties": {
+          "provider_id": { "type": "string" },
+          "provider_display_name": { "type": "string" },
+          "provider_mode": { "type": "string", "enum": ["LOCAL_DIRECTORY", "CONTROL_PLANE_BRIDGE"] },
+          "session_id": { "type": "string" },
+          "provider_session_id": { "type": ["string", "null"] },
+          "user_id": { "type": "string" },
+          "tenant_id": { "type": ["string", "null"] },
+          "tenant_selection_source": { "type": "string", "enum": ["header", "default"] },
+          "authenticated_at": { "type": "string", "format": "date-time" },
+          "assurance_level": { "type": "string", "enum": ["STANDARD", "MFA", "HARDENED", "GOVERNMENT"] },
+          "session_transport": { "type": "string", "enum": ["header_session", "bearer_session"] },
+          "auth_entrypoint": { "type": "string", "enum": ["email_password", "oidc_authorization_code_pkce", "provider_token_exchange", "trusted_header_gateway"] },
+          "identity_source": { "type": "string", "enum": ["local_credentials", "control_plane_provider", "trusted_request_headers"] },
+          "directory_source": { "type": "string", "enum": ["local_directory", "external_identity_sync"] },
+          "provider_deployment": { "type": "string", "enum": ["local", "aws_native", "commercial", "open_source"] },
+          "external_user_id": { "type": ["string", "null"] },
+          "trusted_header_keys": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "IdentityProviderSummary": {
+        "type": "object",
+        "properties": {
+          "provider_id": { "type": "string" },
+          "provider_display_name": { "type": "string" },
+          "provider_mode": { "type": "string", "enum": ["LOCAL_DIRECTORY", "CONTROL_PLANE_BRIDGE"] },
+          "auth_entrypoint": { "type": "string", "enum": ["email_password", "oidc_authorization_code_pkce", "provider_token_exchange", "trusted_header_gateway"] },
+          "session_transport": { "type": "string", "enum": ["header_session", "bearer_session"] },
+          "directory_source": { "type": "string", "enum": ["local_directory", "external_identity_sync"] },
+          "sso_status": { "type": "string", "enum": ["local_ready", "provider_connected", "provider_sync_required", "not_configured"] },
+          "mfa_status": { "type": "string", "enum": ["local_secret_store", "provider_managed"] },
+          "provisioning_status": { "type": "string", "enum": ["local_directory", "external_identity_sync", "sync_required"] },
+          "secret_store_provider": { "type": "string", "enum": ["LOCAL_ENCRYPTED_FILE"] },
+          "secret_store_key_source": { "type": "string", "enum": ["ENV_CONFIGURED", "DEVELOPMENT_FALLBACK"] },
+          "production_gap": { "type": "string" }
+        }
+      },
+      "SecuritySessionSummary": {
+        "type": "object",
+        "properties": {
+          "session_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "tenant_id": { "type": ["string", "null"] },
+          "provider_session_id": { "type": ["string", "null"] },
+          "authenticated_at": { "type": "string", "format": "date-time" },
+          "issued_at": { "type": "string", "format": "date-time" },
+          "last_seen_at": { "type": "string", "format": "date-time" },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "assurance_level": { "type": "string", "enum": ["STANDARD", "MFA", "HARDENED", "GOVERNMENT"] },
+          "provider_id": { "type": "string" },
+          "provider_display_name": { "type": "string" },
+          "provider_mode": { "type": "string", "enum": ["LOCAL_DIRECTORY", "CONTROL_PLANE_BRIDGE"] },
+          "provider_deployment": { "type": "string", "enum": ["local", "aws_native", "commercial", "open_source"] },
+          "session_transport": { "type": "string", "enum": ["header_session", "bearer_session"] },
+          "auth_entrypoint": { "type": "string", "enum": ["email_password", "oidc_authorization_code_pkce", "provider_token_exchange", "trusted_header_gateway"] },
+          "identity_source": { "type": "string", "enum": ["local_credentials", "control_plane_provider", "trusted_request_headers"] },
+          "directory_source": { "type": "string", "enum": ["local_directory", "external_identity_sync"] },
+          "external_user_id": { "type": ["string", "null"] },
+          "is_current": { "type": "boolean" }
+        }
+      },
+      "SecuritySessionListResponse": {
+        "type": "object",
+        "properties": {
+          "sessions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SecuritySessionSummary" }
+          },
+          "count": { "type": "integer" },
+          "current_session_id": { "type": ["string", "null"] }
+        }
+      },
+      "SecuritySessionRevokeResponse": {
+        "type": "object",
+        "properties": {
+          "revoked_count": { "type": "integer" },
+          "current_session_id": { "type": ["string", "null"] }
+        }
+      },
+      "SecretStoreSummary": {
+        "type": "object",
+        "properties": {
+          "provider": { "type": "string", "enum": ["LOCAL_ENCRYPTED_FILE"] },
+          "encryption": { "type": "string", "enum": ["AES-256-GCM"] },
+          "key_source": { "type": "string", "enum": ["ENV_CONFIGURED", "DEVELOPMENT_FALLBACK"] },
+          "managed_secret_count": { "type": "integer" },
+          "active_secret_count": { "type": "integer" },
+          "disabled_secret_count": { "type": "integer" }
+        }
+      },
+      "UserSecurityControlState": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string" },
+          "password_managed": { "type": "boolean" },
+          "password_reference_id": { "type": ["string", "null"] },
+          "password_last_rotated_at": { "type": ["string", "null"], "format": "date-time" },
+          "two_factor_enrolled": { "type": "boolean" },
+          "totp_reference_id": { "type": ["string", "null"] },
+          "backup_codes_reference_id": { "type": ["string", "null"] },
+          "two_factor_enrolled_at": { "type": ["string", "null"], "format": "date-time" },
+          "two_factor_disabled_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "SecurityControlPlaneSummary": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "provider": { "$ref": "#/components/schemas/IdentityProviderSummary" },
+          "session": { "$ref": "#/components/schemas/IdentitySessionContext" },
+          "secret_store": { "$ref": "#/components/schemas/SecretStoreSummary" },
+          "user_security": { "$ref": "#/components/schemas/UserSecurityControlState" }
+        }
+      },
+      "AdminAuditEvent": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "sequence": { "type": "integer" },
+          "tenant_id": { "type": "string" },
+          "actor_user_id": { "type": "string" },
+          "actor_name": { "type": "string" },
+          "actor_email": { "type": "string" },
+          "action": { "type": "string" },
+          "entity_type": { "type": "string" },
+          "entity_id": { "type": "string" },
+          "source_route": { "type": "string" },
+          "correlation_id": { "type": "string" },
+          "outcome": { "type": "string", "enum": ["SUCCESS"] },
+          "occurred_at": { "type": "string", "format": "date-time" },
+          "summary": { "type": "string" },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "previous_hash": { "type": ["string", "null"] },
+          "entry_hash": { "type": "string" }
+        }
+      },
+      "AdminAuditLogResponse": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AdminAuditEvent" }
+          },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

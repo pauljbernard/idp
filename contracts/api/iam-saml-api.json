@@ -1,0 +1,315 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM SAML API",
+    "version": "1.0.0",
+    "description": "Phase C standalone IAM SAML IdP endpoints for metadata publication, SP-initiated login, browser continuation, diagnostic login, session tracking, and logout."
+  },
+  "tags": [
+    {
+      "name": "IAM SAML",
+      "description": "Standalone headless IAM SAML runtime."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/realms/{realmId}/protocol/saml/metadata": {
+      "get": {
+        "tags": ["IAM SAML"],
+        "summary": "Get realm SAML IdP metadata",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "client_id", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "SAML metadata resolved.",
+            "content": {
+              "application/xml": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/saml/auth": {
+      "get": {
+        "tags": ["IAM SAML"],
+        "summary": "Initiate SP-initiated SAML authentication",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "client_id", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "acs_url", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "RelayState", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "SAMLRequest", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "binding", "in": "query", "required": false, "schema": { "type": "string", "enum": ["POST", "REDIRECT"] } },
+          { "name": "force_authn", "in": "query", "required": false, "schema": { "type": "boolean" } }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirects the browser to the standalone IAM login surface for continuation."
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/saml/requests/{requestId}": {
+      "get": {
+        "tags": ["IAM SAML"],
+        "summary": "Get SAML authentication request detail",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "requestId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "SAML request detail resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamSamlAuthRequestDetailResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/saml/continue": {
+      "post": {
+        "tags": ["IAM SAML"],
+        "summary": "Continue a SAML authentication request from an IAM browser session",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "X-IAM-Session-ID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IamSamlContinuationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SAML continuation evaluated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamSamlContinuationResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/saml/login": {
+      "post": {
+        "tags": ["IAM SAML"],
+        "summary": "Perform diagnostic SAML login",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IamSamlLoginRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Diagnostic SAML login completed.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamSamlLoginResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/saml/logout": {
+      "post": {
+        "tags": ["IAM SAML"],
+        "summary": "Logout a SAML session",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IamSamlLogoutRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SAML logout completed.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamSamlLogoutResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/saml-sessions": {
+      "get": {
+        "tags": ["IAM SAML"],
+        "summary": "List SAML sessions",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "client_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "required": false, "schema": { "type": "string", "enum": ["ACTIVE", "TERMINATED", "EXPIRED"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "SAML sessions resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamSamlSessionsResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamSamlAuthRequestRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "client_id", "client_name", "acs_url", "relay_state", "request_binding", "request_id", "force_authn", "created_at", "expires_at", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "client_name": { "type": "string" },
+          "acs_url": { "type": "string" },
+          "relay_state": { "type": ["string", "null"] },
+          "request_binding": { "type": "string", "enum": ["POST", "REDIRECT"] },
+          "request_id": { "type": ["string", "null"] },
+          "force_authn": { "type": "boolean" },
+          "created_at": { "type": "string" },
+          "expires_at": { "type": "string" },
+          "status": { "type": "string", "enum": ["PENDING", "COMPLETED", "CANCELLED", "EXPIRED"] }
+        }
+      },
+      "IamSamlAuthRequestDetailResponse": {
+        "type": "object",
+        "required": ["request", "can_auto_continue"],
+        "properties": {
+          "request": { "$ref": "#/components/schemas/IamSamlAuthRequestRecord" },
+          "can_auto_continue": { "type": "boolean" }
+        }
+      },
+      "IamSamlContinuationRequest": {
+        "type": "object",
+        "required": ["saml_request_id"],
+        "properties": {
+          "saml_request_id": { "type": "string" },
+          "client_id": { "type": ["string", "null"] }
+        }
+      },
+      "IamSamlSessionRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "client_id", "user_id", "browser_session_id", "session_index", "relay_state", "acs_url", "created_at", "last_seen_at", "terminated_at", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "browser_session_id": { "type": "string" },
+          "session_index": { "type": "string" },
+          "relay_state": { "type": ["string", "null"] },
+          "acs_url": { "type": "string" },
+          "created_at": { "type": "string" },
+          "last_seen_at": { "type": "string" },
+          "terminated_at": { "type": ["string", "null"] },
+          "status": { "type": "string", "enum": ["ACTIVE", "TERMINATED", "EXPIRED"] }
+        }
+      },
+      "IamSamlContinuationResponse": {
+        "type": "object",
+        "required": ["status", "request"],
+        "properties": {
+          "status": { "type": "string", "enum": ["AUTHORIZED", "ERROR", "INTERACTION_REQUIRED"] },
+          "request": { "$ref": "#/components/schemas/IamSamlAuthRequestRecord" },
+          "session": { "$ref": "#/components/schemas/IamSamlSessionRecord" },
+          "acs_url": { "type": "string" },
+          "relay_state": { "type": ["string", "null"] },
+          "session_index": { "type": "string" },
+          "saml_response": { "type": "string" },
+          "attributes": { "type": "object", "additionalProperties": true },
+          "error": { "type": "string" },
+          "error_description": { "type": "string" },
+          "login_response": { "type": "object", "additionalProperties": true }
+        }
+      },
+      "IamSamlLoginRequest": {
+        "type": "object",
+        "required": ["client_id", "username", "password"],
+        "properties": {
+          "client_id": { "type": "string" },
+          "username": { "type": "string" },
+          "password": { "type": "string" },
+          "relay_state": { "type": ["string", "null"] }
+        }
+      },
+      "IamSamlLoginResponse": {
+        "type": "object",
+        "required": ["realm_id", "client_id", "relay_state", "session_index", "acs_url", "saml_response", "attributes"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "relay_state": { "type": ["string", "null"] },
+          "session_index": { "type": "string" },
+          "acs_url": { "type": "string" },
+          "saml_response": { "type": "string" },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "IamSamlLogoutRequest": {
+        "type": "object",
+        "required": ["client_id", "session_index"],
+        "properties": {
+          "client_id": { "type": "string" },
+          "session_index": { "type": "string" },
+          "relay_state": { "type": ["string", "null"] },
+          "request_id": { "type": ["string", "null"] }
+        }
+      },
+      "IamSamlLogoutResponse": {
+        "type": "object",
+        "required": ["realm_id", "client_id", "relay_state", "session_index", "logout_destination", "saml_logout_response", "terminated_at", "browser_session_id", "browser_session_revoked"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "relay_state": { "type": ["string", "null"] },
+          "session_index": { "type": "string" },
+          "logout_destination": { "type": "string" },
+          "saml_logout_response": { "type": "string" },
+          "terminated_at": { "type": ["string", "null"] },
+          "browser_session_id": { "type": "string" },
+          "browser_session_revoked": { "type": "boolean" }
+        }
+      },
+      "IamSamlSessionsResponse": {
+        "type": "object",
+        "required": ["generated_at", "sessions", "count"],
+        "properties": {
+          "generated_at": { "type": "string" },
+          "sessions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamSamlSessionRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

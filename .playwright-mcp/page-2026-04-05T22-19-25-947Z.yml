@@ -1,0 +1,245 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: CP
+      - generic [ref=e7]:
+        - paragraph [ref=e8]: Commercial Operating System
+        - heading "Control Layer" [level=1] [ref=e9]
+    - navigation [ref=e10]:
+      - button "Overview Queues, risks, and lifecycle signal" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]: Overview
+        - generic [ref=e13]: Queues, risks, and lifecycle signal
+      - button "Tenants Hierarchy, IDP binding, and tenant context" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]: Tenants
+        - generic [ref=e16]: Hierarchy, IDP binding, and tenant context
+      - button "CRM Prospects, leads, customers, and cases" [ref=e17] [cursor=pointer]:
+        - generic [ref=e18]: CRM
+        - generic [ref=e19]: Prospects, leads, customers, and cases
+      - button "Accounts Commercial customers and billing ownership" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: Accounts
+        - generic [ref=e22]: Commercial customers and billing ownership
+      - button "Catalog Products, offers, and packaging posture" [ref=e23] [cursor=pointer]:
+        - generic [ref=e24]: Catalog
+        - generic [ref=e25]: Products, offers, and packaging posture
+      - button "Orders Commercial intake and order execution" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: Orders
+        - generic [ref=e28]: Commercial intake and order execution
+      - button "Billing Subscriptions, invoices, and ledger history" [ref=e29] [cursor=pointer]:
+        - generic [ref=e30]: Billing
+        - generic [ref=e31]: Subscriptions, invoices, and ledger history
+      - button "Entitlements Grants, projections, and access truth" [ref=e32] [cursor=pointer]:
+        - generic [ref=e33]: Entitlements
+        - generic [ref=e34]: Grants, projections, and access truth
+      - button "Operations Fulfillment queues and exception handling" [ref=e35] [cursor=pointer]:
+        - generic [ref=e36]: Operations
+        - generic [ref=e37]: Fulfillment queues and exception handling
+      - button "Admin Contracts, bindings, and runtime posture" [ref=e38] [cursor=pointer]:
+        - generic [ref=e39]: Admin
+        - generic [ref=e40]: Contracts, bindings, and runtime posture
+    - generic [ref=e41]:
+      - paragraph [ref=e42]: Queue Pressure
+      - list [ref=e43]:
+        - listitem [ref=e44]:
+          - generic [ref=e45]: Orders Awaiting Action
+          - strong [ref=e46]: "2"
+        - listitem [ref=e47]:
+          - generic [ref=e48]: Fulfillment Failures
+          - strong [ref=e49]: "0"
+        - listitem [ref=e50]:
+          - generic [ref=e51]: Invoices Due or Overdue
+          - strong [ref=e52]: "0"
+        - listitem [ref=e53]:
+          - generic [ref=e54]: Payment Exceptions
+          - strong [ref=e55]: "0"
+        - listitem [ref=e56]:
+          - generic [ref=e57]: Entitlement Conflicts
+          - strong [ref=e58]: "1"
+  - generic [ref=e59]:
+    - banner [ref=e60]:
+      - generic [ref=e61]:
+        - paragraph [ref=e62]: Operational Workspace
+        - heading "Crew Demo Tenant" [level=2] [ref=e63]
+      - generic [ref=e64]:
+        - generic [ref=e65]: platform session
+        - textbox "Search records, IDs, or statuses" [ref=e66]
+        - button "Refresh Session" [ref=e67] [cursor=pointer]
+        - button "Sign Out" [ref=e68] [cursor=pointer]
+    - article [ref=e70]:
+      - paragraph [ref=e71]: Identity Session
+      - generic [ref=e72]:
+        - generic [ref=e73]:
+          - text: Plane
+          - combobox "Plane" [ref=e74]:
+            - option "Platform" [selected]
+            - option "Tenant Consumer"
+        - generic [ref=e75]:
+          - text: Active Tenant
+          - combobox "Active Tenant" [ref=e76]:
+            - option "Select tenant"
+            - option "Crew Demo Tenant" [selected]
+        - generic [ref=e77]:
+          - text: Subject
+          - textbox "Subject" [ref=e78]: local-dev-user
+        - generic [ref=e79]:
+          - text: Organization
+          - textbox "Organization" [ref=e80]:
+            - /placeholder: optional
+        - generic [ref=e81]:
+          - text: Roles
+          - textbox "Roles" [ref=e82]: platform_admin
+        - generic [ref=e83]:
+          - text: Groups
+          - textbox "Groups" [ref=e84]: system
+      - generic [ref=e85]:
+        - generic [ref=e86]: Browser session
+        - code [ref=e87]: local-dev-user | expires Apr 5, 2026, 4:30 PM
+    - main [ref=e89]:
+      - generic [ref=e90]:
+        - generic [ref=e91]:
+          - generic [ref=e92]:
+            - paragraph [ref=e93]: Operator Surface
+            - heading "New Lead" [level=3] [ref=e154]
+          - paragraph [ref=e95]: Create a CRM lead.
+        - button "Back to CRM Table" [ref=e156] [cursor=pointer]
+        - generic [ref=e157]:
+          - generic [ref=e159]:
+            - heading "Create Lead" [level=4] [ref=e160]
+            - paragraph [ref=e161]: Capture the lead record with structured identity and contact fields.
+          - generic [ref=e162]:
+            - generic [ref=e163]:
+              - generic [ref=e164]:
+                - text: Prefix
+                - textbox "Prefix" [ref=e165]:
+                  - /placeholder: Ms.
+              - generic [ref=e166]:
+                - text: First Name
+                - textbox "First Name" [ref=e167]:
+                  - /placeholder: Jordan
+              - generic [ref=e168]:
+                - text: Middle Name
+                - textbox "Middle Name" [ref=e169]:
+                  - /placeholder: A.
+              - generic [ref=e170]:
+                - text: Last Name
+                - textbox "Last Name" [ref=e171]:
+                  - /placeholder: Lee
+              - generic [ref=e172]:
+                - text: Title
+                - textbox "Title" [ref=e173]:
+                  - /placeholder: Director of Operations
+              - generic [ref=e174]:
+                - text: Gender
+                - textbox "Gender" [ref=e175]:
+                  - /placeholder: optional
+              - generic [ref=e176]:
+                - text: Age
+                - textbox "Age" [ref=e177]:
+                  - /placeholder: optional
+              - generic [ref=e178]:
+                - text: Source
+                - textbox "Source" [ref=e179]:
+                  - /placeholder: web-form
+              - generic [ref=e180]:
+                - text: Owner User ID
+                - textbox "Owner User ID" [ref=e181]:
+                  - /placeholder: optional
+            - generic [ref=e182]:
+              - generic [ref=e183]:
+                - generic [ref=e184]:
+                  - heading "Phone Directory" [level=4] [ref=e185]
+                  - paragraph [ref=e186]: Track multiple numbers and whether they are text enabled.
+                - button "Add Phone" [ref=e188] [cursor=pointer]
+              - generic [ref=e190]:
+                - generic [ref=e191]:
+                  - text: Type
+                  - combobox "Type" [ref=e192]:
+                    - option "Home"
+                    - option "Work"
+                    - option "Mobile" [selected]
+                - generic [ref=e193]:
+                  - text: Telephone Number
+                  - textbox "Telephone Number" [ref=e194]:
+                    - /placeholder: 555-0100
+                - generic [ref=e195]:
+                  - text: Primary
+                  - combobox "Primary" [ref=e196]:
+                    - option "Yes" [selected]
+                    - option "No"
+                - generic [ref=e197]:
+                  - text: Text / Messaging
+                  - combobox "Text / Messaging" [ref=e198]:
+                    - option "Enabled" [selected]
+                    - option "Disabled"
+                - button "Remove Phone" [disabled] [ref=e200]
+            - generic [ref=e201]:
+              - generic [ref=e202]:
+                - generic [ref=e203]:
+                  - heading "Email Directory" [level=4] [ref=e204]
+                  - paragraph [ref=e205]: Track multiple email addresses and the primary contact path.
+                - button "Add Email" [ref=e207] [cursor=pointer]
+              - generic [ref=e209]:
+                - generic [ref=e210]:
+                  - text: Type
+                  - combobox "Type" [ref=e211]:
+                    - option "Personal" [selected]
+                    - option "Work"
+                    - option "Other"
+                - generic [ref=e212]:
+                  - text: Email Address
+                  - textbox "Email Address" [ref=e213]:
+                    - /placeholder: jordan@example.com
+                - generic [ref=e214]:
+                  - text: Primary
+                  - combobox "Primary" [ref=e215]:
+                    - option "Yes" [selected]
+                    - option "No"
+                - button "Remove Email" [disabled] [ref=e217]
+            - generic [ref=e218]:
+              - generic [ref=e220]:
+                - heading "Address" [level=4] [ref=e221]
+                - paragraph [ref=e222]: Store the current mailing or service address for the lead.
+              - generic [ref=e223]:
+                - generic [ref=e224]:
+                  - text: Address Line 1
+                  - textbox "Address Line 1" [ref=e225]:
+                    - /placeholder: 123 Main St
+                - generic [ref=e226]:
+                  - text: Address Line 2
+                  - textbox "Address Line 2" [ref=e227]:
+                    - /placeholder: Suite 400
+                - generic [ref=e228]:
+                  - text: City
+                  - textbox "City" [ref=e229]
+                - generic [ref=e230]:
+                  - text: State / Region
+                  - textbox "State / Region" [ref=e231]
+                - generic [ref=e232]:
+                  - text: Postal Code
+                  - textbox "Postal Code" [ref=e233]
+                - generic [ref=e234]:
+                  - text: Country
+                  - textbox "Country" [ref=e235]
+            - generic [ref=e236]:
+              - generic [ref=e238]:
+                - heading "Lead Preview" [level=4] [ref=e239]
+                - paragraph [ref=e240]: Structured preview of the lead before commit.
+              - generic [ref=e241]:
+                - generic [ref=e242]:
+                  - term [ref=e243]: Tenant
+                  - definition [ref=e244]: Crew Demo Tenant
+                - generic [ref=e245]:
+                  - term [ref=e246]: Lead
+                  - definition [ref=e247]: n/a
+                - generic [ref=e248]:
+                  - term [ref=e249]: Primary Email
+                  - definition
+                - generic [ref=e250]:
+                  - term [ref=e251]: Primary Phone
+                  - definition
+                - generic [ref=e252]:
+                  - term [ref=e253]: Source
+                  - definition [ref=e254]: n/a
+                - generic [ref=e255]:
+                  - term [ref=e256]: Address
+                  - definition [ref=e257]: n/a
+            - button "Create Lead" [ref=e259] [cursor=pointer]

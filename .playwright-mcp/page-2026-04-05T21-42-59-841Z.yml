@@ -1,0 +1,171 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: CP
+      - generic [ref=e7]:
+        - paragraph [ref=e8]: Commercial Operating System
+        - heading "Control Layer" [level=1] [ref=e9]
+    - navigation [ref=e10]:
+      - button "Overview Queues, risks, and lifecycle signal" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]: Overview
+        - generic [ref=e13]: Queues, risks, and lifecycle signal
+      - button "Tenants Hierarchy, IDP binding, and tenant context" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]: Tenants
+        - generic [ref=e16]: Hierarchy, IDP binding, and tenant context
+      - button "CRM Prospects, leads, customers, and cases" [ref=e17] [cursor=pointer]:
+        - generic [ref=e18]: CRM
+        - generic [ref=e19]: Prospects, leads, customers, and cases
+      - button "Accounts Commercial customers and billing ownership" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: Accounts
+        - generic [ref=e22]: Commercial customers and billing ownership
+      - button "Catalog Products, offers, and packaging posture" [ref=e23] [cursor=pointer]:
+        - generic [ref=e24]: Catalog
+        - generic [ref=e25]: Products, offers, and packaging posture
+      - button "Orders Commercial intake and order execution" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: Orders
+        - generic [ref=e28]: Commercial intake and order execution
+      - button "Billing Subscriptions, invoices, and ledger history" [ref=e29] [cursor=pointer]:
+        - generic [ref=e30]: Billing
+        - generic [ref=e31]: Subscriptions, invoices, and ledger history
+      - button "Entitlements Grants, projections, and access truth" [ref=e32] [cursor=pointer]:
+        - generic [ref=e33]: Entitlements
+        - generic [ref=e34]: Grants, projections, and access truth
+      - button "Operations Fulfillment queues and exception handling" [ref=e35] [cursor=pointer]:
+        - generic [ref=e36]: Operations
+        - generic [ref=e37]: Fulfillment queues and exception handling
+      - button "Admin Contracts, bindings, and runtime posture" [ref=e38] [cursor=pointer]:
+        - generic [ref=e39]: Admin
+        - generic [ref=e40]: Contracts, bindings, and runtime posture
+  - generic [ref=e41]:
+    - banner [ref=e42]:
+      - generic [ref=e43]:
+        - paragraph [ref=e44]: Operational Workspace
+        - heading "Crew Demo Tenant" [level=2] [ref=e118]
+      - generic [ref=e46]:
+        - generic [ref=e47]: platform session
+        - textbox "Search records, IDs, or statuses" [ref=e48]
+        - button "Refresh Session" [ref=e49] [cursor=pointer]
+        - button "Sign Out" [ref=e50] [cursor=pointer]
+    - main [ref=e52]:
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - generic [ref=e58]:
+            - paragraph [ref=e59]: Operator Surface
+            - heading "Tenant Detail" [level=3] [ref=e150]
+          - paragraph [ref=e61]: Selected tenant detail.
+        - generic [ref=e151]:
+          - button "Back to Tenant Directory" [ref=e152] [cursor=pointer]
+          - button "New Tenant" [ref=e153] [cursor=pointer]
+        - generic [ref=e154]:
+          - generic [ref=e155]:
+            - generic [ref=e157]:
+              - heading "Tenant Configuration" [level=4] [ref=e158]
+              - paragraph [ref=e159]: Binding, hierarchy, and tenant runtime posture.
+            - generic [ref=e160]:
+              - generic [ref=e161]:
+                - term [ref=e162]: Name
+                - definition [ref=e163]: Crew Demo Tenant
+              - generic [ref=e164]:
+                - term [ref=e165]: Slug
+                - definition [ref=e166]: crew-demo
+              - generic [ref=e167]:
+                - term [ref=e168]: Tenant ID
+                - definition [ref=e169]: 6db41674-f92a-4d7d-8dbf-c4ca6b5b72bc
+              - generic [ref=e170]:
+                - term [ref=e171]: Created
+                - definition [ref=e172]: Apr 5, 2026, 3:44 PM
+              - generic [ref=e173]:
+                - term [ref=e174]: IDP Binding Required
+                - definition [ref=e175]: "Yes"
+              - generic [ref=e176]:
+                - term [ref=e177]: Binding Count
+                - definition [ref=e178]: "1"
+              - generic [ref=e179]:
+                - term [ref=e180]: Hierarchy Mode
+                - definition [ref=e181]: Not configured
+              - generic [ref=e182]:
+                - term [ref=e183]: Sync Status
+                - definition [ref=e184]: Not synced
+              - generic [ref=e185]:
+                - term [ref=e186]: Last Sync
+                - definition [ref=e187]: n/a
+              - generic [ref=e188]:
+                - term [ref=e189]: Organizations
+                - definition [ref=e190]: "1"
+              - generic [ref=e191]:
+                - term [ref=e192]: Groups
+                - definition [ref=e193]: "1"
+              - generic [ref=e194]:
+                - term [ref=e195]: Locations
+                - definition [ref=e196]: "0"
+          - generic [ref=e197]:
+            - generic [ref=e198]:
+              - generic [ref=e199]:
+                - heading "IDP Bindings" [level=4] [ref=e200]
+                - paragraph [ref=e201]: 1 binding configured
+              - generic [ref=e203]: "1"
+            - table [ref=e205]:
+              - rowgroup [ref=e206]:
+                - row "Plane Realm Client Status" [ref=e207]:
+                  - columnheader "Plane" [ref=e208]
+                  - columnheader "Realm" [ref=e209]
+                  - columnheader "Client" [ref=e210]
+                  - columnheader "Status" [ref=e211]
+              - rowgroup [ref=e212]:
+                - row "tenant_consumer crew-demo crew-tenant-app active" [ref=e213]:
+                  - cell "tenant_consumer" [ref=e214]
+                  - cell "crew-demo" [ref=e215]
+                  - cell "crew-tenant-app" [ref=e216]
+                  - cell "active" [ref=e217]
+          - generic [ref=e218]:
+            - generic [ref=e219]:
+              - generic [ref=e220]:
+                - generic [ref=e221]:
+                  - heading "Organizations" [level=4] [ref=e222]
+                  - paragraph [ref=e223]: 1 organization
+                - generic [ref=e225]: "1"
+              - table [ref=e227]:
+                - rowgroup [ref=e228]:
+                  - row "Name Source ID" [ref=e229]:
+                    - columnheader "Name" [ref=e230]
+                    - columnheader "Source" [ref=e231]
+                    - columnheader "ID" [ref=e232]
+                - rowgroup [ref=e233]:
+                  - row "Crew Demo Tenant Organization idp_projection 6db41674-f92a-4d7d-8dbf-c4ca6b5b72bc-idp-org" [ref=e234]:
+                    - cell "Crew Demo Tenant Organization" [ref=e235]
+                    - cell "idp_projection" [ref=e236]
+                    - cell "6db41674-f92a-4d7d-8dbf-c4ca6b5b72bc-idp-org" [ref=e237]
+            - generic [ref=e238]:
+              - generic [ref=e239]:
+                - generic [ref=e240]:
+                  - heading "Locations" [level=4] [ref=e241]
+                  - paragraph [ref=e242]: 0 locations
+                - generic [ref=e244]: "0"
+              - table [ref=e246]:
+                - rowgroup [ref=e247]:
+                  - row "Name Source ID" [ref=e248]:
+                    - columnheader "Name" [ref=e249]
+                    - columnheader "Source" [ref=e250]
+                    - columnheader "ID" [ref=e251]
+                - rowgroup [ref=e252]:
+                  - row "No records available for the current context." [ref=e253]:
+                    - cell "No records available for the current context." [ref=e254]
+          - generic [ref=e255]:
+            - generic [ref=e256]:
+              - generic [ref=e257]:
+                - heading "Groups" [level=4] [ref=e258]
+                - paragraph [ref=e259]: 1 group
+              - generic [ref=e261]: "1"
+            - table [ref=e263]:
+              - rowgroup [ref=e264]:
+                - row "Name Type Source ID" [ref=e265]:
+                  - columnheader "Name" [ref=e266]
+                  - columnheader "Type" [ref=e267]
+                  - columnheader "Source" [ref=e268]
+                  - columnheader "ID" [ref=e269]
+              - rowgroup [ref=e270]:
+                - row "Crew Demo Tenant Members tenant idp_projection 6db41674-f92a-4d7d-8dbf-c4ca6b5b72bc-idp-tenant-group" [ref=e271]:
+                  - cell "Crew Demo Tenant Members" [ref=e272]
+                  - cell "tenant" [ref=e273]
+                  - cell "idp_projection" [ref=e274]
+                  - cell "6db41674-f92a-4d7d-8dbf-c4ca6b5b72bc-idp-tenant-group" [ref=e275]

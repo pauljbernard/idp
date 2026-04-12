@@ -1,0 +1,145 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Delegated Admin API",
+    "version": "1.0.0",
+    "description": "Phase 1 standalone IAM delegated-administration endpoints."
+  },
+  "tags": [
+    {
+      "name": "IAM Delegated Admin",
+      "description": "Standalone headless IAM delegated administration."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/delegated-admin": {
+      "get": {
+        "tags": ["IAM Delegated Admin"],
+        "summary": "List delegated admin assignments",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delegated admin assignments resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDelegatedAdminsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Delegated Admin"],
+        "summary": "Create delegated admin assignment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamDelegatedAdminRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Delegated admin assignment created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDelegatedAdminRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/delegated-admin/{assignmentId}": {
+      "put": {
+        "tags": ["IAM Delegated Admin"],
+        "summary": "Update delegated admin assignment",
+        "parameters": [
+          { "name": "assignmentId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamDelegatedAdminRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delegated admin assignment updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDelegatedAdminRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamDelegatedAdminPrincipalKind": { "type": "string", "enum": ["USER", "GROUP"] },
+      "IamDelegatedAdminStatus": { "type": "string", "enum": ["ACTIVE", "DISABLED"] },
+      "IamDelegatedAdminRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "principal_kind", "principal_id", "principal_label", "status", "managed_role_ids", "managed_group_ids", "managed_client_ids", "notes", "created_at", "updated_at", "created_by_user_id", "updated_by_user_id"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "principal_kind": { "$ref": "#/components/schemas/IamDelegatedAdminPrincipalKind" },
+          "principal_id": { "type": "string" },
+          "principal_label": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamDelegatedAdminStatus" },
+          "managed_role_ids": { "type": "array", "items": { "type": "string" } },
+          "managed_group_ids": { "type": "array", "items": { "type": "string" } },
+          "managed_client_ids": { "type": "array", "items": { "type": "string" } },
+          "notes": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamDelegatedAdminsResponse": {
+        "type": "object",
+        "required": ["generated_at", "delegated_admins", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "delegated_admins": { "type": "array", "items": { "$ref": "#/components/schemas/IamDelegatedAdminRecord" } },
+          "count": { "type": "integer" }
+        }
+      },
+      "CreateIamDelegatedAdminRequest": {
+        "type": "object",
+        "required": ["realm_id", "principal_kind", "principal_id", "principal_label"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "principal_kind": { "$ref": "#/components/schemas/IamDelegatedAdminPrincipalKind" },
+          "principal_id": { "type": "string" },
+          "principal_label": { "type": "string" },
+          "managed_role_ids": { "type": "array", "items": { "type": "string" } },
+          "managed_group_ids": { "type": "array", "items": { "type": "string" } },
+          "managed_client_ids": { "type": "array", "items": { "type": "string" } },
+          "notes": { "type": "array", "items": { "type": "string" } },
+          "status": { "$ref": "#/components/schemas/IamDelegatedAdminStatus" }
+        }
+      },
+      "UpdateIamDelegatedAdminRequest": {
+        "type": "object",
+        "properties": {
+          "principal_label": { "type": "string" },
+          "managed_role_ids": { "type": "array", "items": { "type": "string" } },
+          "managed_group_ids": { "type": "array", "items": { "type": "string" } },
+          "managed_client_ids": { "type": "array", "items": { "type": "string" } },
+          "notes": { "type": "array", "items": { "type": "string" } },
+          "status": { "$ref": "#/components/schemas/IamDelegatedAdminStatus" }
+        }
+      }
+    }
+  }
+}

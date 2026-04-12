@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-04-04T20:25:36.568Z",
+  "environment": "http://127.0.0.1:4100",
+  "suites": [
+    {
+      "name": "iam-public-catalog",
+      "requests": {
+        "average": 612.21,
+        "mean": 612.21,
+        "total": 3061
+      },
+      "latency": {
+        "average": 23.95,
+        "p90": 19,
+        "p99": 35,
+        "max": 1396
+      },
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0
+    },
+    {
+      "name": "iam-login",
+      "requests": {
+        "average": 4.8,
+        "mean": 4.8,
+        "total": 24
+      },
+      "latency": {
+        "average": 929.75,
+        "p90": 1610,
+        "p99": 2243,
+        "max": 2243
+      },
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0
+    }
+  ]
+}

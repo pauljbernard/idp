@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Local development data
+local-data/
+durable-data/
+*.log
+
+# AWS
+.aws/
+aws-exports.js
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CDK
+cdk.out/
+*.js.map
+
+# Lambda layers
+layers/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+test-results/
+playwright-report/
+
+# Verification artifacts
+artifacts/scheduling-verification/
+
+# Security tokens and credentials
+*.pat
+
+# Research directory (contains internal analysis and sensitive data)
+research/
