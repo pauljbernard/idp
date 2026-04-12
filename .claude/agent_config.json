@@ -3,12 +3,14 @@
   "project_type": "standalone_iam_platform",
   "documentation_first": true,
   "canonical_bootstrap": [
+    "docs/agent-bootstrap.json",
     "CLAUDE.md",
     "docs/AGENT_USAGE_GUIDE.md",
     "docs/foundation/constitution.md",
     "docs/foundation/architecture.md",
     "docs/specs/platform-requirements.md",
-    "docs/reference/maturity-model.md"
+    "docs/reference/maturity-model.md",
+    "docs/capability-registry.json"
   ],
   "claim_model": {
     "required_spec_fields": [
@@ -17,8 +19,10 @@
       "supported_profiles",
       "evidence_class"
     ],
+    "machine_readable_registry": "docs/capability-registry.json",
     "rules": [
       "do_not_infer_support_from_implementation_presence",
+      "prefer_capability_registry_for_capability_family_resolution",
       "prefer_status_matrices_for_current_support_claims",
       "prefer_validation_guides_for_readiness_and_adoption_gates",
       "treat_conflicting_or_missing_docs_as_risk_not_license_to_guess"

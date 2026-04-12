@@ -107,6 +107,7 @@ function requirePackageScripts() {
   const scripts = pkg.scripts || {};
   const requiredScriptNames = [
     'docs:validate',
+    'test:requirements',
     'verify:sdk:iam-contract',
     'test:unit',
     'test:journeys',

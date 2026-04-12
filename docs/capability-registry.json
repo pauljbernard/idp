@@ -1,0 +1,194 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-04-12",
+  "description": "Canonical machine-readable capability registry for maintained standalone IAM claim-bearing areas and adjacent bounded capability families.",
+  "required_fields": [
+    "id",
+    "name",
+    "domain",
+    "support_tier",
+    "maturity_state",
+    "supported_profiles",
+    "evidence_class",
+    "governing_specifications",
+    "current_state_references",
+    "adoption_gate_reference"
+  ],
+  "capabilities": [
+    {
+      "id": "standalone-iam-core",
+      "name": "Standalone IAM Core",
+      "domain": "platform",
+      "support_tier": "core-release",
+      "maturity_state": "supported",
+      "supported_profiles": [
+        "standalone-iam-core",
+        "bounded-oidc-core",
+        "planning-basis-for-parity-and-differentiator-tracks"
+      ],
+      "evidence_class": "internal-runtime",
+      "governing_specifications": [
+        "docs/specs/platform-requirements.md"
+      ],
+      "current_state_references": [
+        "docs/reference/maturity-model.md",
+        "docs/reference/headless-iam-status-matrix.md",
+        "docs/reference/headless-iam-requirements-gap-matrix.md",
+        "docs/implementation/planning/headless-iam-standalone-validation-review-guide.md"
+      ],
+      "adoption_gate_reference": "docs/implementation/planning/headless-iam-standalone-validation-review-guide.md"
+    },
+    {
+      "id": "oidc-browser-auth-code-pkce",
+      "name": "OIDC Browser Auth Code with PKCE",
+      "domain": "authentication",
+      "support_tier": "core-release",
+      "maturity_state": "supported-for-bounded-profile",
+      "supported_profiles": [
+        "oidc-browser-auth-code-pkce",
+        "oidc-refresh-token",
+        "oidc-client-credentials",
+        "oidc-device-authorization-bounded"
+      ],
+      "evidence_class": "external-interoperability",
+      "governing_specifications": [
+        "docs/specs/authentication/oauth-flows.md"
+      ],
+      "current_state_references": [
+        "docs/reference/protocol-support-matrix.md",
+        "docs/reference/headless-iam-status-matrix.md",
+        "docs/reference/headless-iam-requirements-gap-matrix.md"
+      ],
+      "adoption_gate_reference": "docs/implementation/planning/headless-iam-standalone-validation-review-guide.md"
+    },
+    {
+      "id": "dynamic-client-registration",
+      "name": "Dynamic Client Registration",
+      "domain": "authentication",
+      "support_tier": "parity-track",
+      "maturity_state": "supported-for-bounded-profile",
+      "supported_profiles": [
+        "bounded-dynamic-client-registration"
+      ],
+      "evidence_class": "external-interoperability",
+      "governing_specifications": [
+        "docs/specs/authentication/oauth-flows.md"
+      ],
+      "current_state_references": [
+        "docs/reference/protocol-support-matrix.md",
+        "docs/reference/headless-iam-status-matrix.md"
+      ],
+      "adoption_gate_reference": "docs/implementation/deployment/gap-remediation.md"
+    },
+    {
+      "id": "saml-idp-lifecycle",
+      "name": "SAML IdP Lifecycle",
+      "domain": "authentication",
+      "support_tier": "core-release",
+      "maturity_state": "implemented-not-yet-supported",
+      "supported_profiles": [
+        "bounded-saml-sp-profile-pending-hardening"
+      ],
+      "evidence_class": "internal-runtime",
+      "governing_specifications": [
+        "docs/specs/platform-requirements.md"
+      ],
+      "current_state_references": [
+        "docs/reference/saml-profile-matrix.md",
+        "docs/reference/headless-iam-status-matrix.md",
+        "docs/reference/headless-iam-requirements-gap-matrix.md"
+      ],
+      "adoption_gate_reference": "docs/implementation/deployment/gap-remediation.md"
+    },
+    {
+      "id": "webauthn-passkeys",
+      "name": "WebAuthn and Passkeys",
+      "domain": "authentication",
+      "support_tier": "core-release",
+      "maturity_state": "implemented-not-yet-supported",
+      "supported_profiles": [
+        "bounded-transport-class-profile"
+      ],
+      "evidence_class": "internal-runtime",
+      "governing_specifications": [
+        "docs/specs/platform-requirements.md"
+      ],
+      "current_state_references": [
+        "docs/reference/webauthn-support-matrix.md",
+        "docs/reference/headless-iam-status-matrix.md",
+        "docs/reference/headless-iam-requirements-gap-matrix.md"
+      ],
+      "adoption_gate_reference": "docs/implementation/deployment/gap-remediation.md"
+    },
+    {
+      "id": "federation-broker-runtime",
+      "name": "Federation Broker Runtime",
+      "domain": "federation",
+      "support_tier": "core-release",
+      "maturity_state": "experimental-bounded-support",
+      "supported_profiles": [
+        "bounded-oidc-broker-login",
+        "bounded-saml-broker-login"
+      ],
+      "evidence_class": "internal-runtime",
+      "governing_specifications": [
+        "docs/specs/platform-requirements.md"
+      ],
+      "current_state_references": [
+        "docs/reference/federation-support-matrix.md",
+        "docs/reference/headless-iam-status-matrix.md",
+        "docs/reference/headless-iam-requirements-gap-matrix.md"
+      ],
+      "adoption_gate_reference": "docs/implementation/deployment/gap-remediation.md"
+    },
+    {
+      "id": "deployment-mode-support",
+      "name": "Deployment Mode Support",
+      "domain": "operations",
+      "support_tier": "profile-specific",
+      "maturity_state": "mixed-by-deployment-mode",
+      "supported_profiles": [
+        "local-filesystem-proving-runtime"
+      ],
+      "evidence_class": "internal-runtime",
+      "governing_specifications": [
+        "docs/specs/operations/deployment-modes.md"
+      ],
+      "current_state_references": [
+        "docs/specs/operations/deployment-modes.md",
+        "docs/reference/headless-iam-status-matrix.md",
+        "docs/reference/headless-iam-requirements-gap-matrix.md"
+      ],
+      "adoption_gate_reference": "docs/implementation/deployment/environment-readiness.md"
+    },
+    {
+      "id": "ui-design-system",
+      "name": "UI Design System",
+      "domain": "ui",
+      "support_tier": "core-release",
+      "maturity_state": "implemented",
+      "supported_profiles": [
+        "admin-console-ui-foundation",
+        "account-ui-foundation",
+        "shared-design-language"
+      ],
+      "evidence_class": "internal-runtime",
+      "governing_specifications": [
+        "docs/specs/ui/design-system.md",
+        "docs/specs/ui/component-specs.md",
+        "docs/specs/ui/interaction-patterns.md",
+        "docs/specs/ui/information-architecture.md",
+        "docs/specs/ui/design-tokens.md"
+      ],
+      "current_state_references": [
+        "docs/specs/ui/design-system.md",
+        "docs/specs/ui/component-specs.md",
+        "docs/specs/ui/interaction-patterns.md",
+        "docs/specs/ui/information-architecture.md",
+        "docs/specs/ui/design-tokens.md",
+        "docs/reference/headless-iam-status-matrix.md"
+      ],
+      "adoption_gate_reference": "docs/implementation/deployment/implementation-plan.md"
+    }
+  ]
+}

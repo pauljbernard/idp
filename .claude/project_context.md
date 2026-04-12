@@ -11,6 +11,8 @@ related: [docs-root, dependency-map]
 ---
 # IDP Platform - Project Context
 
+This context file is a Claude-specific adapter layered on top of the generic repository documentation model.
+
 ## Project Overview
 
 Standalone IAM and IDP platform with bounded supported protocol surfaces, explicit claim boundaries, and spec-driven delivery.
@@ -25,11 +27,13 @@ Standalone IAM and IDP platform with bounded supported protocol surfaces, explic
 
 Start with:
 
-1. `docs/AGENT_USAGE_GUIDE.md`
-2. `docs/foundation/constitution.md`
-3. `docs/foundation/architecture.md`
-4. `docs/specs/platform-requirements.md`
-5. `docs/reference/maturity-model.md`
+1. `docs/agent-bootstrap.json`
+2. `docs/AGENT_USAGE_GUIDE.md`
+3. `docs/foundation/constitution.md`
+4. `docs/foundation/architecture.md`
+5. `docs/specs/platform-requirements.md`
+6. `docs/reference/maturity-model.md`
+7. `docs/capability-registry.json`
 
 ## Claim Boundary Model
 

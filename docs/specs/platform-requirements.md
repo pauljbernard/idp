@@ -192,6 +192,17 @@ Each support matrix shall identify:
 - required evidence for advancement,
 - and explicit rejection behavior for unsupported requests where applicable.
 
+### Documentation Hygiene Requirements
+
+The maintained documentation system shall preserve directory hygiene so agents can infer document role from path without loading incidental summaries.
+
+- planning, design-sequencing, migration, and remediation documents shall live under `docs/implementation/planning/` or `docs/implementation/deployment/` as appropriate,
+- status matrices, support matrices, manifests, and current-state reference artifacts shall live under `docs/reference/`,
+- canonical specifications shall live under `docs/specs/`,
+- and temporary recap, refactor-summary, or migration-summary documents shall not become standalone canonical artifacts when their content belongs in maintained specifications, planning artifacts, or reference matrices.
+
+When a documentation change reveals missing guidance, the governing specification or canonical guide shall be updated instead of preserving an orphaned summary document outside the canonical directories.
+
 ### Design Constraints
 
 - RBAC is mandatory; ABAC or policy overlays may refine access but shall not replace RBAC as the base reusable authorization model.

@@ -1,9 +1,41 @@
 {
   "title": "IDP Platform Documentation Dependency Map",
   "description": "Canonical dependency map for maintained documentation entry points",
-  "version": "2.0",
+  "version": "2.1",
   "generated": "2026-04-12",
   "documents": {
+    "agent-bootstrap": {
+      "id": "agent-bootstrap",
+      "path": "agent-bootstrap.json",
+      "type": "guide",
+      "status": "stable",
+      "dependencies": ["agent-usage-guide", "platform-constitution", "platform-requirements", "maturity-model", "capability-registry"],
+      "criticality": "critical"
+    },
+    "agent-usage-guide": {
+      "id": "agent-usage-guide",
+      "path": "AGENT_USAGE_GUIDE.md",
+      "type": "guide",
+      "status": "stable",
+      "dependencies": ["platform-constitution", "platform-architecture", "platform-requirements", "maturity-model"],
+      "criticality": "critical"
+    },
+    "docs-root": {
+      "id": "docs-root",
+      "path": "README.md",
+      "type": "index",
+      "status": "stable",
+      "dependencies": ["agent-usage-guide", "dependency-map"],
+      "criticality": "high"
+    },
+    "dependency-map": {
+      "id": "dependency-map",
+      "path": "dependency-map.json",
+      "type": "index",
+      "status": "stable",
+      "dependencies": [],
+      "criticality": "high"
+    },
     "platform-constitution": {
       "id": "platform-constitution",
       "path": "foundation/constitution.md",
@@ -44,9 +76,25 @@
       "dependencies": ["platform-constitution", "platform-requirements"],
       "criticality": "critical"
     },
+    "capability-registry": {
+      "id": "capability-registry",
+      "path": "capability-registry.json",
+      "type": "reference",
+      "status": "stable",
+      "dependencies": ["platform-requirements", "maturity-model"],
+      "criticality": "critical"
+    },
     "headless-iam-status-matrix": {
       "id": "headless-iam-status-matrix",
       "path": "reference/headless-iam-status-matrix.md",
+      "type": "reference",
+      "status": "stable",
+      "dependencies": ["platform-requirements", "maturity-model"],
+      "criticality": "critical"
+    },
+    "headless-iam-requirements-gap-matrix": {
+      "id": "headless-iam-requirements-gap-matrix",
+      "path": "reference/headless-iam-requirements-gap-matrix.md",
       "type": "reference",
       "status": "stable",
       "dependencies": ["platform-requirements", "maturity-model"],
@@ -60,9 +108,25 @@
       "dependencies": ["platform-requirements", "headless-iam-status-matrix"],
       "criticality": "high"
     },
+    "implementation-index": {
+      "id": "implementation-index",
+      "path": "implementation/index.md",
+      "type": "index",
+      "status": "stable",
+      "dependencies": ["platform-requirements"],
+      "criticality": "high"
+    },
     "implementation-plan": {
       "id": "implementation-plan",
       "path": "implementation/deployment/implementation-plan.md",
+      "type": "implementation",
+      "status": "stable",
+      "dependencies": ["platform-requirements", "headless-iam-status-matrix"],
+      "criticality": "high"
+    },
+    "gap-remediation": {
+      "id": "gap-remediation",
+      "path": "implementation/deployment/gap-remediation.md",
       "type": "implementation",
       "status": "stable",
       "dependencies": ["platform-requirements", "headless-iam-status-matrix"],
@@ -83,43 +147,125 @@
       "status": "stable",
       "dependencies": ["platform-architecture", "security-model", "platform-requirements"],
       "criticality": "high"
+    },
+    "deployment-modes": {
+      "id": "deployment-modes",
+      "path": "specs/operations/deployment-modes.md",
+      "type": "specification",
+      "status": "stable",
+      "dependencies": ["platform-requirements"],
+      "criticality": "high"
+    },
+    "protocol-support-matrix": {
+      "id": "protocol-support-matrix",
+      "path": "reference/protocol-support-matrix.md",
+      "type": "reference",
+      "status": "stable",
+      "dependencies": ["oauth-flows", "headless-iam-status-matrix"],
+      "criticality": "high"
+    },
+    "saml-profile-matrix": {
+      "id": "saml-profile-matrix",
+      "path": "reference/saml-profile-matrix.md",
+      "type": "reference",
+      "status": "stable",
+      "dependencies": ["platform-requirements", "headless-iam-status-matrix"],
+      "criticality": "high"
+    },
+    "webauthn-support-matrix": {
+      "id": "webauthn-support-matrix",
+      "path": "reference/webauthn-support-matrix.md",
+      "type": "reference",
+      "status": "stable",
+      "dependencies": ["platform-requirements", "headless-iam-status-matrix"],
+      "criticality": "high"
+    },
+    "federation-support-matrix": {
+      "id": "federation-support-matrix",
+      "path": "reference/federation-support-matrix.md",
+      "type": "reference",
+      "status": "stable",
+      "dependencies": ["platform-requirements", "headless-iam-status-matrix"],
+      "criticality": "high"
+    },
+    "design-system": {
+      "id": "design-system",
+      "path": "specs/ui/design-system.md",
+      "type": "specification",
+      "status": "stable",
+      "dependencies": ["platform-requirements"],
+      "criticality": "high"
+    },
+    "component-specs": {
+      "id": "component-specs",
+      "path": "specs/ui/component-specs.md",
+      "type": "specification",
+      "status": "stable",
+      "dependencies": ["design-system"],
+      "criticality": "high"
+    },
+    "interaction-patterns": {
+      "id": "interaction-patterns",
+      "path": "specs/ui/interaction-patterns.md",
+      "type": "specification",
+      "status": "stable",
+      "dependencies": ["design-system"],
+      "criticality": "high"
+    },
+    "information-architecture": {
+      "id": "information-architecture",
+      "path": "specs/ui/information-architecture.md",
+      "type": "specification",
+      "status": "stable",
+      "dependencies": ["design-system"],
+      "criticality": "high"
+    },
+    "design-tokens": {
+      "id": "design-tokens",
+      "path": "specs/ui/design-tokens.md",
+      "type": "specification",
+      "status": "stable",
+      "dependencies": ["design-system"],
+      "criticality": "high"
     }
   },
   "dependency_chains": [
     {
       "name": "Core platform understanding",
       "path": [
+        "agent-usage-guide",
         "platform-constitution",
         "platform-architecture",
         "platform-requirements",
         "maturity-model",
-        "headless-iam-status-matrix"
+        "capability-registry"
       ]
     },
     {
       "name": "Readiness review",
       "path": [
-        "platform-constitution",
         "platform-requirements",
         "maturity-model",
+        "capability-registry",
         "headless-iam-status-matrix",
+        "headless-iam-requirements-gap-matrix",
         "headless-iam-standalone-validation-review-guide"
       ]
     },
     {
       "name": "Implementation sequencing",
       "path": [
-        "platform-requirements",
-        "headless-iam-status-matrix",
+        "implementation-index",
         "implementation-plan",
-        "roadmap"
+        "roadmap",
+        "gap-remediation"
       ]
     }
   ],
   "navigation_patterns": {
     "agent_exploration": {
-      "entry_point": "platform-constitution",
-      "strategy": "governance-first"
+      "entry_point": "agent-bootstrap",
+      "strategy": "compact-governance-first"
     },
     "readiness_assessment": {
       "entry_point": "maturity-model",
