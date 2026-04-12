@@ -130,10 +130,11 @@ async function resolveDependencies(documentId: string): Promise<string[]> {
 ### 🔐 **Authentication Domain**
 
 #### Required Reading Order:
-1. `foundation/architecture.md` - System context
-2. `foundation/security-model.md` - Security requirements
-3. `specs/authentication/oauth-flows.md` - Protocol implementation
-4. `implementation/integration/oauth-clients.md` - Practical guidance
+1. `foundation/constitution.md` - Constitutional principles and governance
+2. `foundation/architecture.md` - System context
+3. `foundation/security-model.md` - Security requirements
+4. `specs/authentication/oauth-flows.md` - Protocol implementation
+5. `implementation/integration/oauth-clients.md` - Practical guidance
 
 #### Validation Checklist:
 ```yaml
@@ -155,10 +156,11 @@ agent_validation:
 ### 🔗 **Federation Domain**
 
 #### Required Reading Order:
-1. `foundation/security-model.md` - Trust architecture
-2. `specs/federation/external-idp.md` - Federation specifications
-3. `specs/federation/trust-management.md` - Trust relationships
-4. `implementation/integration/saml-federation.md` - Implementation
+1. `foundation/constitution.md` - Constitutional principles and governance
+2. `foundation/security-model.md` - Trust architecture
+3. `specs/federation/external-idp.md` - Federation specifications
+4. `specs/federation/trust-management.md` - Trust relationships
+5. `implementation/integration/saml-federation.md` - Implementation
 
 #### Critical Validations:
 - Must verify certificate validation requirements
@@ -169,10 +171,11 @@ agent_validation:
 ### ⚙️ **Operations Domain**
 
 #### Required Reading Order:
-1. `foundation/architecture.md` - Infrastructure context
-2. `specs/operations/deployment-topology.md` - Deployment patterns
-3. `specs/operations/health-monitoring.md` - Monitoring requirements
-4. `implementation/deployment/aws-infrastructure.md` - AWS setup
+1. `foundation/constitution.md` - Constitutional principles and governance
+2. `foundation/architecture.md` - Infrastructure context
+3. `specs/operations/deployment-topology.md` - Deployment patterns
+4. `specs/operations/health-monitoring.md` - Monitoring requirements
+5. `implementation/deployment/aws-infrastructure.md` - AWS setup
 
 #### Production Readiness Validation:
 ```yaml

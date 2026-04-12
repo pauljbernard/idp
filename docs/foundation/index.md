@@ -18,6 +18,21 @@ Core foundational concepts, principles, and architectural decisions that inform 
 
 ## Foundation Documents
 
+### 📜 [Platform Constitution](constitution.md)
+**Foundational governance and principles**
+
+Constitutional framework establishing the fundamental principles, architectural requirements, and governance standards for the IDP Platform. This document defines the non-negotiable requirements for spec-driven development and platform evolution.
+
+**Key Topics:**
+- Platform purpose and constitutional authority
+- Identity and access management principles
+- Architectural layers and component requirements
+- Spec-driven development standards
+- Governance and amendment processes
+
+**Dependencies**: None (constitutional authority)
+**Related**: All platform documentation and specifications
+
 ### 🏗️ [Platform Architecture](architecture.md)
 **Required reading for all stakeholders**
 
@@ -67,9 +82,10 @@ Design philosophy, user experience principles, and development guidelines that e
 
 ### For AI Agents
 **Recommended Reading Order:**
-1. **Start Here**: [Platform Architecture](architecture.md) - Essential system understanding
-2. **Security Context**: [Security Model](security-model.md) - Critical for any security-related implementations
-3. **UX Context**: [Design Principles](design-principles.md) - Required for user-facing features
+1. **Constitutional Foundation**: [Platform Constitution](constitution.md) - Foundational principles and governance
+2. **System Understanding**: [Platform Architecture](architecture.md) - Essential technical architecture
+3. **Security Context**: [Security Model](security-model.md) - Critical for any security-related implementations
+4. **UX Context**: [Design Principles](design-principles.md) - Required for user-facing features
 
 **Navigation Pattern:**
 - Use foundation documents to build comprehensive context
