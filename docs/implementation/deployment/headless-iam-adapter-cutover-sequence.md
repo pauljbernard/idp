@@ -26,8 +26,8 @@ It answers:
 
 This document depends on:
 
-- [Headless_IAM_State_Foundation_Baseline.md](./Headless_IAM_State_Foundation_Baseline.md)
-- [Headless_IAM_State_Authority_Audit.md](./Headless_IAM_State_Authority_Audit.md)
+- [Headless_IAM_State_Foundation_Baseline.md](../planning/headless-iam-state-foundation-baseline.md)
+- [Headless_IAM_State_Authority_Audit.md](../planning/headless-iam-state-authority-audit.md)
 
 ## Current Adapter Model
 

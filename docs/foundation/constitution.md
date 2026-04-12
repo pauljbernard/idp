@@ -6,7 +6,7 @@ status: stable
 version: "1.0"
 dependencies: []
 tags: [constitution, governance, principles, architecture, spec-driven-development]
-last_updated: "2024-04-12"
+last_updated: "2026-04-12"
 related: [architecture, security-model, design-principles]
 ---
 
@@ -121,7 +121,7 @@ This layer must remain reusable and independently multi-tenant, so IDP can consu
 
 All identity and access platform domains must document:
 
-- support tier, current maturity state, supported profiles, exclusions, and required evidence using the capability-maturity standard in `docs/specs/governance/capability-maturity-standard.md`,
+- support tier, current maturity state, supported profiles, exclusions, and required evidence using the capability-maturity standard in `docs/reference/maturity-model.md`,
 - realm or security-partition identity and isolation semantics,
 - user, profile, credential, group, role, composite-role, client, client-scope, protocol-mapper, service-account, organization, invitation, and WebAuthn or passkey credential models,
 - RBAC inheritance, delegated administration, fine-grained admin-authorization, admin-boundary, and impersonation rules where supported,

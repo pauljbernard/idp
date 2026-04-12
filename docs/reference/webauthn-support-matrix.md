@@ -17,7 +17,7 @@ Last updated: 2026-04-11
 
 This document is the Phase 0 support matrix for passkey and WebAuthn capability claims.
 
-The runtime mirror of this matrix is published through `GET /api/v1/iam/webauthn/support-matrix` and backed by [iamPasskeySupportMatrixRuntime.ts](../../../apps/api-server/src/platform/iamPasskeySupportMatrixRuntime.ts).
+The runtime mirror of this matrix is published through `GET /api/v1/iam/webauthn/support-matrix` and backed by [iamPasskeySupportMatrixRuntime.ts](../../apps/api-server/src/platform/iamPasskeySupportMatrixRuntime.ts).
 
 ## Current Status
 

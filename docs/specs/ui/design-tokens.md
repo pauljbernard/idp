@@ -5,11 +5,25 @@ domain: ui
 status: stable
 version: "1.0"
 dependencies: [platform-architecture]
+support_tier: "core-release"
+maturity_state: "implemented"
+supported_profiles: [shared-color-tokens, semantic-status-tokens, ui-foundation-tokens]
+evidence_class: "internal-runtime"
 tags: [specification, technical, ui]
-last_updated: "2024-04-12"
+last_updated: "2026-04-12"
 related: []
 ---
 # Color Palette
+
+## Support Metadata
+
+- Support tier: `Core release`
+- Maturity state: `Implemented`
+- Supported profiles:
+  - `shared-color-tokens`
+  - `semantic-status-tokens`
+  - `ui-foundation-tokens`
+- Evidence class: `Internal runtime`
 
 The IDP Platform color palette is designed to convey trust, security, and enterprise reliability while maintaining excellent accessibility and visual hierarchy.
 

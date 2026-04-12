@@ -37,7 +37,7 @@ It does not satisfy the shared-environment claim gate, but it does establish tha
 | Operator | Codex |
 | Runtime build / commit | Workspace state on 2026-04-11 |
 | Runtime table name | `idp-iam-runtime-local` |
-| Related checklist | [Headless_IAM_Ticket_Cutover_Checklist.md](./Headless_IAM_Ticket_Cutover_Checklist.md) |
+| Related checklist | [Headless_IAM_Ticket_Cutover_Checklist.md](./headless-iam-ticket-cutover-checklist.md) |
 
 ## Runtime Configuration
 

@@ -26,9 +26,9 @@ It translates the broad `WS1` objective from the remediation plan into a concret
 
 This document is a planning and execution artifact. It does not redefine support or maturity claims. Governed current-state truth remains in:
 
-- [capability-maturity-standard.idp.md](../capability-maturity-standard.idp.md)
-- [Headless_IAM_Status_Matrix.md](./Headless_IAM_Status_Matrix.md)
-- [Headless_IAM_Gap_Remediation_Plan.md](./Headless_IAM_Gap_Remediation_Plan.md)
+- [Capability Maturity Standard](../../reference/maturity-model.md)
+- [Headless IAM Status Matrix](../../reference/headless-iam-status-matrix.md)
+- [Headless IAM Gap Remediation Plan](../deployment/gap-remediation.md)
 
 ## Phase 1 Objective
 

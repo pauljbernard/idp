@@ -19,7 +19,7 @@ This document is the Phase 0 support matrix for protocol-facing standalone IAM c
 
 It defines the current supported surface, deferred surface, and required evidence for advancement.
 
-The runtime mirror of these decisions is published through `GET /api/v1/iam/support-profiles` and backed by [iamSupportProfileRuntime.ts](../../../apps/api-server/src/platform/iamSupportProfileRuntime.ts). The review runtime now consumes that support posture so claim-bearing review outputs do not promote a capability from mere feature presence.
+The runtime mirror of these decisions is published through `GET /api/v1/iam/support-profiles` and backed by [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts). The review runtime now consumes that support posture so claim-bearing review outputs do not promote a capability from mere feature presence.
 
 ## Protocol Matrix
 

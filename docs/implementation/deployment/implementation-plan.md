@@ -16,14 +16,14 @@ related: []
 
 **Status Note:** This document is a roadmap input, not the governing source for current capability state or support claims. Statements here describe intended direction and historical planning posture. Current release/support truth is defined by:
 
-- [capability-maturity-standard.idp.md](../capability-maturity-standard.idp.md)
-- [Headless_IAM_Status_Matrix.md](./Headless_IAM_Status_Matrix.md)
-- [Headless_IAM_Protocol_Support_Matrix.md](./Headless_IAM_Protocol_Support_Matrix.md)
-- [Headless_IAM_Federation_Support_Matrix.md](./Headless_IAM_Federation_Support_Matrix.md)
-- [Headless_IAM_Passkey_Support_Matrix.md](./Headless_IAM_Passkey_Support_Matrix.md)
-- [Headless_IAM_SAML_Profile_Matrix.md](./Headless_IAM_SAML_Profile_Matrix.md)
-- [Headless_IAM_Deployment_Mode_Matrix.md](./Headless_IAM_Deployment_Mode_Matrix.md)
-- [Headless_IAM_Gap_Remediation_Plan.md](./Headless_IAM_Gap_Remediation_Plan.md)
+- [Capability Maturity Standard](../../reference/maturity-model.md)
+- [Headless IAM Status Matrix](../../reference/headless-iam-status-matrix.md)
+- [Protocol Support Matrix](../../reference/protocol-support-matrix.md)
+- [Federation Support Matrix](../../reference/federation-support-matrix.md)
+- [WebAuthn Support Matrix](../../reference/webauthn-support-matrix.md)
+- [SAML Profile Matrix](../../reference/saml-profile-matrix.md)
+- [Deployment Modes](../../specs/operations/deployment-modes.md)
+- [Headless IAM Gap Remediation Plan](./gap-remediation.md)
 
 ---
 

@@ -30,17 +30,17 @@ This document supersedes the split draft artifacts that previously separated the
 
 This plan is derived from:
 
-- [Headless_IAM_Production_Remediation_Plan.md](./Headless_IAM_Production_Remediation_Plan.md)
-- [Headless_IAM_Standalone_Product_Assessment.md](./Headless_IAM_Standalone_Product_Assessment.md)
-- [requirements.idp.md](../requirements.idp.md)
-- [constitution.idp.md](../constitution.idp.md)
-- [capability-maturity-standard.idp.md](../capability-maturity-standard.idp.md)
-- [Headless_IAM_Status_Matrix.md](./Headless_IAM_Status_Matrix.md)
-- [Headless_IAM_Protocol_Support_Matrix.md](./Headless_IAM_Protocol_Support_Matrix.md)
-- [Headless_IAM_Federation_Support_Matrix.md](./Headless_IAM_Federation_Support_Matrix.md)
-- [Headless_IAM_Passkey_Support_Matrix.md](./Headless_IAM_Passkey_Support_Matrix.md)
-- [Headless_IAM_SAML_Profile_Matrix.md](./Headless_IAM_SAML_Profile_Matrix.md)
-- [Headless_IAM_Deployment_Mode_Matrix.md](./Headless_IAM_Deployment_Mode_Matrix.md)
+- [Headless IAM Production Remediation Plan](../planning/headless-iam-production-remediation-plan.md)
+- [Headless IAM Standalone Product Assessment](../planning/headless-iam-standalone-product-assessment.md)
+- [Platform Requirements](../../specs/platform-requirements.md)
+- [Platform Constitution](../../foundation/constitution.md)
+- [Capability Maturity Standard](../../reference/maturity-model.md)
+- [Headless IAM Status Matrix](../../reference/headless-iam-status-matrix.md)
+- [Protocol Support Matrix](../../reference/protocol-support-matrix.md)
+- [Federation Support Matrix](../../reference/federation-support-matrix.md)
+- [WebAuthn Support Matrix](../../reference/webauthn-support-matrix.md)
+- [SAML Profile Matrix](../../reference/saml-profile-matrix.md)
+- [Deployment Modes](../../specs/operations/deployment-modes.md)
 
 ## Comparison Basis
 
@@ -133,7 +133,7 @@ The current state is best described as:
 | Backup, restore, resilience, key rotation, readiness review | Keycloak has operational guides; IDP aims explicit built-in evidence | Backup, restore, resilience runs, signing key rotation, recovery drill, health summary, and formal review artifacts exist | Differentiator candidate | [iamOperationsRuntime.ts](../../../apps/api-server/src/platform/iamOperationsRuntime.ts), [iamRecoveryRuntime.ts](../../../apps/api-server/src/platform/iamRecoveryRuntime.ts), [iamReviewRuntime.ts](../../../apps/api-server/src/platform/iamReviewRuntime.ts), [iamHealthRuntime.ts](../../../apps/api-server/src/platform/iamHealthRuntime.ts) | Preserve; convert to real infra-backed evidence |
 | Benchmark and readiness evidence quality | Keycloak ships real HA/load guidance and benchmark projects | Current benchmark and review evidence are mostly internally generated validation artifacts, not external load-tested proof | Synthetic | [iamBenchmarkRuntime.ts](../../../apps/api-server/src/platform/iamBenchmarkRuntime.ts), [iamReviewRuntime.ts](../../../apps/api-server/src/platform/iamReviewRuntime.ts) | Replace with real test evidence |
 | Secret and key posture | Keycloak supports production secret and key management | Secret storage and signing key rotation exist, but the overall platform posture still depends on local-development-oriented state patterns in several domains | Partial | [secretStore.ts](../../../apps/api-server/src/platform/secretStore.ts), [iamOperationsRuntime.ts](../../../apps/api-server/src/platform/iamOperationsRuntime.ts) | Production hardening |
-| FIPS/high-assurance/compliance-ready modes | Keycloak documents stronger enterprise deployment posture | Requirements mention these targets, but no runtime evidence demonstrates real FIPS/high-assurance execution modes | Missing | [requirements.idp.md](../requirements.idp.md), no concrete runtime feature surface under `apps/api-server/src/platform` | Later enterprise/compliance phase |
+| FIPS/high-assurance/compliance-ready modes | Keycloak documents stronger enterprise deployment posture | Requirements mention these targets, but no runtime evidence demonstrates real FIPS/high-assurance execution modes | Missing | [Platform Requirements](../../specs/platform-requirements.md), no concrete runtime feature surface under `apps/api-server/src/platform` | Later enterprise/compliance phase |
 
 ### E. Scale, Durability, and High Availability
 
@@ -144,13 +144,13 @@ The current state is best described as:
 | Horizontal scale and HA topology | Keycloak documents tested multi-instance and multi-cluster deployment patterns | IDP currently models AWS-native topology and adapters, but the runtime is still effectively a single-process state machine | Synthetic | [iamDeploymentRuntime.ts](../../../apps/api-server/src/platform/iamDeploymentRuntime.ts), [persistence.ts](../../../apps/api-server/src/platform/persistence.ts) | Highest-priority scale foundation |
 | Multi-site / rolling upgrade style production posture | Keycloak documents optional multi-site and rolling-update features | No implementation evidence found | Missing | No runtime matches for `multi-site` or `rolling` in the IAM runtime modules as of 2026-03-29 | Later HA phase |
 | User-event metrics / production telemetry | Keycloak documents optional user-event metrics | No equivalent user-event metrics feature surface found | Missing | No runtime matches for `user-event metrics` in the IAM runtime modules as of 2026-03-29 | Observability phase |
-| Scale validation evidence | Keycloak publishes tested configuration guidance and benchmark project references | IDP has benchmark artifacts, but they are not credible yet as proof for 22,000 realms, 1.2 million users per realm upper tier, or 75,000 concurrent users | Synthetic | [iamBenchmarkRuntime.ts](../../../apps/api-server/src/platform/iamBenchmarkRuntime.ts), [Headless_IAM_Production_Remediation_Plan.md](./Headless_IAM_Production_Remediation_Plan.md) | Highest-priority scale foundation |
+| Scale validation evidence | Keycloak publishes tested configuration guidance and benchmark project references | IDP has benchmark artifacts, but they are not credible yet as proof for 22,000 realms, 1.2 million users per realm upper tier, or 75,000 concurrent users | Synthetic | [iamBenchmarkRuntime.ts](../../../apps/api-server/src/platform/iamBenchmarkRuntime.ts), [Headless IAM Production Remediation Plan](../planning/headless-iam-production-remediation-plan.md) | Highest-priority scale foundation |
 
 ### F. Strategic Differentiation Potential
 
 | Candidate differentiator | Why it matters | Current reality | Status | Primary local evidence | Planning lane |
 | --- | --- | --- | --- | --- | --- |
-| AWS-native serverless-first cost posture | Could undercut Keycloak’s heavier Kubernetes-first operational footprint for low-to-medium utilization | The intended AWS-native shape is well documented, but the runtime is not yet fully there | Differentiator candidate | [requirements.idp.md](../requirements.idp.md), [constitution.idp.md](../constitution.idp.md), [iamDeploymentRuntime.ts](../../../apps/api-server/src/platform/iamDeploymentRuntime.ts) | Convert architecture intent into reality |
+| AWS-native serverless-first cost posture | Could undercut Keycloak’s heavier Kubernetes-first operational footprint for low-to-medium utilization | The intended AWS-native shape is well documented, but the runtime is not yet fully there | Differentiator candidate | [Platform Requirements](../../specs/platform-requirements.md), [Platform Constitution](../../foundation/constitution.md), [iamDeploymentRuntime.ts](../../../apps/api-server/src/platform/iamDeploymentRuntime.ts) | Convert architecture intent into reality |
 | Explicit readiness, recovery, and review evidence | Could provide stronger built-in operational governance than a typical IAM product | The evidence model exists, but much of it is still synthetic and not yet backed by production-grade infrastructure or externalized testing | Differentiator candidate | [iamOperationsRuntime.ts](../../../apps/api-server/src/platform/iamOperationsRuntime.ts), [iamRecoveryRuntime.ts](../../../apps/api-server/src/platform/iamRecoveryRuntime.ts), [iamReviewRuntime.ts](../../../apps/api-server/src/platform/iamReviewRuntime.ts) | Preserve and harden |
 | SCIM-style directory/federation posture | Could differentiate if made real, because Keycloak is not currently strongest here | Only synthetic today | Differentiator candidate | [iamFederationRuntime.ts](../../../apps/api-server/src/platform/iamFederationRuntime.ts) | Optional future differentiation |
 

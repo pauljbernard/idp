@@ -1,32 +1,42 @@
 ---
 id: platform-manifest
 type: reference
-domain: platform-manifest.md
+domain: platform-manifest
 status: stable
-version: "1.0"
-dependencies: []
-tags: [reference, lookup, platform-manifest.md]
-last_updated: "2024-04-12"
-related: []
+version: "2.0"
+dependencies: [platform-constitution, platform-requirements, maturity-model]
+tags: [reference, manifest, governance]
+last_updated: "2026-04-12"
+related: [reference-index, implementation-index]
 ---
-# IDP Manifest
+# IDP Platform Manifest
 
+This manifest maps the canonical governance and implementation artifacts used for spec-driven development in the current repository.
 
-## Spec Governance
+## Governing Documents
 
-- IDP constitutional and requirements specifications:
-  - `constitution.md` -> `docs/spec/constitution.idp.md`
-  - `requirements.md` -> `docs/spec/requirements.idp.md`
-  - `capability-maturity-standard.md` -> `docs/spec/capability-maturity-standard.idp.md`
-- IAM implementation and validation plans are maintained under `docs/spec/plans/`.
+- Constitution: [foundation/constitution.md](../foundation/constitution.md)
+- Architecture: [foundation/architecture.md](../foundation/architecture.md)
+- Security model: [foundation/security-model.md](../foundation/security-model.md)
+- Requirements: [specs/platform-requirements.md](../specs/platform-requirements.md)
+- Capability maturity standard: [reference/maturity-model.md](./maturity-model.md)
 
-## Code and Contracts
+## Current State and Planning
 
-- IAM contracts and SDK are maintained under `contracts/`.
-- IAM API runtime modules and required local dependencies are maintained under `apps/api-server/src/platform/`.
-- IAM UI modules and required local dependencies are maintained under `apps/enterprise-ui/src/`.
-- IAM verification scripts are maintained under `scripts/`.
+- Status matrix: [headless-iam-status-matrix.md](./headless-iam-status-matrix.md)
+- Requirements gap matrix: [headless-iam-requirements-gap-matrix.md](./headless-iam-requirements-gap-matrix.md)
+- Validation review guide: [implementation/planning/headless-iam-standalone-validation-review-guide.md](../implementation/planning/headless-iam-standalone-validation-review-guide.md)
+- Implementation plan: [implementation/deployment/implementation-plan.md](../implementation/deployment/implementation-plan.md)
+- Roadmap: [implementation/deployment/roadmap.md](../implementation/deployment/roadmap.md)
 
-## Intent
+## Code and Contract Sources
 
-This manifest documents the constitutional, requirements, contract, implementation, and verification artifacts needed to continue standalone IDP development.
+- Contracts and SDK: `contracts/`
+- API runtime modules: `apps/api-server/src/platform/`
+- UI runtime modules: `apps/enterprise-ui/src/`
+- Verification and helper scripts: `scripts/`
+
+## Notes
+
+- Historical references to `docs/spec/*.idp.md` and `docs/spec/plans/*` are legacy path names and are not the canonical source in this repo.
+- New docs should link to the current `docs/` paths listed above.

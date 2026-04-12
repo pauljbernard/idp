@@ -35,7 +35,7 @@ It is not a substitute for shared-environment evidence, but it is the first gove
 | Operator | Codex |
 | Runtime build / commit | Workspace state on 2026-04-11 |
 | Runtime table name | `idp-iam-runtime-local` |
-| Related checklist | [Headless_IAM_Login_Transaction_Cutover_Checklist.md](./Headless_IAM_Login_Transaction_Cutover_Checklist.md) |
+| Related checklist | [Headless_IAM_Login_Transaction_Cutover_Checklist.md](./headless-iam-login-transaction-cutover-checklist.md) |
 
 ## Environment Setup
 

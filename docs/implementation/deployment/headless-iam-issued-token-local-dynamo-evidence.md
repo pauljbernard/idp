@@ -39,7 +39,7 @@ It establishes local viability for:
 | Operator | Codex |
 | Runtime build / commit | Workspace state on 2026-04-11 |
 | Runtime table name | `idp-iam-runtime-local` |
-| Related checklist | [Headless_IAM_Issued_Token_Cutover_Checklist.md](./Headless_IAM_Issued_Token_Cutover_Checklist.md) |
+| Related checklist | [Headless_IAM_Issued_Token_Cutover_Checklist.md](./headless-iam-issued-token-cutover-checklist.md) |
 
 ## Runtime Configuration
 

@@ -7,19 +7,22 @@ const { spawnSync } = require('child_process');
 const repoRoot = path.resolve(__dirname, '..');
 
 const requiredFiles = [
-  'docs/spec/constitution.idp.md',
-  'docs/spec/requirements.idp.md',
-  'docs/spec/plans/Headless_IAM_Gap_Remediation_Plan.md',
-  'docs/spec/plans/Headless_IAM_Standalone_Validation_Review_Guide.md',
-  'docs/spec/plans/Crew_IDP_Authorization_Replacement_Plan.md',
+  'docs/foundation/constitution.md',
+  'docs/specs/platform-requirements.md',
+  'docs/reference/maturity-model.md',
+  'docs/reference/headless-iam-status-matrix.md',
+  'docs/implementation/deployment/gap-remediation.md',
+  'docs/implementation/planning/headless-iam-standalone-validation-review-guide.md',
+  'docs/implementation/planning/crew-idp-authorization-replacement-plan.md',
   'contracts/sdk-iam/contract-manifest.json',
   'scripts/verify-sdk-iam-contract.js',
+  'scripts/validate-docs.js',
   'scripts/verify-idp-standalone-baseline.sh',
 ];
 
 const contentChecks = [
   {
-    file: 'docs/spec/constitution.idp.md',
+    file: 'docs/foundation/constitution.md',
     required: [
       'tenant-aware principal context including active tenant or organization selection',
       'application-binding registries',
@@ -32,46 +35,30 @@ const contentChecks = [
     ],
   },
   {
-    file: 'docs/spec/requirements.idp.md',
+    file: 'docs/specs/platform-requirements.md',
     required: [
       'tenant-aware principal context including active tenant or organization selection in sessions and tokens',
-      'application-facing capability registries and evaluation behavior for arbitrary downstream namespaces such as `cap.*`',
-      'application binding registries, authorization-profile definitions, claim-match rules',
-      'capability-binding rules, surface catalogs, coarse-role projection templates, compatibility `/me` templates',
+      'application-binding registries and authorization-profile engines',
+      'versioned principal projection contracts',
+      'external policy-input composition',
       'tenant- or realm-scoped login and registration experience selection',
       'registration schema and registration-policy controls',
-      'direct-projection, lazy-sync, background-sync, and provisioning-adapter settings',
+      'direct projection, lazy sync, background sync, and provisioning adapters',
     ],
   },
   {
-    file: 'docs/spec/plans/Headless_IAM_Gap_Remediation_Plan.md',
+    file: 'docs/implementation/deployment/gap-remediation.md',
     required: [
       '## Execution Tracking Rules',
-      '- current phase',
       '- active workstream',
-      '- active iteration',
-      '- iteration completion percentage',
-      '## Current Execution Status',
       '| Current phase |',
-      '| Active workstream |',
-      '| Active iteration |',
-      '| Iteration completion |',
-      '| Phase completion |',
-      '### Phase status board',
-      '| `Phase 0` |',
-      '| `Phase 1` |',
-      '| `Phase 2` |',
-      '| `Phase 3` |',
-      '| `Phase 4` |',
-      '| `Phase 5` |',
-      '| `Phase 6` |',
-      '### Next execution sequence',
+      '## Recommended Next Move',
     ],
   },
   {
-    file: 'docs/spec/plans/Crew_IDP_Authorization_Replacement_Plan.md',
+    file: 'docs/implementation/planning/crew-idp-authorization-replacement-plan.md',
     required: [
-      'The target is a generic, reusable application-authorization platform',
+      'generic, reusable application-authorization platform',
       'Application binding registry',
       'Authorization profile engine',
       'Tenant-aware principal context and membership strategies',
@@ -85,7 +72,7 @@ const contentChecks = [
     ],
   },
   {
-    file: 'docs/spec/plans/Headless_IAM_Standalone_Validation_Review_Guide.md',
+    file: 'docs/implementation/planning/headless-iam-standalone-validation-review-guide.md',
     required: [
       '## Required Validation Tracks',
       '### 1. Authentication and Session Control',
@@ -119,6 +106,7 @@ function requirePackageScripts() {
   const pkg = JSON.parse(readText('package.json'));
   const scripts = pkg.scripts || {};
   const requiredScriptNames = [
+    'docs:validate',
     'verify:sdk:iam-contract',
     'test:unit',
     'test:journeys',

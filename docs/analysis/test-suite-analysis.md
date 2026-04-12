@@ -15,10 +15,10 @@ related: []
 **Assessment Scope**: Internal test-evidence review  
 **Evidence Boundary**: Test volume and internal journey coverage do not, by themselves, prove production readiness, standards parity, or competitive superiority. Capability claims must remain aligned to:
 
-- [Capability Maturity Standard](../spec/capability-maturity-standard.idp.md)
-- [Formal Status Matrix](../spec/plans/Headless_IAM_Status_Matrix.md)
-- [Protocol Support Matrix](../spec/plans/Headless_IAM_Protocol_Support_Matrix.md)
-- [Federation Support Matrix](../spec/plans/Headless_IAM_Federation_Support_Matrix.md)
+- [Capability Maturity Standard](../reference/maturity-model.md)
+- [Formal Status Matrix](../reference/headless-iam-status-matrix.md)
+- [Protocol Support Matrix](../reference/protocol-support-matrix.md)
+- [Federation Support Matrix](../reference/federation-support-matrix.md)
 
 ---
 

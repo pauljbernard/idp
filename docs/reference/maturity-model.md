@@ -1,17 +1,17 @@
 ---
 id: maturity-model
 type: reference
-domain: maturity-model.md
+domain: governance
 status: stable
 version: "1.0"
 dependencies: []
 tags: [reference, lookup, maturity-model.md]
-last_updated: "2024-04-12"
+last_updated: "2026-04-12"
 related: []
 ---
 # Capability Maturity Standard
 
-Source: `capability-maturity-standard.md`
+Source: current canonical maturity standard for the repository documentation set
 
 ## Purpose
 

@@ -5,11 +5,25 @@ domain: ui
 status: stable
 version: "1.0"
 dependencies: [platform-architecture]
+support_tier: "core-release"
+maturity_state: "implemented"
+supported_profiles: [shared-ui-components, admin-console-controls, account-surface-controls]
+evidence_class: "internal-runtime"
 tags: [specification, technical, ui]
-last_updated: "2024-04-12"
+last_updated: "2026-04-12"
 related: []
 ---
 # Button Components
+
+## Support Metadata
+
+- Support tier: `Core release`
+- Maturity state: `Implemented`
+- Supported profiles:
+  - `shared-ui-components`
+  - `admin-console-controls`
+  - `account-surface-controls`
+- Evidence class: `Internal runtime`
 
 Buttons are the primary interaction elements in the IDP Platform, designed to convey action hierarchy and maintain consistency across all interfaces.
 

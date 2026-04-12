@@ -49,12 +49,8 @@ This plan does not cover:
 
 This plan implements the new constitutional and requirements expectations now present in:
 
-- [CONSTITUTION.md](/Volumes/data/development/IDP/IDP/CONSTITUTION.md#L491)
-- [CONSTITUTION.md](/Volumes/data/development/IDP/IDP/CONSTITUTION.md#L651)
-- [requirements.md](/Volumes/data/development/IDP/IDP/requirements.md#L795)
-- [requirements.md](/Volumes/data/development/IDP/IDP/requirements.md#L832)
-- [requirements.md](/Volumes/data/development/IDP/IDP/requirements.md#L846)
-- [requirements.md](/Volumes/data/development/IDP/IDP/requirements.md#L1603)
+- [Platform Constitution](../../foundation/constitution.md)
+- [Platform Requirements](../../specs/platform-requirements.md)
 
 Those deltas require IAM to treat educational privacy, institutional federation, proxy relationships, contextual policy, and portable identity as reusable subsystem capabilities.
 
@@ -95,7 +91,7 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
 
 **Primary changes**
 
-- Add domain-aware realm templates and posture presets to [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts).
+- Add domain-aware realm templates and posture presets to [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts).
 - Introduce preset families for:
   - institutional SSO posture
   - privacy-sensitive profile posture
@@ -125,19 +121,19 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
 
 **Primary changes**
 
-- Expand [iamFederationRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFederationRuntime.ts) with:
+- Expand [iamFederationRuntime.ts](../../../apps/api-server/src/platform/iamFederationRuntime.ts) with:
   - trust-store entities
   - metadata ingestion and validation
   - certificate rollover records
   - mapping profiles
   - home-organization binding rules
   - just-in-time and sync-based link policies
-- Expand [iamProtocolRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamProtocolRuntime.ts) with:
+- Expand [iamProtocolRuntime.ts](../../../apps/api-server/src/platform/iamProtocolRuntime.ts) with:
   - governed assertion release
   - release-policy-aware attribute mapping
   - per-provider mapper bundles
   - SP and IdP federation test harness support
-- Expand [iamExtensionRegistry.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamExtensionRegistry.ts) with provider types for:
+- Expand [iamExtensionRegistry.ts](../../../apps/api-server/src/platform/iamExtensionRegistry.ts) with provider types for:
   - metadata validators
   - attribute mappers
   - trust-chain validators
@@ -167,13 +163,13 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
 
 **Primary changes**
 
-- Expand [iamUserProfiles.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamUserProfiles.ts) with:
+- Expand [iamUserProfiles.ts](../../../apps/api-server/src/platform/iamUserProfiles.ts) with:
   - attribute classification
   - allowed release purposes
   - consent requirements
   - minimization posture
   - protected-record markers
-- Expand [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts) with:
+- Expand [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts) with:
   - identity privacy classifications
   - protected-record categories
   - consent policy references
@@ -208,8 +204,8 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
 
 **Primary changes**
 
-- Add relationship and delegation primitives to [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts).
-- Add relationship evaluation support to [iamAuthorizationServices.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamAuthorizationServices.ts).
+- Add relationship and delegation primitives to [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts).
+- Add relationship evaluation support to [iamAuthorizationServices.ts](../../../apps/api-server/src/platform/iamAuthorizationServices.ts).
 - Add delegated session and consent handling to the authentication runtime.
 - Add policy support for:
   - relationship type
@@ -242,7 +238,7 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
 
 **Primary changes**
 
-- Expand or split [iamAuthorizationServices.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamAuthorizationServices.ts) into:
+- Expand or split [iamAuthorizationServices.ts](../../../apps/api-server/src/platform/iamAuthorizationServices.ts) into:
   - base RBAC and permission resolution
   - contextual policy model
   - policy decision evaluation
@@ -281,7 +277,7 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
 
 **Primary changes**
 
-- Add portable external-identity and home-organization primitives to [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts).
+- Add portable external-identity and home-organization primitives to [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts).
 - Expand federation runtime to maintain:
   - stable external identifiers
   - brokered identity links
@@ -318,7 +314,7 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
   - delegation relationships
   - contextual policy simulation
   - portable identity relationships
-- Extend review and readiness output in [iamReviewRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamReviewRuntime.ts) to assess:
+- Extend review and readiness output in [iamReviewRuntime.ts](../../../apps/api-server/src/platform/iamReviewRuntime.ts) to assess:
   - institutional federation readiness
   - privacy and attribute-release enforcement
   - delegated relationship control
@@ -382,8 +378,8 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
 
 **Primary files**
 
-- [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts)
-- [iamUserProfiles.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamUserProfiles.ts)
+- [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts)
+- [iamUserProfiles.ts](../../../apps/api-server/src/platform/iamUserProfiles.ts)
 - new IAM configuration contracts under `contracts/api`
 
 **Dependencies**
@@ -408,9 +404,9 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
 
 **Primary files**
 
-- [iamFederationRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFederationRuntime.ts)
-- [iamProtocolRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamProtocolRuntime.ts)
-- [iamExtensionRegistry.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamExtensionRegistry.ts)
+- [iamFederationRuntime.ts](../../../apps/api-server/src/platform/iamFederationRuntime.ts)
+- [iamProtocolRuntime.ts](../../../apps/api-server/src/platform/iamProtocolRuntime.ts)
+- [iamExtensionRegistry.ts](../../../apps/api-server/src/platform/iamExtensionRegistry.ts)
 
 **Dependencies**
 
@@ -434,8 +430,8 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
 
 **Primary files**
 
-- [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts)
-- [iamUserProfiles.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamUserProfiles.ts)
+- [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts)
+- [iamUserProfiles.ts](../../../apps/api-server/src/platform/iamUserProfiles.ts)
 - authentication and token issuance runtime modules
 
 **Dependencies**
@@ -460,7 +456,7 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
 
 **Primary files**
 
-- [iamAuthorizationServices.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamAuthorizationServices.ts)
+- [iamAuthorizationServices.ts](../../../apps/api-server/src/platform/iamAuthorizationServices.ts)
 - new policy runtime modules under `apps/api-server/src/platform`
 
 **Dependencies**
@@ -485,8 +481,8 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
 
 **Primary files**
 
-- [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts)
-- [iamFederationRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFederationRuntime.ts)
+- [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts)
+- [iamFederationRuntime.ts](../../../apps/api-server/src/platform/iamFederationRuntime.ts)
 
 **Dependencies**
 
@@ -511,7 +507,7 @@ At the end of this program, the IAM subsystem must be able to do all of the foll
 
 **Primary files**
 
-- [iamReviewRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamReviewRuntime.ts)
+- [iamReviewRuntime.ts](../../../apps/api-server/src/platform/iamReviewRuntime.ts)
 - IAM admin/account surfaces
 - standalone verification scripts
 
@@ -628,8 +624,8 @@ The next correct implementation step is **Phase 1: Foundation and Configuration 
 
 That phase should begin with changes to:
 
-- [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts)
-- [iamUserProfiles.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamUserProfiles.ts)
-- the IAM OpenAPI contract set under [contracts/api](/Volumes/data/development/IDP/IDP/contracts/api)
+- [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts)
+- [iamUserProfiles.ts](../../../apps/api-server/src/platform/iamUserProfiles.ts)
+- the IAM OpenAPI contract set under [contracts/api](../../../contracts/api)
 
 Those changes define the primitives that every later federation, delegation, privacy, and ABAC feature depends on.

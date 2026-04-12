@@ -15,10 +15,10 @@ related: []
 **Assessment Scope**: Internal readiness analysis for product and architecture planning  
 **Evidence Boundary**: This document does not certify production readiness, SLA attainment, compliance status, or market-leading SaaS posture. Governed status and support claims are defined by:
 
-- [Capability Maturity Standard](../spec/capability-maturity-standard.idp.md)
-- [Formal Status Matrix](../spec/plans/Headless_IAM_Status_Matrix.md)
-- [Deployment Mode Matrix](../spec/plans/Headless_IAM_Deployment_Mode_Matrix.md)
-- [Protocol Support Matrix](../spec/plans/Headless_IAM_Protocol_Support_Matrix.md)
+- [Capability Maturity Standard](../reference/maturity-model.md)
+- [Formal Status Matrix](../reference/headless-iam-status-matrix.md)
+- [Deployment Mode Matrix](../specs/operations/deployment-modes.md)
+- [Protocol Support Matrix](../reference/protocol-support-matrix.md)
 
 ---
 

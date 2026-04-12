@@ -1,212 +1,78 @@
-# Implementation Guides
-
 ---
 id: implementation-index
 type: index
 domain: implementation
 status: stable
-version: "1.0"
-dependencies: [platform-architecture, specs-index]
-tags: [implementation, guides, tutorials]
-last_updated: "2024-04-12"
+version: "2.0"
+dependencies: [platform-requirements, specs-index, reference-index]
+tags: [implementation, planning, deployment, readiness]
+last_updated: "2026-04-12"
 related: [specs-index, reference-index]
 ---
+# Implementation Guides
 
-## Purpose
+This index covers the implementation and execution documents that are actually present in the repository. The implementation corpus is planning-heavy and readiness-heavy; it is not a generic tutorial library.
 
-Step-by-step implementation guides for deploying, configuring, and integrating the IDP Platform. Each guide provides practical procedures to implement the platform specifications.
+## Fastest Useful Entry Points
+
+- [Getting Started](quick-start/getting-started.md) for local orientation
+- [Implementation Plan](deployment/implementation-plan.md) for program structure
+- [Roadmap](deployment/roadmap.md) for sequencing
+- [Standalone Validation Review Guide](planning/headless-iam-standalone-validation-review-guide.md) for adoption gates
 
 ## Quick Start
 
-### 🚀 **New to IDP Platform?**
-Start here: [Getting Started Guide](quick-start/getting-started.md) (< 30 minutes)
+| Guide | Role |
+|-------|------|
+| [Getting Started](quick-start/getting-started.md) | Local setup and initial repository orientation |
 
-### 🛠️ **Ready to Deploy?**
-Production setup: [Deployment Overview](deployment/overview.md)
+## Planning Documents
 
-### 🔌 **Integrating Applications?**
-Integration guide: [OAuth Client Setup](integration/oauth-clients.md)
+| Document | Role |
+|----------|------|
+| [Headless IAM Standalone Product Assessment](planning/headless-iam-standalone-product-assessment.md) | Assessment of current standalone IAM product posture |
+| [Headless IAM Standalone Validation Review Guide](planning/headless-iam-standalone-validation-review-guide.md) | Minimum validation gate before downstream adoption |
+| [Headless IAM Production Remediation Plan](planning/headless-iam-production-remediation-plan.md) | Production-hardening remediation tracking |
+| [Headless IAM Education Readiness Implementation Plan](planning/headless-iam-education-readiness-implementation-plan.md) | Education-readiness implementation planning |
+| [Headless IAM State Foundation Baseline](planning/headless-iam-state-foundation-baseline.md) | State-baseline analysis |
+| [Headless IAM State Authority Audit](planning/headless-iam-state-authority-audit.md) | State-authority review |
+| [Crew IDP Authorization Replacement Plan](planning/crew-idp-authorization-replacement-plan.md) | Authorization replacement planning |
+| [CMS IAM Integration Assessment](planning/cms-iam-integration-assessment.md) | CMS integration assessment |
+| [SaaS CMS Governance Extraction Plan](planning/saas-cms-governance-extraction-plan.md) | Governance extraction planning |
 
-### 👨‍💻 **Extending the Platform?**
-Development guide: [Development Workflow](development/local-development.md)
+## Deployment and Readiness Documents
 
-## Implementation Categories
+| Document | Role |
+|----------|------|
+| [Implementation Plan](deployment/implementation-plan.md) | Main implementation and workstream plan |
+| [Roadmap](deployment/roadmap.md) | Phase sequencing and program posture |
+| [Gap Remediation](deployment/gap-remediation.md) | Gap-driven remediation plan |
+| [Environment Readiness](deployment/environment-readiness.md) | Environment readiness criteria |
+| [Cutover Runbook](deployment/cutover-runbook.md) | Cutover operations guide |
+| [Migration from Keycloak](deployment/migration-from-keycloak.md) | Migration planning reference |
+| [Headless IAM Adapter Cutover Sequence](deployment/headless-iam-adapter-cutover-sequence.md) | Adapter cutover sequencing |
 
-### ⚡ Quick Start Guides
-Get up and running quickly with minimal configuration.
+## Evidence and Cutover Artifacts
 
-| Guide | Time | Prerequisites | Description |
-|-------|------|---------------|-------------|
-| [Getting Started](quick-start/getting-started.md) | 30 min | Docker, AWS CLI | Local development setup |
-| [First OAuth Client](quick-start/first-oauth-client.md) | 15 min | Running platform | Create and test OAuth integration |
-| [Basic User Management](quick-start/user-management.md) | 20 min | Admin access | Create users and organizations |
-| [Health Check Validation](quick-start/health-validation.md) | 10 min | Running platform | Verify system health |
+These are implementation artifacts, not broad onboarding guides:
 
-### 🏗️ Deployment Guides
-Production-ready infrastructure deployment and configuration.
+- [Headless IAM Runtime Cutover Evidence Pack](deployment/headless-iam-runtime-cutover-evidence-pack.md)
+- [Headless IAM Login Transaction Cutover Checklist](deployment/headless-iam-login-transaction-cutover-checklist.md)
+- [Headless IAM Login Transaction Dry Run Evidence](deployment/headless-iam-login-transaction-dry-run-evidence.md)
+- [Headless IAM Login Transaction Local Dynamo Evidence](deployment/headless-iam-login-transaction-local-dynamo-evidence.md)
+- [Headless IAM Ticket Cutover Checklist](deployment/headless-iam-ticket-cutover-checklist.md)
+- [Headless IAM Ticket Local Dynamo Evidence](deployment/headless-iam-ticket-local-dynamo-evidence.md)
+- [Headless IAM Session Cutover Checklist](deployment/headless-iam-session-cutover-checklist.md)
+- [Headless IAM Session Local Dynamo Evidence](deployment/headless-iam-session-local-dynamo-evidence.md)
+- [Headless IAM Issued Token Cutover Checklist](deployment/headless-iam-issued-token-cutover-checklist.md)
+- [Headless IAM Issued Token Local Dynamo Evidence](deployment/headless-iam-issued-token-local-dynamo-evidence.md)
 
-| Guide | Complexity | Time | Description |
-|-------|------------|------|-------------|
-| [Deployment Overview](deployment/overview.md) | Beginner | 15 min | Deployment options and planning |
-| [AWS Infrastructure](deployment/aws-infrastructure.md) | Advanced | 2-4 hours | Complete AWS setup |
-| [Single Region HA](deployment/single-region-ha.md) | Intermediate | 1-2 hours | High availability setup |
-| [Multi-Region DR](deployment/multi-region-dr.md) | Expert | 4-8 hours | Disaster recovery configuration |
-| [Security Hardening](deployment/security-hardening.md) | Advanced | 2-3 hours | Production security configuration |
-| [Monitoring Setup](deployment/monitoring-setup.md) | Intermediate | 1-2 hours | CloudWatch and alerting |
+## How To Use This Index
 
-### 🔌 Integration Guides
-Connect applications and external systems to the platform.
+- For product readiness questions, start with planning docs and the reference status matrix.
+- For release sequencing, start with [Implementation Plan](deployment/implementation-plan.md) and [Roadmap](deployment/roadmap.md).
+- For operational proof, use the evidence and checklist documents under `deployment/`.
 
-| Guide | Audience | Time | Description |
-|-------|----------|------|-------------|
-| [OAuth Client Setup](integration/oauth-clients.md) | Developers | 30 min | Web application integration |
-| [Mobile App Integration](integration/mobile-apps.md) | Mobile devs | 45 min | iOS/Android OAuth setup |
-| [SPA Integration](integration/spa-clients.md) | Frontend devs | 30 min | Single-page application setup |
-| [API Service Integration](integration/api-services.md) | Backend devs | 20 min | Service-to-service authentication |
-| [SAML Federation](integration/saml-federation.md) | Enterprise architects | 60 min | External IdP integration |
-| [LDAP Integration](integration/ldap-integration.md) | Directory admins | 45 min | Active Directory connection |
-| [Webhook Configuration](integration/webhooks.md) | DevOps | 30 min | Event notification setup |
+## Deliberate Exclusions
 
-### 👨‍💻 Development Guides
-Extend and customize the platform for specific requirements.
-
-| Guide | Audience | Time | Description |
-|-------|----------|------|-------------|
-| [Local Development](development/local-development.md) | Developers | 30 min | Development environment setup |
-| [Testing Framework](development/testing-framework.md) | QA Engineers | 45 min | Test suite configuration |
-| [Custom UI Components](development/custom-components.md) | Frontend devs | 60 min | Extend the admin console |
-| [API Extensions](development/api-extensions.md) | Backend devs | 90 min | Custom endpoint development |
-| [Plugin Architecture](development/plugin-system.md) | Platform devs | 120 min | Custom runtime extensions |
-| [Database Migrations](development/database-migrations.md) | DevOps | 45 min | Schema update procedures |
-
-## Implementation Patterns
-
-### Typical Implementation Sequences
-
-#### New Installation
-```
-1. Infrastructure Deployment (deployment/aws-infrastructure.md)
-2. Basic Configuration (quick-start/getting-started.md)
-3. First Application (integration/oauth-clients.md)
-4. User Management (quick-start/user-management.md)
-5. Security Hardening (deployment/security-hardening.md)
-6. Monitoring Setup (deployment/monitoring-setup.md)
-```
-
-#### Application Integration
-```
-1. Understand OAuth Flows (specs/authentication/oauth-flows.md)
-2. Register OAuth Client (integration/oauth-clients.md)
-3. Implement Authentication (integration/[app-type]-integration.md)
-4. Test Integration (quick-start/health-validation.md)
-5. Production Deployment (deployment/security-hardening.md)
-```
-
-#### Enterprise Federation
-```
-1. Plan Federation Architecture (specs/federation/external-idp.md)
-2. Configure External IdP (integration/saml-federation.md)
-3. Set Up Protocol Mapping (integration/attribute-mapping.md)
-4. Test User Flows (development/testing-framework.md)
-5. Production Cutover (deployment/federation-cutover.md)
-```
-
-### Common Prerequisites
-
-#### Development Environment
-- Docker Desktop 4.0+
-- Node.js 18+ with npm
-- AWS CLI configured
-- Git 2.30+
-- Code editor with TypeScript support
-
-#### AWS Infrastructure
-- AWS Account with administrative access
-- VPC with public/private subnets
-- Route 53 hosted zone
-- ACM certificate
-- IAM roles and policies
-
-#### Production Environment
-- Load balancer with SSL/TLS termination
-- DynamoDB tables with encryption
-- S3 buckets with versioning
-- CloudWatch logging and metrics
-- VPC security groups
-
-## Implementation Standards
-
-### Code Quality
-- TypeScript strict mode enabled
-- ESLint and Prettier configuration
-- Unit test coverage > 80%
-- Integration test coverage for critical paths
-- Security linting with semgrep
-
-### Infrastructure as Code
-- Terraform or AWS CDK for infrastructure
-- Version controlled configuration
-- Environment-specific parameter files
-- Automated deployment pipelines
-- Infrastructure testing with Terratest
-
-### Security Standards
-- Secrets management with AWS Secrets Manager
-- Network segmentation with security groups
-- Encryption at rest and in transit
-- Security group least privilege
-- Regular security scanning
-
-### Operational Excellence
-- Comprehensive monitoring and alerting
-- Automated backup and recovery testing
-- Performance metrics and SLA monitoring
-- Incident response procedures
-- Change management processes
-
-## Troubleshooting
-
-### Common Issues
-| Issue | Solution Guide | Urgency |
-|-------|----------------|---------|
-| Authentication failures | [OAuth Troubleshooting](../reference/troubleshooting.md#oauth) | High |
-| Performance degradation | [Performance Guide](../reference/troubleshooting.md#performance) | High |
-| Federation connectivity | [Federation Troubleshooting](../reference/troubleshooting.md#federation) | Medium |
-| Database connection issues | [Database Guide](../reference/troubleshooting.md#database) | High |
-| SSL certificate problems | [TLS Troubleshooting](../reference/troubleshooting.md#tls) | Medium |
-
-### Support Channels
-- **Documentation**: Comprehensive guides and references
-- **Issue Tracking**: GitHub issues for bugs and feature requests
-- **Community**: Stack Overflow with `idp-platform` tag
-- **Enterprise Support**: Direct technical support for enterprise customers
-
-## Quality Assurance
-
-### Implementation Testing
-- [ ] **Functional Testing**: All features working as specified
-- [ ] **Integration Testing**: Cross-component functionality
-- [ ] **Performance Testing**: Meets SLA requirements
-- [ ] **Security Testing**: Vulnerability assessment passed
-- [ ] **User Acceptance Testing**: Stakeholder approval
-
-### Production Readiness Checklist
-- [ ] **Infrastructure**: Production-grade deployment
-- [ ] **Security**: Security hardening completed
-- [ ] **Monitoring**: Comprehensive observability
-- [ ] **Backup**: Tested backup and recovery
-- [ ] **Documentation**: Runbooks and procedures
-- [ ] **Training**: Team knowledge transfer
-
-## Related Documentation
-
-- [Technical Specifications](../specs/index.md): Detailed requirements and design
-- [Reference Materials](../reference/index.md): API docs and troubleshooting
-- [Platform Architecture](../foundation/architecture.md): System design overview
-- [Security Model](../foundation/security-model.md): Security requirements
-
----
-
-**Implementation Support**: IDP Platform Engineering Team
-**Guide Maintenance**: Continuous with platform releases
-**Community Contributions**: Welcome via GitHub pull requests
+This repository does not currently contain the broad integration and developer workflow guides that older indexes referenced. Those paths have been removed from this index until corresponding documents exist.

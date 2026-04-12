@@ -15,7 +15,7 @@ Last updated: 2026-04-11
 
 ## Purpose
 
-This checklist converts `Sequence A / Step 2` from [Headless_IAM_Runtime_Cutover_Runbook.md](./Headless_IAM_Runtime_Cutover_Runbook.md) into an execution-ready cutover procedure for runtime ticket entities.
+This checklist converts `Sequence A / Step 2` from [Headless_IAM_Runtime_Cutover_Runbook.md](./cutover-runbook.md) into an execution-ready cutover procedure for runtime ticket entities.
 
 It is intended to be executed only after the login-transaction cutover has either:
 

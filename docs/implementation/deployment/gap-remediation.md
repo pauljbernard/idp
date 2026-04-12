@@ -28,15 +28,15 @@ It is intended to:
 
 This plan is based on:
 
-- [constitution.idp.md](../constitution.idp.md)
-- [requirements.idp.md](../requirements.idp.md)
-- [capability-maturity-standard.idp.md](../capability-maturity-standard.idp.md)
-- [Headless_IAM_Status_Matrix.md](./Headless_IAM_Status_Matrix.md)
-- [Headless_IAM_Protocol_Support_Matrix.md](./Headless_IAM_Protocol_Support_Matrix.md)
-- [Headless_IAM_Federation_Support_Matrix.md](./Headless_IAM_Federation_Support_Matrix.md)
-- [Headless_IAM_Passkey_Support_Matrix.md](./Headless_IAM_Passkey_Support_Matrix.md)
-- [Headless_IAM_SAML_Profile_Matrix.md](./Headless_IAM_SAML_Profile_Matrix.md)
-- [Headless_IAM_Deployment_Mode_Matrix.md](./Headless_IAM_Deployment_Mode_Matrix.md)
+- [Platform Constitution](../../foundation/constitution.md)
+- [Platform Requirements](../../specs/platform-requirements.md)
+- [Capability Maturity Standard](../../reference/maturity-model.md)
+- [Headless IAM Status Matrix](../../reference/headless-iam-status-matrix.md)
+- [Protocol Support Matrix](../../reference/protocol-support-matrix.md)
+- [Federation Support Matrix](../../reference/federation-support-matrix.md)
+- [WebAuthn Support Matrix](../../reference/webauthn-support-matrix.md)
+- [SAML Profile Matrix](../../reference/saml-profile-matrix.md)
+- [Deployment Modes](../../specs/operations/deployment-modes.md)
 - the current codebase under `apps/api-server` and `apps/enterprise-ui`
 - current official Keycloak documentation reviewed on 2026-04-03:
   - [Keycloak Server Administration Guide](https://www.keycloak.org/docs/latest/server_admin/)
@@ -94,19 +94,19 @@ Status date: 2026-04-11
 Completed in the current iteration:
 
 1. completed `Iteration 1A` repository-contract consolidation across the major mutable control-plane modules
-2. published the first `Phase 1` baseline inventory in [Headless_IAM_State_Foundation_Baseline.md](./Headless_IAM_State_Foundation_Baseline.md)
+2. published the first `Phase 1` baseline inventory in [Headless IAM State Foundation Baseline](../planning/headless-iam-state-foundation-baseline.md)
 3. introduced explicit repository boundaries in the primary control-plane modules: foundation, protocol, organizations, user profiles, admin authorization, authorization services, authentication runtime, federation runtime, and auth flows
 4. confirmed the extraction pattern on both split-state and single-state modules while preserving current filesystem-backed behavior
-5. published the residual-authority inventory in [Headless_IAM_State_Authority_Audit.md](./Headless_IAM_State_Authority_Audit.md)
-6. published the first repository-to-adapter mapping and cutover recommendation in [Headless_IAM_Adapter_Cutover_Sequence.md](./Headless_IAM_Adapter_Cutover_Sequence.md)
-7. published the first cutover implementation runbook in [Headless_IAM_Runtime_Cutover_Runbook.md](./Headless_IAM_Runtime_Cutover_Runbook.md) covering login transactions, tickets, sessions, and issued tokens
-8. prepared the first execution-ready operator checklist in [Headless_IAM_Login_Transaction_Cutover_Checklist.md](./Headless_IAM_Login_Transaction_Cutover_Checklist.md) for the login-transaction dual-write and v2-read cutover path
-9. prepared the second execution-ready operator checklist in [Headless_IAM_Ticket_Cutover_Checklist.md](./Headless_IAM_Ticket_Cutover_Checklist.md) for password reset, email verification, and pending-MFA ticket cutover
-10. prepared the session cutover checklist in [Headless_IAM_Session_Cutover_Checklist.md](./Headless_IAM_Session_Cutover_Checklist.md) covering session creation, touch, listing, logout, and revocation behavior
-11. prepared the issued-token cutover checklist in [Headless_IAM_Issued_Token_Cutover_Checklist.md](./Headless_IAM_Issued_Token_Cutover_Checklist.md) covering issuance, refresh, introspection, and revocation behavior
-12. prepared the formal execution and dry-run recording template in [Headless_IAM_Runtime_Cutover_Evidence_Pack.md](./Headless_IAM_Runtime_Cutover_Evidence_Pack.md) so `Sequence A` can produce governed evidence instead of ad hoc notes
-13. completed the first dry-run evidence assessment in [Headless_IAM_Login_Transaction_Dry_Run_Evidence.md](./Headless_IAM_Login_Transaction_Dry_Run_Evidence.md), confirming the login-transaction cutover path is structurally ready in code but still awaiting live environment proof
-14. published the live-environment gate in [Headless_IAM_Runtime_Cutover_Environment_Readiness.md](./Headless_IAM_Runtime_Cutover_Environment_Readiness.md), including the explicit noop-fallback detection requirement for v2 repository activation
+5. published the residual-authority inventory in [Headless IAM State Authority Audit](../planning/headless-iam-state-authority-audit.md)
+6. published the first repository-to-adapter mapping and cutover recommendation in [Headless IAM Adapter Cutover Sequence](./headless-iam-adapter-cutover-sequence.md)
+7. published the first cutover implementation runbook in [Cutover Runbook](./cutover-runbook.md) covering login transactions, tickets, sessions, and issued tokens
+8. prepared the first execution-ready operator checklist in [Headless IAM Login Transaction Cutover Checklist](./headless-iam-login-transaction-cutover-checklist.md) for the login-transaction dual-write and v2-read cutover path
+9. prepared the second execution-ready operator checklist in [Headless IAM Ticket Cutover Checklist](./headless-iam-ticket-cutover-checklist.md) for password reset, email verification, and pending-MFA ticket cutover
+10. prepared the session cutover checklist in [Headless IAM Session Cutover Checklist](./headless-iam-session-cutover-checklist.md) covering session creation, touch, listing, logout, and revocation behavior
+11. prepared the issued-token cutover checklist in [Headless IAM Issued Token Cutover Checklist](./headless-iam-issued-token-cutover-checklist.md) covering issuance, refresh, introspection, and revocation behavior
+12. prepared the formal execution and dry-run recording template in [Headless IAM Runtime Cutover Evidence Pack](./headless-iam-runtime-cutover-evidence-pack.md) so `Sequence A` can produce governed evidence instead of ad hoc notes
+13. completed the first dry-run evidence assessment in [Headless IAM Login Transaction Dry Run Evidence](./headless-iam-login-transaction-dry-run-evidence.md), confirming the login-transaction cutover path is structurally ready in code but still awaiting live environment proof
+14. published the live-environment gate in [Environment Readiness](./environment-readiness.md), including the explicit noop-fallback detection requirement for v2 repository activation
 15. implemented runtime cutover adapter observability in the IAM health surface so `/api/v1/iam/operations/health` can distinguish `LEGACY_ONLY`, `DYNAMO_V2_ACTIVE`, and `NOOP_FALLBACK` states for Sequence A runtime domains
 16. added regression coverage in `apps/api-server/test/runtimeCutoverHealth.test.ts` proving the health surface reports `WARN` for unproven legacy-only posture and `FAIL` for cutover flag activation that degrades to noop fallback
 17. added authenticated HTTP-surface coverage in `apps/api-server/test/serverHttpSurface.test.ts` proving `/api/v1/iam/operations/health` exposes the runtime cutover readiness signal to operators through the real admin API route
@@ -123,28 +123,28 @@ Completed in the current iteration:
 28. corrected a local runtime startup blocker by accepting the legacy managed role alias `pilot` as a compatibility mapping to `specialist`, restoring the current workspace server boot path
 29. restored the missing `/api/v1/auth/iam/config` compatibility endpoint so browser-bootstrap and runtime-cutover automation can resolve the configured standalone realm and client contract again
 30. validated the live workspace environment on `http://127.0.0.1:4101`, proving that the API now serves the restored auth-config contract and returns a real `/api/v1/iam/operations/health` status from an authenticated browser session
-31. recorded the current live environment result in [Headless_IAM_Runtime_Cutover_Environment_Readiness.md](./Headless_IAM_Runtime_Cutover_Environment_Readiness.md): `overall_status=DEGRADED` with `runtime-cutover-readiness=WARN` because the shared-durable v2 runtime path has not been activated yet
+31. recorded the current live environment result in [Environment Readiness](./environment-readiness.md): `overall_status=DEGRADED` with `runtime-cutover-readiness=WARN` because the shared-durable v2 runtime path has not been activated yet
 32. executed a clean dual-write rehearsal on `http://127.0.0.1:4110` with `IDP_DDB_RUNTIME_DUAL_WRITE=true`, proving that the health surface correctly transitions to `runtime-cutover-readiness=FAIL` and reports `NOOP_FALLBACK` for sessions, tickets, login transactions, and issued tokens when no real shared runtime repository is available
 33. provisioned a local runtime entity table `idp-iam-runtime-local` on the existing DynamoDB Local endpoint at `http://127.0.0.1:8000`, including `gsi1`, `gsi2`, and TTL on `expires_at_epoch`
 34. executed a clean dual-write activation on `http://127.0.0.1:4111` with the local runtime table wired in, proving that `runtime-cutover-readiness` advances to `PASS` and all Sequence A entity families resolve as `DYNAMO_V2_ACTIVE`
 35. confirmed that the remaining blocker is now governed evidence capture and shared-environment repetition, not local cutover viability
 36. added `deploy/iam-standalone/provision-dynamodb-local-runtime-table.sh` so the proven local DynamoDB Local setup can be reproduced without requiring LocalStack
-37. recorded the first successful governed local evidence outcome in [Headless_IAM_Login_Transaction_Local_Dynamo_Evidence.md](./Headless_IAM_Login_Transaction_Local_Dynamo_Evidence.md)
+37. recorded the first successful governed local evidence outcome in [Headless IAM Login Transaction Local Dynamo Evidence](./headless-iam-login-transaction-local-dynamo-evidence.md)
 38. updated the repo instructions so the local runtime cutover rehearsal path is explicit in the operator-facing README
 39. extended the local evidence run through Stage 2 with `IDP_DDB_RUNTIME_READ_V2=true`, confirming that the runtime remains healthy while reading from the Dynamo-backed v2 path
 40. completed the first local rollback proof from Stage 2 back to Stage 1, confirming that disabling `read_v2` while keeping dual-write active preserves healthy runtime-cutover posture
 41. executed the first governed local ticket-path Stage 2 proof on `http://127.0.0.1:4115`, confirming live password reset issuance and redemption, email verification issuance and redemption, and MFA enrollment verification against the Dynamo-backed runtime path
 42. captured the first direct local runtime-table evidence for the ticket-path run by scanning `idp-iam-runtime-local` and confirming the expected login transaction, session, password reset, email verification, and pending MFA rows
 43. verified post-restart continuity for the Stage 2 runtime by restarting the API on the same flags and confirming the previously issued session still resolved with MFA enabled state intact
-44. recorded the local ticket-path evidence in [Headless_IAM_Ticket_Local_Dynamo_Evidence.md](./Headless_IAM_Ticket_Local_Dynamo_Evidence.md)
+44. recorded the local ticket-path evidence in [Headless IAM Ticket Local Dynamo Evidence](./headless-iam-ticket-local-dynamo-evidence.md)
 45. closed a v2 semantics gap by correcting Dynamo-backed pending MFA replacement behavior to match the legacy adapter contract and adding targeted regression coverage in `apps/api-server/test/dynamoDbTicketRepository.test.ts`
 46. proved active-ticket continuity after runtime reload under cutover flags by redeeming a password reset ticket after reloading the built authentication runtime against the same isolated persisted state root
 47. proved ticket expiry maintenance under cutover flags by running `runTransientStateMaintenanceAsync()` against expired password reset, email verification, and pending MFA entities and confirming the expected `EXPIRED` or consumed transitions
 48. executed the first governed local session-path Stage 2 proof on `http://127.0.0.1:4116`, confirming live MFA-backed session creation, touch, listing, targeted revocation, revoke-other-sessions semantics, restart continuity, and expired-session rejection against the Dynamo-backed runtime
-49. recorded the local session-path evidence in [Headless_IAM_Session_Local_Dynamo_Evidence.md](./Headless_IAM_Session_Local_Dynamo_Evidence.md)
+49. recorded the local session-path evidence in [Headless IAM Session Local Dynamo Evidence](./headless-iam-session-local-dynamo-evidence.md)
 50. closed two runtime-read gaps by moving `/account/sessions` and `/account/session` onto async session-resolution paths under cutover flags so the live session surface now honors v2-backed reads
 51. executed the first governed local issued-token Stage 2 proof on `http://localhost:4116`, confirming authorization-code issuance, password-grant issuance, active introspection, refresh exchange, direct revoke, browser-session-linked revoke, subject-wide revoke, direct v2 table evidence, and restart continuity for active and revoked tokens
-52. recorded the local issued-token evidence in [Headless_IAM_Issued_Token_Local_Dynamo_Evidence.md](./Headless_IAM_Issued_Token_Local_Dynamo_Evidence.md)
+52. recorded the local issued-token evidence in [Headless IAM Issued Token Local Dynamo Evidence](./headless-iam-issued-token-local-dynamo-evidence.md)
 
 Remaining in the current phase:
 
@@ -188,7 +188,7 @@ It established the baseline truth model required for the rest of the program:
 
 ### Next execution sequence
 
-1. select the first shared-durable target environment and satisfy [Headless_IAM_Runtime_Cutover_Environment_Readiness.md](./Headless_IAM_Runtime_Cutover_Environment_Readiness.md), using `/api/v1/iam/operations/health` as the preflight noop-fallback gate and the new generic evidence-bundle helpers with `IDP_BASE_URL` pointed at that environment
+1. select the first shared-durable target environment and satisfy [Environment Readiness](./environment-readiness.md), using `/api/v1/iam/operations/health` as the preflight noop-fallback gate and the new generic evidence-bundle helpers with `IDP_BASE_URL` pointed at that environment
 2. execute the full local-proven `Sequence A` checklist set in that shared target environment across login transactions, tickets, sessions, and issued tokens, recording Stage 0, Stage 1, Stage 2, and rollback evidence in the same governed format
 3. convert the resulting shared-environment evidence into a go/no-go decision for closing Phase 1 and beginning the narrower session-and-token hardening work in Phase 2
 
@@ -197,24 +197,24 @@ It established the baseline truth model required for the rest of the program:
 The most relevant obligations are:
 
 - standalone reusable IAM subsystem capable of competing with Keycloak-class systems:
-  - [constitution.idp.md:35](../constitution.idp.md:35)
-  - [constitution.idp.md:37](../constitution.idp.md:37)
+  - [constitution.idp.md:35](../../foundation/constitution.md:35)
+  - [constitution.idp.md:37](../../foundation/constitution.md:37)
 - standards-complete identity protocols, auth flows, federation, WebAuthn, organizations, admin APIs, authorization services, backup, restore, key rotation, resilience, and extension mechanisms:
-  - [constitution.idp.md:41](../constitution.idp.md:41)
-  - [constitution.idp.md:56](../constitution.idp.md:56)
-  - [constitution.idp.md:57](../constitution.idp.md:57)
+  - [constitution.idp.md:41](../../foundation/constitution.md:41)
+  - [constitution.idp.md:56](../../foundation/constitution.md:56)
+  - [constitution.idp.md:57](../../foundation/constitution.md:57)
 - Keycloak-class parity and strategic differentiation target:
-  - [requirements.idp.md:56](../requirements.idp.md:56)
-  - [requirements.idp.md:58](../requirements.idp.md:58)
+  - [requirements.idp.md:56](../../specs/platform-requirements.md:56)
+  - [requirements.idp.md:58](../../specs/platform-requirements.md:58)
 - production-complete gate for auth-code plus PKCE, fuller SAML, auth flows, passkeys/WebAuthn, fine-grained admin authz, authz services:
-  - [requirements.idp.md:113](../requirements.idp.md:113)
+  - [requirements.idp.md:113](../../specs/platform-requirements.md:113)
 - adoption gate for browser, SAML, auth-flow, backup, restore, resilience, security audit, validation, and formal review:
-  - [requirements.idp.md:119](../requirements.idp.md:119)
-  - [requirements.idp.md:124](../requirements.idp.md:124)
-  - [requirements.idp.md:127](../requirements.idp.md:127)
+  - [requirements.idp.md:119](../../specs/platform-requirements.md:119)
+  - [requirements.idp.md:124](../../specs/platform-requirements.md:124)
+  - [requirements.idp.md:127](../../specs/platform-requirements.md:127)
 - AWS implementation default:
-  - [requirements.idp.md:131](../requirements.idp.md:131)
-  - [requirements.idp.md:138](../requirements.idp.md:138)
+  - [requirements.idp.md:131](../../specs/platform-requirements.md:131)
+  - [requirements.idp.md:138](../../specs/platform-requirements.md:138)
 
 ## Current Position
 
@@ -658,7 +658,7 @@ All of the following must be true before claiming constitutional alignment on th
 
 All of the following must be true before claiming the subsystem satisfies the standalone IAM objective in practice:
 
-- adoption-gate items in [requirements.idp.md:119](../requirements.idp.md:119) through [requirements.idp.md:127](../requirements.idp.md:127) are actually complete
+- adoption-gate items in [requirements.idp.md:119](../../specs/platform-requirements.md:119) through [requirements.idp.md:127](../../specs/platform-requirements.md:127) are actually complete
 - the AWS implementation default is reflected in real runtime architecture rather than primarily in plan documents
 - the system passes real validation across supported browser, federation, service-account, and recovery flows
 

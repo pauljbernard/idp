@@ -15,13 +15,13 @@ related: []
 **Assessment Scope**: Internal product strategy and roadmap analysis  
 **Evidence Boundary**: This document is not a production-proof, conformance certificate, or externally validated parity claim. Capability assertions in this assessment must be read alongside the governed maturity and support documents:
 
-- [Capability Maturity Standard](../spec/capability-maturity-standard.idp.md)
-- [Formal Status Matrix](../spec/plans/Headless_IAM_Status_Matrix.md)
-- [Protocol Support Matrix](../spec/plans/Headless_IAM_Protocol_Support_Matrix.md)
-- [Federation Support Matrix](../spec/plans/Headless_IAM_Federation_Support_Matrix.md)
-- [Passkey Support Matrix](../spec/plans/Headless_IAM_Passkey_Support_Matrix.md)
-- [SAML Profile Matrix](../spec/plans/Headless_IAM_SAML_Profile_Matrix.md)
-- [Deployment Mode Matrix](../spec/plans/Headless_IAM_Deployment_Mode_Matrix.md)
+- [Capability Maturity Standard](../reference/maturity-model.md)
+- [Formal Status Matrix](../reference/headless-iam-status-matrix.md)
+- [Protocol Support Matrix](../reference/protocol-support-matrix.md)
+- [Federation Support Matrix](../reference/federation-support-matrix.md)
+- [Passkey Support Matrix](../reference/webauthn-support-matrix.md)
+- [SAML Profile Matrix](../reference/saml-profile-matrix.md)
+- [Deployment Mode Matrix](../specs/operations/deployment-modes.md)
 
 ---
 

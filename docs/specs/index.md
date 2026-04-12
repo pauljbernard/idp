@@ -1,190 +1,67 @@
-# Technical Specifications
-
 ---
 id: specs-index
 type: index
 domain: specifications
 status: stable
-version: "1.0"
-dependencies: [platform-architecture, security-model]
-tags: [specifications, technical-reference]
-last_updated: "2024-04-12"
+version: "2.0"
+dependencies: [platform-constitution, platform-architecture, platform-requirements]
+tags: [specifications, requirements, supported-surface]
+last_updated: "2026-04-12"
 related: [implementation-index, reference-index]
 ---
+# Technical Specifications
 
-## Purpose
+This index lists the specifications that are currently present in the repository. It is a map of the maintained spec corpus, not a target-state backlog.
 
-Central index of all technical specifications for the IDP Platform. Each specification defines detailed requirements, implementation patterns, and validation criteria for platform components.
+## Canonical Specifications
 
-## Specification Categories
+### Platform-wide
 
-### 🔐 Authentication Specifications
-Core authentication protocols and flows.
+| Specification | Role | Notes |
+|---------------|------|-------|
+| [Platform Requirements](platform-requirements.md) | Normative product and system requirements | Primary requirements baseline for standalone IAM and IDP work |
 
-| Specification | Status | Version | Description |
-|---------------|--------|---------|-------------|
-| [OAuth 2.1 & OIDC Flows](authentication/oauth-flows.md) | ✅ Stable | 2.1 | Complete OAuth/OIDC implementation |
-| [SAML Identity Provider](authentication/saml-idp.md) | 🚧 Draft | 2.0 | Enterprise SAML federation |
-| [WebAuthn & Passkeys](authentication/webauthn.md) | ✅ Stable | 1.0 | Passwordless authentication |
-| [Multi-Factor Authentication](authentication/mfa-flows.md) | ✅ Stable | 1.0 | TOTP, SMS, backup codes |
+### Authentication
 
-### 🔗 Federation Specifications
-External identity provider integration and trust relationships.
+| Specification | Role | Notes |
+|---------------|------|-------|
+| [OAuth 2.1 and OIDC Flows](authentication/oauth-flows.md) | Current protocol flow specification | Use with status matrix before making support claims |
 
-| Specification | Status | Version | Description |
-|---------------|--------|---------|-------------|
-| [External IdP Integration](federation/external-idp.md) | ✅ Stable | 1.0 | SAML/OIDC federation protocols |
-| [Protocol Translation](federation/protocol-mapping.md) | ✅ Stable | 1.0 | Attribute and claim mapping |
-| [Trust Relationships](federation/trust-management.md) | ✅ Stable | 1.0 | Federation security model |
-| [Health Monitoring](federation/federation-monitoring.md) | ✅ Stable | 1.0 | Connection health and failover |
+### Operations
 
-### ⚙️ Operations Specifications
-Deployment, monitoring, and maintenance procedures.
+| Specification | Role | Notes |
+|---------------|------|-------|
+| [Deployment Modes](operations/deployment-modes.md) | Deployment posture and operating-mode guidance | Use with readiness docs for release decisions |
 
-| Specification | Status | Version | Description |
-|---------------|--------|---------|-------------|
-| [Deployment Topology](operations/deployment-topology.md) | ✅ Stable | 1.0 | AWS infrastructure patterns |
-| [Health Monitoring](operations/health-monitoring.md) | ✅ Stable | 1.0 | System health and diagnostics |
-| [Backup & Recovery](operations/backup-recovery.md) | ✅ Stable | 1.0 | Data protection and DR |
-| [Security Operations](operations/security-monitoring.md) | ✅ Stable | 1.0 | Security monitoring and response |
+### UI
 
-### 🎨 User Interface Specifications
-Design system, components, and interaction patterns.
+| Specification | Role | Notes |
+|---------------|------|-------|
+| [Design System](ui/design-system.md) | Visual and component-system baseline | Pair with design principles |
+| [Component Specs](ui/component-specs.md) | Component-level expectations | Current UI component behavior |
+| [Interaction Patterns](ui/interaction-patterns.md) | Interaction semantics | User flows and interface behavior |
+| [Information Architecture](ui/information-architecture.md) | Navigation and structure patterns | UI information hierarchy |
+| [Design Tokens](ui/design-tokens.md) | Token vocabulary | Shared UI variables and system tokens |
 
-| Specification | Status | Version | Description |
-|---------------|--------|---------|-------------|
-| [Design System](ui/design-system.md) | ✅ Stable | 1.0 | Visual language and components |
-| [Component Library](ui/component-specs.md) | ✅ Stable | 1.0 | React component specifications |
-| [Interaction Patterns](ui/interaction-patterns.md) | ✅ Stable | 1.0 | UX patterns and behaviors |
-| [Accessibility Standards](ui/accessibility.md) | ✅ Stable | 1.0 | WCAG 2.1 AA compliance |
+## Spec Governance
 
-### 🔌 API Specifications
-REST APIs, webhooks, and integration interfaces.
+All claim-bearing specifications are governed by:
 
-| Specification | Status | Version | Description |
-|---------------|--------|---------|-------------|
-| [OpenAPI Specification](api/openapi-spec.md) | ✅ Stable | 3.0 | Complete REST API definition |
-| [Authentication APIs](api/auth-endpoints.md) | ✅ Stable | 1.0 | OAuth/OIDC endpoint specs |
-| [Management APIs](api/admin-endpoints.md) | ✅ Stable | 1.0 | Administrative operations |
-| [Webhook Specifications](api/webhook-specs.md) | ✅ Stable | 1.0 | Event notification system |
+1. [Platform Constitution](../foundation/constitution.md)
+2. [Platform Requirements](platform-requirements.md)
+3. [Capability Maturity Standard](../reference/maturity-model.md)
 
-## Specification Standards
+When a feature spec does not explicitly declare support tier, maturity state, supported profiles, or evidence posture, use the current support references in [Reference Materials](../reference/index.md) before treating the spec as a release claim.
 
-### Document Structure
-All specifications follow a standardized structure:
+## How To Use This Index
 
-```markdown
-# Specification Title
+- Use [Platform Requirements](platform-requirements.md) for product-surface requirements and adoption gates.
+- Use domain specs for design and implementation details.
+- Use [Implementation Guides](../implementation/index.md) for sequencing, rollout, and evidence capture.
+- Use [Reference Materials](../reference/index.md) for support matrices, readiness posture, and gap tracking.
 
----
-id: unique-spec-id
-type: specification
-domain: [authentication|federation|operations|ui|api]
-status: [draft|review|stable|deprecated]
-version: "X.Y"
-dependencies: [prerequisite-document-ids]
-tags: [relevant, tags]
-last_updated: "YYYY-MM-DD"
-related: [related-document-ids]
----
+## Maintenance Rules
 
-## Purpose
-What this specification defines and why it exists.
-
-## Scope
-What is and isn't covered by this specification.
-
-## Requirements
-Detailed technical requirements and constraints.
-
-## Design
-Implementation design and architecture.
-
-## Validation
-How to verify correct implementation.
-
-## Dependencies
-Prerequisites and related specifications.
-
-## Related Documentation
-Links to implementation guides and references.
-```
-
-### Compliance Levels
-
-| Level | Description | Implementation |
-|-------|-------------|----------------|
-| **MUST** | Mandatory requirement | Required for compliance |
-| **SHOULD** | Strong recommendation | Required unless exceptional circumstances |
-| **MAY** | Optional feature | Implementation discretionary |
-| **MUST NOT** | Prohibited behavior | Forbidden for security/compatibility |
-
-### Versioning
-
-Specifications use semantic versioning:
-- **Major** (X.0): Breaking changes to requirements
-- **Minor** (X.Y): New requirements, backward compatible
-- **Patch** (X.Y.Z): Clarifications, corrections, examples
-
-## Usage Guidelines
-
-### For AI Agents
-1. Start with foundational specifications (architecture, security)
-2. Follow dependency chains before implementing features
-3. Validate against specification requirements
-4. Cross-reference with implementation guides
-
-### For Developers
-1. Read relevant specifications before implementation
-2. Use specifications to validate design decisions
-3. Reference during code review processes
-4. Update specifications when extending functionality
-
-### For System Architects
-1. Use specifications for system design validation
-2. Reference during technical decision-making
-3. Ensure compliance across all implementations
-4. Coordinate specification updates across teams
-
-## Quality Assurance
-
-### Specification Reviews
-- **Technical Accuracy**: Validated against implementation
-- **Completeness**: All requirements documented
-- **Clarity**: Unambiguous language and examples
-- **Consistency**: Aligned with other specifications
-- **Testability**: Verification criteria provided
-
-### Maintenance Process
-1. **Change Proposals**: Structured RFC process
-2. **Impact Analysis**: Compatibility and dependency review
-3. **Stakeholder Review**: Technical and business validation
-4. **Implementation Validation**: Test against live system
-5. **Documentation Update**: Keep all references current
-
-## Quick Reference
-
-### Common Dependencies
-Most specifications depend on these foundational documents:
-- [Platform Architecture](../foundation/architecture.md)
-- [Security Model](../foundation/security-model.md)
-- [Design Principles](../foundation/design-principles.md)
-
-### Implementation Paths
-Typical implementation sequences:
-1. **Authentication Features**: Architecture → Security → OAuth Flows → Implementation
-2. **Federation Features**: Architecture → Security → Federation Specs → Implementation
-3. **Operations Features**: Architecture → Operations Specs → Deployment Guide
-4. **UI Features**: Architecture → Design Principles → UI Specs → Component Guide
-
-## Related Documentation
-
-- [Implementation Guides](../implementation/index.md): Step-by-step implementation procedures
-- [Reference Materials](../reference/index.md): Quick lookup and troubleshooting
-- [Analysis Documents](../analysis/index.md): Business context and decisions
-
----
-
-**Specification Maintenance**: IDP Platform Architecture Team
-**Review Frequency**: Quarterly
-**Next Review**: 2024-07-01
+- Do not add links here until the document exists.
+- Remove or downgrade entries when a document is deprecated or superseded.
+- Keep `dependencies` aligned with the actual governing documents for the spec set.

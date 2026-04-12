@@ -15,7 +15,7 @@ Last updated: 2026-04-11
 
 ## Purpose
 
-This checklist converts `Sequence A / Step 1` from [Headless_IAM_Runtime_Cutover_Runbook.md](./Headless_IAM_Runtime_Cutover_Runbook.md) into an execution-ready procedure for the first runtime shared-durable cutover.
+This checklist converts `Sequence A / Step 1` from [Headless_IAM_Runtime_Cutover_Runbook.md](./cutover-runbook.md) into an execution-ready procedure for the first runtime shared-durable cutover.
 
 The scope is intentionally narrow:
 

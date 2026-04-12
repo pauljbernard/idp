@@ -17,7 +17,7 @@ Last updated: 2026-04-11
 
 This document is the first dry-run evidence pack for `Cutover Sequence A`.
 
-It applies the structure from [Headless_IAM_Runtime_Cutover_Evidence_Pack.md](./Headless_IAM_Runtime_Cutover_Evidence_Pack.md) to the login-transaction cutover path, using current implementation analysis rather than live environment execution.
+It applies the structure from [Headless_IAM_Runtime_Cutover_Evidence_Pack.md](./headless-iam-runtime-cutover-evidence-pack.md) to the login-transaction cutover path, using current implementation analysis rather than live environment execution.
 
 ## Execution Metadata
 
@@ -31,7 +31,7 @@ It applies the structure from [Headless_IAM_Runtime_Cutover_Evidence_Pack.md](./
 | Operator | Codex |
 | Runtime build / commit | Workspace state on 2026-04-11 |
 | Runtime table name | Resolved at runtime by `resolveRuntimeTableName()` |
-| Related checklist | [Headless_IAM_Login_Transaction_Cutover_Checklist.md](./Headless_IAM_Login_Transaction_Cutover_Checklist.md) |
+| Related checklist | [Headless_IAM_Login_Transaction_Cutover_Checklist.md](./headless-iam-login-transaction-cutover-checklist.md) |
 
 ## Preconditions Review
 

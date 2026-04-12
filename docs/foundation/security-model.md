@@ -381,7 +381,7 @@ interface KeyManagement {
 ## Dependencies
 
 This security model builds upon:
-- [Platform Architecture](platform-architecture.md): System design constraints
+- [Platform Architecture](architecture.md): System design constraints
 - Cloud provider security (AWS)
 - Industry standards (OAuth 2.1, OIDC, SAML 2.0, WebAuthn)
 - Cryptographic libraries (AWS KMS, bcrypt, jose)
@@ -389,5 +389,5 @@ This security model builds upon:
 ## Related Documentation
 
 - [OAuth Flows Specification](../specs/authentication/oauth-flows.md): Authentication security
-- [Federation Security](../specs/federation/security-requirements.md): Identity federation security
-- [Operations Security](../specs/operations/security-monitoring.md): Operational security procedures
+- Federation security requirements are governed through [Platform Requirements](../specs/platform-requirements.md) and the current [Federation Support Matrix](../reference/federation-support-matrix.md).
+- Operations security posture is tracked through [Platform Requirements](../specs/platform-requirements.md) and the current [Headless IAM Status Matrix](../reference/headless-iam-status-matrix.md).

@@ -15,7 +15,7 @@ Last updated: 2026-04-11
 
 ## Purpose
 
-This runbook operationalizes `Cutover Sequence A` from [Headless_IAM_Adapter_Cutover_Sequence.md](./Headless_IAM_Adapter_Cutover_Sequence.md).
+This runbook operationalizes `Cutover Sequence A` from [Headless_IAM_Adapter_Cutover_Sequence.md](./headless-iam-adapter-cutover-sequence.md).
 
 It covers the first shared-durable cutover path for runtime transient domains that already have dual-run adapter support:
 

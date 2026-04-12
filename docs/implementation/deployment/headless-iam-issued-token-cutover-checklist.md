@@ -15,7 +15,7 @@ Last updated: 2026-04-11
 
 ## Purpose
 
-This checklist converts `Sequence A / Step 4` from [Headless_IAM_Runtime_Cutover_Runbook.md](./Headless_IAM_Runtime_Cutover_Runbook.md) into an execution-ready cutover procedure for issued-token storage.
+This checklist converts `Sequence A / Step 4` from [Headless_IAM_Runtime_Cutover_Runbook.md](./cutover-runbook.md) into an execution-ready cutover procedure for issued-token storage.
 
 This is the last step in `Cutover Sequence A` because token behavior spans issuance, refresh, introspection, and revocation semantics across the protocol runtime.
 

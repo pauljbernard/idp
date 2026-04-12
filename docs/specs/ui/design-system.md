@@ -5,11 +5,25 @@ domain: ui
 status: stable
 version: "1.0"
 dependencies: [platform-architecture]
+support_tier: "core-release"
+maturity_state: "implemented"
+supported_profiles: [admin-console-ui-foundation, account-ui-foundation, shared-design-language]
+evidence_class: "internal-runtime"
 tags: [specification, technical, ui]
-last_updated: "2024-04-12"
+last_updated: "2026-04-12"
 related: []
 ---
 # IDP Platform Design System
+
+## Support Metadata
+
+- Support tier: `Core release`
+- Maturity state: `Implemented`
+- Supported profiles:
+  - `admin-console-ui-foundation`
+  - `account-ui-foundation`
+  - `shared-design-language`
+- Evidence class: `Internal runtime`
 
 This directory contains the comprehensive design system for the Identity Provider (IDP) Platform, defining visual language, components, and interaction patterns.
 

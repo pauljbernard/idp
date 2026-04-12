@@ -1,197 +1,46 @@
 {
-  "documentation_architecture": {
-    "agent_optimized": true,
-    "rating": "9/10",
-    "last_updated": "2024-04-12"
-  },
+  "version": "2.0",
+  "last_updated": "2026-04-12",
   "entry_points": {
-    "agents": "docs/AGENT_USAGE_GUIDE.md",
-    "developers": "docs/implementation/quick-start/getting-started.md",
-    "operators": "docs/implementation/deployment/overview.md",
-    "designers": "docs/specs/ui/design-system.md"
+    "bootstrap": "docs/AGENT_USAGE_GUIDE.md",
+    "claude_bootstrap": "CLAUDE.md",
+    "codex_bootstrap": "AGENTS.md",
+    "docs_root": "docs/README.md",
+    "dependency_map": "docs/dependency-map.json"
   },
-  "foundation_layer": {
-    "description": "Core concepts that inform everything else",
-    "mandatory_reading": true,
-    "documents": {
-      "constitution": {
-        "path": "docs/foundation/constitution.md",
-        "dependencies": [],
-        "purpose": "Constitutional principles, governance, and foundational requirements"
-      },
-      "architecture": {
-        "path": "docs/foundation/architecture.md",
-        "dependencies": ["constitution"],
-        "purpose": "System design overview and component relationships"
-      },
-      "security_model": {
-        "path": "docs/foundation/security-model.md",
-        "dependencies": ["constitution", "architecture"],
-        "purpose": "Zero-trust security architecture and requirements"
-      },
-      "design_principles": {
-        "path": "docs/foundation/design-principles.md",
-        "dependencies": ["constitution", "architecture"],
-        "purpose": "UX and development principles"
-      }
-    }
+  "canonical_read_order": [
+    "docs/AGENT_USAGE_GUIDE.md",
+    "docs/foundation/constitution.md",
+    "docs/foundation/architecture.md",
+    "docs/specs/platform-requirements.md",
+    "docs/reference/maturity-model.md"
+  ],
+  "current_state_references": [
+    "docs/reference/headless-iam-status-matrix.md",
+    "docs/reference/headless-iam-requirements-gap-matrix.md",
+    "docs/implementation/planning/headless-iam-standalone-validation-review-guide.md",
+    "docs/implementation/deployment/implementation-plan.md",
+    "docs/implementation/deployment/roadmap.md"
+  ],
+  "domain_specs": {
+    "authentication": "docs/specs/authentication/oauth-flows.md",
+    "operations": "docs/specs/operations/deployment-modes.md",
+    "ui_design_system": "docs/specs/ui/design-system.md",
+    "ui_components": "docs/specs/ui/component-specs.md",
+    "ui_interactions": "docs/specs/ui/interaction-patterns.md",
+    "ui_information_architecture": "docs/specs/ui/information-architecture.md",
+    "ui_design_tokens": "docs/specs/ui/design-tokens.md"
   },
-  "specification_layer": {
-    "description": "Technical requirements and detailed specifications",
-    "organization": "by_domain",
-    "domains": {
-      "authentication": {
-        "path": "docs/specs/authentication/",
-        "key_document": "oauth-flows.md",
-        "dependencies": ["foundation/architecture", "foundation/security-model"],
-        "covers": ["OAuth 2.1", "OIDC", "SAML", "WebAuthn", "MFA"]
-      },
-      "federation": {
-        "path": "docs/specs/federation/",
-        "key_document": "external-idp.md",
-        "dependencies": ["foundation/security-model"],
-        "covers": ["External IdP integration", "Protocol mapping", "Trust management"]
-      },
-      "operations": {
-        "path": "docs/specs/operations/",
-        "key_document": "deployment-topology.md",
-        "dependencies": ["foundation/architecture"],
-        "covers": ["Deployment", "Monitoring", "Backup", "Recovery"]
-      },
-      "ui": {
-        "path": "docs/specs/ui/",
-        "key_document": "design-system.md",
-        "dependencies": ["foundation/design-principles"],
-        "covers": ["Design system", "Components", "Patterns"]
-      },
-      "api": {
-        "path": "docs/specs/api/",
-        "key_document": "openapi-spec.md",
-        "dependencies": ["foundation/architecture"],
-        "covers": ["REST APIs", "Webhooks", "SDK documentation"]
-      }
-    }
-  },
-  "implementation_layer": {
-    "description": "Step-by-step procedures and how-to guides",
-    "organization": "by_task",
-    "categories": {
-      "quick_start": {
-        "path": "docs/implementation/quick-start/",
-        "purpose": "Get running in < 30 minutes",
-        "target_audience": "new_developers"
-      },
-      "deployment": {
-        "path": "docs/implementation/deployment/",
-        "purpose": "Production infrastructure setup",
-        "target_audience": "operators"
-      },
-      "integration": {
-        "path": "docs/implementation/integration/",
-        "purpose": "Connect applications to IDP",
-        "target_audience": "application_developers"
-      },
-      "development": {
-        "path": "docs/implementation/development/",
-        "purpose": "Extend and customize platform",
-        "target_audience": "platform_developers"
-      }
-    }
-  },
-  "reference_layer": {
-    "description": "Quick lookup materials and problem resolution",
-    "documents": {
-      "api_reference": {
-        "path": "docs/reference/api-reference.md",
-        "purpose": "Complete API documentation"
-      },
-      "troubleshooting": {
-        "path": "docs/reference/troubleshooting.md",
-        "purpose": "Problem resolution guide"
-      },
-      "protocol_support_matrix": {
-        "path": "docs/reference/protocol-support-matrix.md",
-        "purpose": "Standards compatibility matrix"
-      },
-      "configuration_reference": {
-        "path": "docs/reference/configuration-reference.md",
-        "purpose": "All configuration options"
-      },
-      "glossary": {
-        "path": "docs/reference/glossary.md",
-        "purpose": "Term definitions"
-      }
-    }
-  },
-  "analysis_layer": {
-    "description": "Business context and strategic decisions",
-    "documents": {
-      "competitive_analysis": {
-        "path": "docs/analysis/competitive-analysis.md",
-        "purpose": "vs Keycloak technical comparison"
-      },
-      "saas_readiness_assessment": {
-        "path": "docs/analysis/saas-readiness-assessment.md",
-        "purpose": "Multi-tenant capabilities assessment"
-      },
-      "test_suite_analysis": {
-        "path": "docs/analysis/test-suite-analysis.md",
-        "purpose": "Quality assessment and testing strategy"
-      },
-      "spec_driven_development": {
-        "path": "docs/analysis/spec-driven-development.md",
-        "purpose": "Development methodology and best practices"
-      }
-    }
-  },
-  "navigation_patterns": {
-    "dependency_based": {
-      "description": "Follow dependency chains for progressive context building",
-      "example": "architecture -> security-model -> oauth-flows -> oauth-clients"
-    },
-    "domain_based": {
-      "description": "Explore by functional domain",
-      "domains": ["authentication", "federation", "operations", "ui", "api"]
-    },
-    "task_based": {
-      "description": "Follow implementation guides by user goals",
-      "tasks": ["quick_start", "deployment", "integration", "development"]
-    }
-  },
-  "quality_standards": {
-    "for_agents": {
-      "structured_metadata": "YAML frontmatter in all documents",
-      "dependency_mapping": "Explicit prerequisite relationships",
-      "consistent_structure": "Standardized document templates",
-      "machine_navigation": "JSON dependency maps",
-      "cross_validation": "Automated link checking capability"
-    },
-    "for_humans": {
-      "task_oriented": "Guides organized by user goals",
-      "clear_entry_points": "Role-specific starting points",
-      "comprehensive_indexing": "Searchable document organization",
-      "progressive_disclosure": "Information layered by complexity",
-      "visual_consistency": "Unified formatting and structure"
-    }
-  },
-  "agent_behavior_expectations": {
-    "mandatory_reading_order": [
-      "docs/AGENT_USAGE_GUIDE.md",
-      "docs/foundation/constitution.md",
-      "docs/foundation/architecture.md",
-      "foundation dependencies based on task domain"
-    ],
-    "validation_requirements": {
-      "dependency_completion": "100%",
-      "security_validation": "Required for all implementations",
-      "documentation_currency": "Check last_updated metadata",
-      "status_verification": "Avoid deprecated documents"
-    },
-    "response_format": {
-      "dependency_validation_section": "List all dependencies read",
-      "implementation_steps": "Specific actionable guidance",
-      "security_considerations": "From security-model and domain specs",
-      "validation_checklist": "Specific criteria for verification"
-    }
-  }
+  "spec_claim_fields": [
+    "support_tier",
+    "maturity_state",
+    "supported_profiles",
+    "evidence_class"
+  ],
+  "conflict_resolution_order": [
+    "constitution_and_requirements",
+    "spec_frontmatter",
+    "status_and_support_matrices",
+    "planning_and_analysis"
+  ]
 }

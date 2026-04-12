@@ -1,17 +1,31 @@
 ---
 id: platform-requirements
 type: specification
-domain: platform-requirements.md
+domain: platform-requirements
 status: stable
 version: "1.0"
 dependencies: [platform-architecture]
+support_tier: "core-release"
+maturity_state: "supported"
+supported_profiles: [standalone-iam-core, bounded-oidc-core, planning-basis-for-parity-and-differentiator-tracks]
+evidence_class: "internal-runtime"
 tags: [specification, technical, platform-requirements.md]
-last_updated: "2024-04-12"
+last_updated: "2026-04-12"
 related: []
 ---
 # Requirements
 
 Source: `requirements.md`
+
+## Support Metadata
+
+- Support tier: `Core release`
+- Maturity state: `Supported`
+- Supported profiles:
+  - `standalone-iam-core`
+  - `bounded-oidc-core`
+  - `planning-basis-for-parity-and-differentiator-tracks`
+- Evidence class: `Internal runtime`
 
 ## 1. Overview
 
@@ -69,7 +83,7 @@ The platform shall provide a reusable identity and access management subsystem t
 
 The target is at least mainstream Keycloak-class parity for a standalone IdP across explicitly declared supported profiles, with strategic differentiation through lower-cost AWS-native operation, stronger OpenAPI-described administration and delivery contracts, stronger subsystem adoption governance, stronger communications-composition boundaries, and stronger built-in resilience and readiness-review evidence.
 
-All standalone IAM requirements in this section shall be interpreted using the capability-maturity and claim-boundary rules in `docs/spec/capability-maturity-standard.idp.md`.
+All standalone IAM requirements in this section shall be interpreted using the capability-maturity and claim-boundary rules in `docs/reference/maturity-model.md`.
 
 ### Requirement Tiers
 
@@ -220,7 +234,7 @@ The IAM subsystem shall not become the migration target for non-identity applica
 Broad standalone IAM product claims shall be limited to capabilities that are both:
 
 - within the declared supported product surface for the release or review in question,
-- and backed by the maturity state and evidence class required by `docs/spec/capability-maturity-standard.idp.md`.
+- and backed by the maturity state and evidence class required by `docs/reference/maturity-model.md`.
 
 Modeled, synthetic, experimental, or profile-restricted capabilities may remain in-scope for implementation and future planning, but they shall not be presented as baseline product support until their support matrices and evidence posture are advanced accordingly.
 

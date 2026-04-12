@@ -15,7 +15,7 @@ Last updated: 2026-04-11
 
 ## Purpose
 
-This checklist converts `Sequence A / Step 3` from [Headless_IAM_Runtime_Cutover_Runbook.md](./Headless_IAM_Runtime_Cutover_Runbook.md) into an execution-ready cutover procedure for browser account sessions.
+This checklist converts `Sequence A / Step 3` from [Headless_IAM_Runtime_Cutover_Runbook.md](./cutover-runbook.md) into an execution-ready cutover procedure for browser account sessions.
 
 This step should be executed only after the login-transaction and ticket cutover outcomes are recorded, because session behavior is broader and has stronger downstream impact.
 

@@ -5,11 +5,26 @@ domain: authentication
 status: stable
 version: "1.0"
 dependencies: [platform-architecture]
+support_tier: "core-release"
+maturity_state: "supported-for-bounded-profile"
+supported_profiles: [oidc-browser-auth-code-pkce, oidc-refresh-token, oidc-client-credentials, oidc-device-authorization-bounded]
+evidence_class: "external-interoperability"
 tags: [specification, technical, authentication]
-last_updated: "2024-04-12"
+last_updated: "2026-04-12"
 related: []
 ---
 # OAuth 2.1 & OpenID Connect Authentication Flows
+
+## Support Metadata
+
+- Support tier: `Core release`
+- Maturity state: `Supported for a bounded profile`
+- Supported profiles:
+  - `oidc-browser-auth-code-pkce`
+  - `oidc-refresh-token`
+  - `oidc-client-credentials`
+  - `oidc-device-authorization-bounded`
+- Evidence class: `External interoperability`
 
 ## Feature Overview
 

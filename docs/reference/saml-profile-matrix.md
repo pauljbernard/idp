@@ -17,7 +17,7 @@ Last updated: 2026-04-11
 
 This document is the Phase 0 support matrix for standalone IAM SAML claims.
 
-The runtime mirror of this matrix is published through `GET /api/v1/iam/saml/support-matrix` and backed by [iamSamlSupportMatrixRuntime.ts](../../../apps/api-server/src/platform/iamSamlSupportMatrixRuntime.ts).
+The runtime mirror of this matrix is published through `GET /api/v1/iam/saml/support-matrix` and backed by [iamSamlSupportMatrixRuntime.ts](../../apps/api-server/src/platform/iamSamlSupportMatrixRuntime.ts).
 
 ## Current Status
 

@@ -1,99 +1,42 @@
 {
-  "project_type": "enterprise_identity_platform",
-  "agent_behavior": {
-    "documentation_first": true,
-    "security_priority": "maximum",
-    "enterprise_standards": true,
-    "zero_trust_validation": true
-  },
-  "required_reading_sequence": [
+  "version": "2.0",
+  "project_type": "standalone_iam_platform",
+  "documentation_first": true,
+  "canonical_bootstrap": [
+    "CLAUDE.md",
+    "docs/AGENT_USAGE_GUIDE.md",
     "docs/foundation/constitution.md",
     "docs/foundation/architecture.md",
-    "docs/foundation/security-model.md",
-    "docs/foundation/design-principles.md"
+    "docs/specs/platform-requirements.md",
+    "docs/reference/maturity-model.md"
   ],
+  "claim_model": {
+    "required_spec_fields": [
+      "support_tier",
+      "maturity_state",
+      "supported_profiles",
+      "evidence_class"
+    ],
+    "rules": [
+      "do_not_infer_support_from_implementation_presence",
+      "prefer_status_matrices_for_current_support_claims",
+      "prefer_validation_guides_for_readiness_and_adoption_gates",
+      "treat_conflicting_or_missing_docs_as_risk_not_license_to_guess"
+    ]
+  },
+  "current_state_sources": {
+    "status_matrix": "docs/reference/headless-iam-status-matrix.md",
+    "requirements_gap_matrix": "docs/reference/headless-iam-requirements-gap-matrix.md",
+    "validation_review_guide": "docs/implementation/planning/headless-iam-standalone-validation-review-guide.md"
+  },
   "domain_specifications": {
+    "platform_requirements": "docs/specs/platform-requirements.md",
     "authentication": "docs/specs/authentication/oauth-flows.md",
-    "federation": "docs/specs/federation/external-idp.md",
-    "operations": "docs/specs/operations/deployment-topology.md",
-    "ui": "docs/specs/ui/design-system.md",
-    "api": "docs/specs/api/openapi-spec.md"
+    "operations": "docs/specs/operations/deployment-modes.md",
+    "ui_design_system": "docs/specs/ui/design-system.md"
   },
-  "prohibited_patterns": [
-    "oauth_2_implicit_flow",
-    "optional_pkce",
-    "unencrypted_storage",
-    "single_tenant_design",
-    "missing_rate_limiting",
-    "bypassing_health_monitoring"
-  ],
-  "required_patterns": [
-    "oauth_21_with_pkce",
-    "comprehensive_error_handling",
-    "structured_logging",
-    "health_monitoring",
-    "multi_tenant_isolation",
-    "zero_trust_security"
-  ],
-  "security_requirements": {
-    "authentication": {
-      "protocol": "OAuth 2.1",
-      "pkce_mandatory": true,
-      "https_only": true,
-      "rate_limiting": "10 requests/minute",
-      "token_rotation": true
-    },
-    "federation": {
-      "certificate_validation": true,
-      "attribute_mapping_validation": true,
-      "health_monitoring": true,
-      "circuit_breaker": true
-    },
-    "data_protection": {
-      "tenant_isolation": "database_level",
-      "encryption_at_rest": true,
-      "gdpr_compliance": true,
-      "audit_logging": true
-    }
-  },
-  "performance_requirements": {
-    "authentication_response": "200ms_p95",
-    "federation_timeout": "5_seconds",
-    "database_timeout": "2_seconds",
-    "health_check_interval": "30_seconds",
-    "token_validation": "50ms_p95"
-  },
-  "code_quality_standards": {
-    "language": "TypeScript",
-    "test_coverage": ">90%",
-    "documentation": "JSDoc_required",
-    "formatting": "consistent",
-    "patterns": "established_conventions"
-  },
-  "validation_checklist": {
-    "documentation_read": ["foundation_architecture", "security_model", "domain_specifications"],
-    "security_validated": ["oauth_21_compliance", "pkce_mandatory", "https_only", "rate_limiting"],
-    "implementation_complete": ["error_handling", "logging", "health_monitoring", "testing_strategy"],
-    "enterprise_ready": ["multi_tenant_support", "scalability_considered", "operational_procedures", "disaster_recovery"]
-  },
-  "tool_usage_priorities": [
-    {"tool": "Read", "purpose": "documentation_consultation"},
-    {"tool": "Grep", "purpose": "pattern_discovery"},
-    {"tool": "Write", "purpose": "implementation"},
-    {"tool": "Bash", "purpose": "testing"},
-    {"tool": "WebSearch", "purpose": "standards_validation"}
-  ],
-  "escalation_paths": {
-    "security_concerns": "immediate_escalation",
-    "architecture_questions": "platform_architects",
-    "federation_issues": "idp_vendor_support",
-    "performance_problems": "sre_team"
-  },
-  "success_metrics": {
-    "documentation_compliance": "100%",
-    "security_adherence": "100%",
-    "implementation_completeness": ">95%",
-    "code_quality": ">90%",
-    "operational_readiness": "100%"
-  }
+  "validation_commands": [
+    "npm run docs:validate",
+    "node scripts/verify-governance.js"
+  ]
 }

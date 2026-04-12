@@ -5,11 +5,25 @@ domain: ui
 status: stable
 version: "1.0"
 dependencies: [platform-architecture]
+support_tier: "core-release"
+maturity_state: "implemented"
+supported_profiles: [admin-console-ia, auth-portal-ia, documentation-site-ia]
+evidence_class: "internal-runtime"
 tags: [specification, technical, ui]
-last_updated: "2024-04-12"
+last_updated: "2026-04-12"
 related: []
 ---
 # IDP Platform Information Architecture
+
+## Support Metadata
+
+- Support tier: `Core release`
+- Maturity state: `Implemented`
+- Supported profiles:
+  - `admin-console-ia`
+  - `auth-portal-ia`
+  - `documentation-site-ia`
+- Evidence class: `Internal runtime`
 
 This directory defines the information architecture and user experience patterns for the Identity Provider (IDP) Platform, ensuring intuitive navigation and task completion across all user interfaces.
 

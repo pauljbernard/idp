@@ -268,5 +268,5 @@ This architecture depends on:
 
 - [Security Model](security-model.md): Detailed security implementation
 - [Design Principles](design-principles.md): UX and development principles
-- [API Reference](../reference/api-reference.md): Complete API documentation
-- [Deployment Guide](../implementation/deployment/overview.md): Infrastructure setup
+- Reference materials are tracked in [Reference Materials](../reference/index.md), including support matrices and readiness references.
+- [Implementation Guides](../implementation/index.md): implementation and deployment planning

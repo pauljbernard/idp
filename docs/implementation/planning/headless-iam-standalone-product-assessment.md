@@ -16,13 +16,13 @@ related: []
 
 **Status Note:** This document is a historical assessment and planning input. It predates the governed maturity and support-matrix model and must not be used as the authoritative source for current support, production-grade, or competitive claims. Current governed status lives in:
 
-- [capability-maturity-standard.idp.md](../capability-maturity-standard.idp.md)
-- [Headless_IAM_Status_Matrix.md](./Headless_IAM_Status_Matrix.md)
-- [Headless_IAM_Protocol_Support_Matrix.md](./Headless_IAM_Protocol_Support_Matrix.md)
-- [Headless_IAM_Federation_Support_Matrix.md](./Headless_IAM_Federation_Support_Matrix.md)
-- [Headless_IAM_Passkey_Support_Matrix.md](./Headless_IAM_Passkey_Support_Matrix.md)
-- [Headless_IAM_SAML_Profile_Matrix.md](./Headless_IAM_SAML_Profile_Matrix.md)
-- [Headless_IAM_Deployment_Mode_Matrix.md](./Headless_IAM_Deployment_Mode_Matrix.md)
+- [Capability Maturity Standard](../../reference/maturity-model.md)
+- [Headless IAM Status Matrix](../../reference/headless-iam-status-matrix.md)
+- [Protocol Support Matrix](../../reference/protocol-support-matrix.md)
+- [Federation Support Matrix](../../reference/federation-support-matrix.md)
+- [WebAuthn Support Matrix](../../reference/webauthn-support-matrix.md)
+- [SAML Profile Matrix](../../reference/saml-profile-matrix.md)
+- [Deployment Modes](../../specs/operations/deployment-modes.md)
 
 ---
 
@@ -81,7 +81,7 @@ Primary comparison sources:
 
 ### 3.1 It Has a Real IAM Domain Model
 
-The subsystem is not modeled as “users plus login.” It has explicit first-class IAM objects in [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts):
+The subsystem is not modeled as “users plus login.” It has explicit first-class IAM objects in [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts):
 
 - realms
 - realm templates
@@ -100,7 +100,7 @@ That is the correct baseline for a reusable IAM plane.
 
 RBAC is structurally central, not bolted on:
 
-- roles exist as canonical domain objects in [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts)
+- roles exist as canonical domain objects in [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts)
 - groups carry role assignments
 - users carry both direct role mappings and group membership
 - delegated administration exists as its own model rather than an ad hoc admin flag
@@ -109,7 +109,7 @@ This is materially better than many platform-local “auth” implementations th
 
 ### 3.3 It Has a Coherent Client and Protocol Model
 
-The client/protocol layer in [iamProtocolRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamProtocolRuntime.ts) is structurally correct:
+The client/protocol layer in [iamProtocolRuntime.ts](../../../apps/api-server/src/platform/iamProtocolRuntime.ts) is structurally correct:
 
 - clients
 - client scopes
@@ -128,7 +128,7 @@ This is no longer just an app login module. It is the beginning of a standards-b
 
 ### 3.4 It Has a Separate Browser Auth Plane
 
-The auth runtime in [iamAuthenticationRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamAuthenticationRuntime.ts) is distinct from token issuance and includes:
+The auth runtime in [iamAuthenticationRuntime.ts](../../../apps/api-server/src/platform/iamAuthenticationRuntime.ts) is distinct from token issuance and includes:
 
 - browser login transactions
 - required actions
@@ -144,7 +144,7 @@ That separation is correct and necessary for a serious IAM system.
 
 ### 3.5 Federation and Brokering Are Present as Real Domains
 
-The federation layer in [iamFederationRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFederationRuntime.ts) already models:
+The federation layer in [iamFederationRuntime.ts](../../../apps/api-server/src/platform/iamFederationRuntime.ts) already models:
 
 - external identity providers
 - user federation providers
@@ -157,7 +157,7 @@ That is enough to prove the architectural direction is correct.
 
 ### 3.6 Experience and Operations Are Not Ignored
 
-The experience plane in [iamExperienceRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamExperienceRuntime.ts) and operations plane in [iamOperationsRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamOperationsRuntime.ts) go materially beyond a basic prototype:
+The experience plane in [iamExperienceRuntime.ts](../../../apps/api-server/src/platform/iamExperienceRuntime.ts) and operations plane in [iamOperationsRuntime.ts](../../../apps/api-server/src/platform/iamOperationsRuntime.ts) go materially beyond a basic prototype:
 
 - realm branding
 - localization
@@ -180,7 +180,7 @@ The subsystem is reusable in direction, but it is **still materially IDP-shaped*
 
 ### 4.1 Realm and Binding Semantics Still Assume IDP as the Host Product
 
-In [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts), the core scope model is explicitly:
+In [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts), the core scope model is explicitly:
 
 - `IDP_GLOBAL_DEFAULT`
 - `STANDALONE_VALIDATION`
@@ -192,7 +192,7 @@ The subsystem is therefore not yet framed as a neutral multi-product IAM control
 
 ### 4.2 Seeded Realms and Clients Are Still Product-Specific
 
-The seeded realm definitions in [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts#L527) and seeded clients in [iamProtocolRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamProtocolRuntime.ts#L772) are heavily product-branded:
+The seeded realm definitions in [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts#L527) and seeded clients in [iamProtocolRuntime.ts](../../../apps/api-server/src/platform/iamProtocolRuntime.ts#L772) are heavily product-branded:
 
 - `realm-idp-default`
 - `idp-enterprise-console`
@@ -203,7 +203,7 @@ That is acceptable for a proving runtime, but it is not how a generic product sh
 
 ### 4.3 The Super-Admin Model Still Depends on IDP Global User Plumbing
 
-The subsystem’s global super administrator is still resolved through IDP platform user state in [tenants.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/tenants.ts) and server middleware in [server.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/server.ts#L607).
+The subsystem’s global super administrator is still resolved through IDP platform user state in [tenants.ts](../../../apps/api-server/src/platform/tenants.ts) and server middleware in [server.ts](../../../apps/api-server/src/server.ts#L607).
 
 That means the standalone subsystem does not yet fully own:
 
@@ -215,7 +215,7 @@ It still borrows host-platform administrative identity.
 
 ### 4.4 Persistence Is a Local Proving Runtime, Not a Product Runtime
 
-The persistence layer in [persistence.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/persistence.ts) stores subsystem state in local JSON envelopes under `local-data/platform`.
+The persistence layer in [persistence.ts](../../../apps/api-server/src/platform/persistence.ts) stores subsystem state in local JSON envelopes under `local-data/platform`.
 
 That is fine for proving behavior. It is not a standalone IAM product architecture.
 
@@ -276,7 +276,7 @@ IDP currently exposes only:
 - revoke
 - userinfo
 
-The server route whitelist in [server.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/server.ts#L769) explicitly includes only `certs|token|userinfo|token/introspect|revoke` for OIDC protocol routes, and the token runtime in [iamProtocolRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamProtocolRuntime.ts#L2017) supports only:
+The server route whitelist in [server.ts](../../../apps/api-server/src/server.ts#L769) explicitly includes only `certs|token|userinfo|token/introspect|revoke` for OIDC protocol routes, and the token runtime in [iamProtocolRuntime.ts](../../../apps/api-server/src/platform/iamProtocolRuntime.ts#L2017) supports only:
 
 - `client_credentials`
 - `password`
@@ -299,7 +299,7 @@ IDP currently exposes only:
 - SAML metadata
 - a synthetic SAML login response path
 
-See [server.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/server.ts#L5024).
+See [server.ts](../../../apps/api-server/src/server.ts#L5024).
 
 It does **not** yet model a fuller mature SAML IdP surface such as:
 
@@ -347,7 +347,7 @@ Keycloak documents fine-grained admin permissions for clients, users, groups, an
 
 Source: [Keycloak Server Administration Guide](https://www.keycloak.org/docs/latest/server_admin/)
 
-IDP has delegated admin in [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts), but it does not yet have a comparable fine-grained admin authorization model with:
+IDP has delegated admin in [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts), but it does not yet have a comparable fine-grained admin authorization model with:
 
 - scoped admin policies
 - per-resource admin permissions
@@ -397,7 +397,7 @@ Sources:
 - [Keycloak OIDC guide](https://www.keycloak.org/securing-apps/oidc-layers)
 - [Keycloak Server Administration Guide](https://www.keycloak.org/docs/latest/server_admin/)
 
-IDP currently has client CRUD in [iamProtocolRuntime.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamProtocolRuntime.ts), but it does not yet have:
+IDP currently has client CRUD in [iamProtocolRuntime.ts](../../../apps/api-server/src/platform/iamProtocolRuntime.ts), but it does not yet have:
 
 - dynamic client registration endpoints
 - registration policies
@@ -411,7 +411,7 @@ Keycloak’s server administration guide documents a user-profile capability wit
 
 Source: [Keycloak Server Administration Guide](https://www.keycloak.org/docs/latest/server_admin/)
 
-IDP currently models users with a fixed profile shape in [iamFoundation.ts](/Volumes/data/development/IDP/IDP/apps/api-server/src/platform/iamFoundation.ts):
+IDP currently models users with a fixed profile shape in [iamFoundation.ts](../../../apps/api-server/src/platform/iamFoundation.ts):
 
 - username
 - email
