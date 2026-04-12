@@ -1,0 +1,214 @@
+{
+  "title": "IDP Platform Documentation Dependency Map",
+  "description": "Machine-readable dependency graph for agent navigation and validation",
+  "version": "1.0",
+  "generated": "2024-04-12",
+
+  "documents": {
+    "platform-architecture": {
+      "id": "platform-architecture",
+      "path": "foundation/architecture.md",
+      "type": "foundation",
+      "status": "stable",
+      "dependencies": [],
+      "dependents": [
+        "security-model", "design-principles", "oauth-flows-spec",
+        "federation-specs", "deployment-guides", "platform-requirements"
+      ],
+      "criticality": "critical",
+      "description": "Core system architecture and design"
+    },
+
+    "security-model": {
+      "id": "security-model",
+      "path": "foundation/security-model.md",
+      "type": "foundation",
+      "status": "stable",
+      "dependencies": ["platform-architecture"],
+      "dependents": [
+        "oauth-flows-spec", "federation-security", "operations-security",
+        "deployment-security", "api-security"
+      ],
+      "criticality": "critical",
+      "description": "Zero-trust security architecture and threat model"
+    },
+
+    "design-principles": {
+      "id": "design-principles",
+      "path": "foundation/design-principles.md",
+      "type": "foundation",
+      "status": "stable",
+      "dependencies": ["platform-architecture"],
+      "dependents": [
+        "design-system", "ui-components", "interaction-patterns",
+        "accessibility-specs"
+      ],
+      "criticality": "high",
+      "description": "UX principles and design philosophy"
+    },
+
+    "oauth-flows-spec": {
+      "id": "oauth-flows-spec",
+      "path": "specs/authentication/oauth-flows.md",
+      "type": "specification",
+      "status": "stable",
+      "dependencies": ["platform-architecture", "security-model"],
+      "dependents": [
+        "oauth-integration-guide", "client-setup-guide", "api-reference"
+      ],
+      "criticality": "critical",
+      "description": "OAuth 2.1 and OIDC implementation specification"
+    },
+
+    "design-system": {
+      "id": "design-system",
+      "path": "specs/ui/design-system.md",
+      "type": "specification",
+      "status": "stable",
+      "dependencies": ["platform-architecture", "design-principles"],
+      "dependents": [
+        "component-specs", "ui-implementation-guide", "design-tokens"
+      ],
+      "criticality": "high",
+      "description": "Visual design system and component library"
+    },
+
+    "platform-requirements": {
+      "id": "platform-requirements",
+      "path": "specs/platform-requirements.md",
+      "type": "specification",
+      "status": "stable",
+      "dependencies": ["platform-architecture"],
+      "dependents": [
+        "implementation-plan", "deployment-guides", "testing-framework"
+      ],
+      "criticality": "high",
+      "description": "Functional and non-functional requirements"
+    },
+
+    "getting-started": {
+      "id": "getting-started",
+      "path": "implementation/quick-start/getting-started.md",
+      "type": "implementation",
+      "status": "stable",
+      "dependencies": ["platform-architecture", "oauth-flows-spec"],
+      "dependents": [],
+      "criticality": "medium",
+      "description": "Quick start guide for new users"
+    },
+
+    "deployment-overview": {
+      "id": "deployment-overview",
+      "path": "implementation/deployment/overview.md",
+      "type": "implementation",
+      "status": "stable",
+      "dependencies": ["platform-architecture", "security-model"],
+      "dependents": [
+        "aws-infrastructure", "security-hardening", "monitoring-setup"
+      ],
+      "criticality": "high",
+      "description": "Production deployment overview"
+    }
+  },
+
+  "dependency_chains": [
+    {
+      "name": "Authentication Implementation",
+      "path": [
+        "platform-architecture",
+        "security-model",
+        "oauth-flows-spec",
+        "oauth-integration-guide"
+      ],
+      "description": "Complete authentication feature implementation"
+    },
+
+    {
+      "name": "UI Component Development",
+      "path": [
+        "platform-architecture",
+        "design-principles",
+        "design-system",
+        "component-specs",
+        "ui-implementation-guide"
+      ],
+      "description": "UI component development workflow"
+    },
+
+    {
+      "name": "Production Deployment",
+      "path": [
+        "platform-architecture",
+        "security-model",
+        "platform-requirements",
+        "deployment-overview",
+        "aws-infrastructure"
+      ],
+      "description": "Production deployment workflow"
+    }
+  ],
+
+  "validation_rules": {
+    "dependency_resolution": {
+      "description": "All dependencies must be resolved before reading dependent documents",
+      "enforcement": "agent_navigation",
+      "exceptions": ["cross-references", "related_documents"]
+    },
+
+    "circular_dependencies": {
+      "description": "No circular dependencies allowed in main dependency chain",
+      "enforcement": "build_validation",
+      "allowed": "related_documents_only"
+    },
+
+    "orphaned_documents": {
+      "description": "All documents must have at least one dependency or dependent",
+      "enforcement": "documentation_review",
+      "exceptions": ["foundation_documents", "index_documents"]
+    }
+  },
+
+  "navigation_patterns": {
+    "agent_exploration": {
+      "entry_point": "platform-architecture",
+      "strategy": "dependency_first",
+      "description": "Agents should start with architecture and follow dependency chains"
+    },
+
+    "human_task_oriented": {
+      "entry_points": [
+        "getting-started",
+        "deployment-overview",
+        "oauth-integration-guide"
+      ],
+      "strategy": "goal_oriented",
+      "description": "Humans start with task-specific guides"
+    },
+
+    "cross_reference": {
+      "strategy": "bidirectional",
+      "validation": "link_checking",
+      "description": "All cross-references validated automatically"
+    }
+  },
+
+  "update_propagation": {
+    "foundation_changes": {
+      "scope": "all_dependents",
+      "review_required": true,
+      "description": "Foundation changes require review of all dependent documents"
+    },
+
+    "specification_changes": {
+      "scope": "implementation_guides",
+      "review_required": true,
+      "description": "Spec changes require implementation guide updates"
+    },
+
+    "implementation_changes": {
+      "scope": "none",
+      "review_required": false,
+      "description": "Implementation changes rarely affect other documents"
+    }
+  }
+}
