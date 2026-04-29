@@ -1,0 +1,291 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM Identity Providers API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM Phase 4 broker-management and public broker-login endpoints."
+  },
+  "paths": {
+    "/api/v1/iam/identity-providers": {
+      "get": {
+        "summary": "List identity providers",
+        "tags": ["IAM Federation"],
+        "parameters": [
+          { "name": "realm_id", "in": "query", "schema": { "type": "string" } },
+          { "name": "protocol", "in": "query", "schema": { "type": "string", "enum": ["OIDC", "SAML"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity providers",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IdentityProvidersResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create identity provider",
+        "tags": ["IAM Federation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIdentityProviderRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Identity provider created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IdentityProvider" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/identity-providers/{providerId}": {
+      "put": {
+        "summary": "Update identity provider",
+        "tags": ["IAM Federation"],
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIdentityProviderRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Identity provider updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IdentityProvider" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/brokers": {
+      "get": {
+        "summary": "List realm brokers",
+        "tags": ["IAM Federation"],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Realm broker catalog",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RealmBrokersResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/brokers/{providerAlias}/login": {
+      "post": {
+        "summary": "Broker-first login",
+        "tags": ["IAM Federation"],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "providerAlias",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BrokerLoginRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Browser login response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ExternalIdentityProfile": {
+        "type": "object",
+        "required": ["subject", "username", "email", "first_name", "last_name", "group_names", "role_names"],
+        "properties": {
+          "subject": { "type": "string" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "group_names": { "type": "array", "items": { "type": "string" } },
+          "role_names": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "IdentityProvider": {
+        "type": "object",
+        "required": ["id", "realm_id", "alias", "name", "protocol", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "alias": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "protocol": { "type": "string", "enum": ["OIDC", "SAML"] },
+          "status": { "type": "string", "enum": ["ACTIVE", "DISABLED", "ARCHIVED"] },
+          "login_mode": { "type": "string", "enum": ["BROKER_ONLY", "OPTIONAL"] },
+          "link_policy": { "type": "string", "enum": ["EMAIL_MATCH", "AUTO_CREATE", "MANUAL"] },
+          "sync_mode": { "type": "string", "enum": ["LOGIN_ONLY", "IMPORT"] },
+          "issuer_url": { "type": ["string", "null"] },
+          "allowed_scopes": { "type": "array", "items": { "type": "string" } },
+          "default_role_ids": { "type": "array", "items": { "type": "string" } },
+          "default_group_ids": { "type": "array", "items": { "type": "string" } },
+          "external_identities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ExternalIdentityProfile" }
+          }
+        }
+      },
+      "IdentityProvidersResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "identity_providers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IdentityProvider" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "CreateIdentityProviderRequest": {
+        "type": "object",
+        "required": ["realm_id", "alias", "name"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "alias": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "protocol": { "type": "string", "enum": ["OIDC", "SAML"] },
+          "status": { "type": "string", "enum": ["ACTIVE", "DISABLED", "ARCHIVED"] },
+          "login_mode": { "type": "string", "enum": ["BROKER_ONLY", "OPTIONAL"] },
+          "link_policy": { "type": "string", "enum": ["EMAIL_MATCH", "AUTO_CREATE", "MANUAL"] },
+          "sync_mode": { "type": "string", "enum": ["LOGIN_ONLY", "IMPORT"] },
+          "issuer_url": { "type": ["string", "null"] },
+          "allowed_scopes": { "type": "array", "items": { "type": "string" } },
+          "default_role_ids": { "type": "array", "items": { "type": "string" } },
+          "default_group_ids": { "type": "array", "items": { "type": "string" } },
+          "external_identities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ExternalIdentityProfile" }
+          }
+        }
+      },
+      "UpdateIdentityProviderRequest": {
+        "type": "object",
+        "properties": {
+          "alias": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string", "enum": ["ACTIVE", "DISABLED", "ARCHIVED"] },
+          "login_mode": { "type": "string", "enum": ["BROKER_ONLY", "OPTIONAL"] },
+          "link_policy": { "type": "string", "enum": ["EMAIL_MATCH", "AUTO_CREATE", "MANUAL"] },
+          "sync_mode": { "type": "string", "enum": ["LOGIN_ONLY", "IMPORT"] },
+          "issuer_url": { "type": ["string", "null"] },
+          "allowed_scopes": { "type": "array", "items": { "type": "string" } },
+          "default_role_ids": { "type": "array", "items": { "type": "string" } },
+          "default_group_ids": { "type": "array", "items": { "type": "string" } },
+          "external_identities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ExternalIdentityProfile" }
+          }
+        }
+      },
+      "RealmBroker": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "alias": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "protocol": { "type": "string", "enum": ["OIDC", "SAML"] },
+          "login_mode": { "type": "string", "enum": ["BROKER_ONLY", "OPTIONAL"] }
+        }
+      },
+      "RealmBrokersResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "realm_id": { "type": "string" },
+          "brokers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/RealmBroker" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "BrokerLoginRequest": {
+        "type": "object",
+        "required": ["external_username_or_email"],
+        "properties": {
+          "external_username_or_email": { "type": "string" },
+          "client_id": { "type": ["string", "null"] },
+          "scope": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "realm_id": { "type": "string" },
+          "next_step": { "type": "string" },
+          "login_transaction_id": { "type": ["string", "null"] },
+          "session_id": { "type": ["string", "null"] },
+          "pending_required_actions": { "type": "array", "items": { "type": "string" } },
+          "pending_scope_consent": { "type": "array", "items": { "type": "string" } },
+          "pending_mfa": { "type": "boolean" },
+          "post_login_destination": { "type": "string" }
+        }
+      }
+    }
+  }
+}

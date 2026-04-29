@@ -1,0 +1,88 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM Linked Identities API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM Phase 4 linked-identity endpoints for admin and account-console visibility."
+  },
+  "paths": {
+    "/api/v1/iam/broker-links": {
+      "get": {
+        "summary": "List linked identities",
+        "tags": ["IAM Federation"],
+        "parameters": [
+          { "name": "realm_id", "in": "query", "schema": { "type": "string" } },
+          { "name": "source_type", "in": "query", "schema": { "type": "string", "enum": ["BROKER", "FEDERATION"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Linked identities",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LinkedIdentitiesResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/linked-identities": {
+      "get": {
+        "summary": "List linked identities for current account",
+        "tags": ["IAM Federation"],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current account linked identities",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LinkedIdentitiesResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LinkedIdentity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "source_type": { "type": "string", "enum": ["BROKER", "FEDERATION"] },
+          "provider_id": { "type": "string" },
+          "provider_name": { "type": "string" },
+          "provider_alias": { "type": ["string", "null"] },
+          "provider_kind": { "type": "string" },
+          "external_subject": { "type": "string" },
+          "external_username": { "type": "string" },
+          "external_email": { "type": "string" },
+          "linked_at": { "type": "string", "format": "date-time" },
+          "imported_at": { "type": ["string", "null"], "format": "date-time" },
+          "last_authenticated_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "LinkedIdentitiesResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "linked_identities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/LinkedIdentity" }
+          },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

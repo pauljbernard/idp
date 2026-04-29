@@ -1,0 +1,241 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Client Policies API",
+    "version": "1.0.0",
+    "description": "Standalone IAM Phase B endpoints for realm-level client policy governance and initial-access-token issuance."
+  },
+  "tags": [
+    {
+      "name": "IAM Client Policies",
+      "description": "Advanced OAuth client governance for the standalone IAM subsystem."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/client-policies": {
+      "get": {
+        "tags": ["IAM Client Policies"],
+        "summary": "List IAM client policies",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Client policies resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["client_policies", "count"],
+                  "properties": {
+                    "client_policies": { "type": "array", "items": { "$ref": "#/components/schemas/IamClientPolicyRecord" } },
+                    "count": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Client Policies"],
+        "summary": "Create IAM client policy",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamClientPolicyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Client policy created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamClientPolicyRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/client-policies/{policyId}": {
+      "put": {
+        "tags": ["IAM Client Policies"],
+        "summary": "Update IAM client policy",
+        "parameters": [
+          { "name": "policyId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamClientPolicyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Client policy updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamClientPolicyRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/initial-access-tokens": {
+      "get": {
+        "tags": ["IAM Client Policies"],
+        "summary": "List initial access tokens",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Initial access tokens resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["tokens", "count"],
+                  "properties": {
+                    "tokens": { "type": "array", "items": { "$ref": "#/components/schemas/IamInitialAccessTokenRecord" } },
+                    "count": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Client Policies"],
+        "summary": "Issue initial access token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamInitialAccessTokenRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Initial access token issued.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamInitialAccessTokenIssueResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamClientPolicyRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "name", "status", "allow_dynamic_registration", "allow_device_authorization", "allow_token_exchange", "allow_pushed_authorization_requests", "require_par_for_public_clients", "require_pkce_for_public_clients", "allow_wildcard_redirect_uris", "allowed_protocols", "allowed_access_types", "default_scope_ids", "assigned_client_ids", "created_at", "updated_at"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string", "enum": ["ACTIVE", "DISABLED", "ARCHIVED"] },
+          "allow_dynamic_registration": { "type": "boolean" },
+          "allow_device_authorization": { "type": "boolean" },
+          "allow_token_exchange": { "type": "boolean" },
+          "allow_pushed_authorization_requests": { "type": "boolean" },
+          "require_par_for_public_clients": { "type": "boolean" },
+          "require_pkce_for_public_clients": { "type": "boolean" },
+          "allow_wildcard_redirect_uris": { "type": "boolean" },
+          "allowed_protocols": { "type": "array", "items": { "type": "string" } },
+          "allowed_access_types": { "type": "array", "items": { "type": "string" } },
+          "default_scope_ids": { "type": "array", "items": { "type": "string" } },
+          "assigned_client_ids": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateIamClientPolicyRequest": {
+        "type": "object",
+        "required": ["realm_id", "name"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string", "enum": ["ACTIVE", "DISABLED", "ARCHIVED"] },
+          "allow_dynamic_registration": { "type": "boolean" },
+          "allow_device_authorization": { "type": "boolean" },
+          "allow_token_exchange": { "type": "boolean" },
+          "allow_pushed_authorization_requests": { "type": "boolean" },
+          "require_par_for_public_clients": { "type": "boolean" },
+          "require_pkce_for_public_clients": { "type": "boolean" },
+          "allow_wildcard_redirect_uris": { "type": "boolean" },
+          "allowed_protocols": { "type": "array", "items": { "type": "string" } },
+          "allowed_access_types": { "type": "array", "items": { "type": "string" } },
+          "default_scope_ids": { "type": "array", "items": { "type": "string" } },
+          "assigned_client_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "UpdateIamClientPolicyRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string", "enum": ["ACTIVE", "DISABLED", "ARCHIVED"] },
+          "allow_dynamic_registration": { "type": "boolean" },
+          "allow_device_authorization": { "type": "boolean" },
+          "allow_token_exchange": { "type": "boolean" },
+          "allow_pushed_authorization_requests": { "type": "boolean" },
+          "require_par_for_public_clients": { "type": "boolean" },
+          "require_pkce_for_public_clients": { "type": "boolean" },
+          "allow_wildcard_redirect_uris": { "type": "boolean" },
+          "allowed_protocols": { "type": "array", "items": { "type": "string" } },
+          "allowed_access_types": { "type": "array", "items": { "type": "string" } },
+          "default_scope_ids": { "type": "array", "items": { "type": "string" } },
+          "assigned_client_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "IamInitialAccessTokenRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "policy_id", "label", "status", "created_at", "updated_at"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "policy_id": { "type": "string" },
+          "label": { "type": "string" },
+          "status": { "type": "string", "enum": ["ACTIVE", "EXPIRED", "DEPLETED", "REVOKED"] },
+          "remaining_uses": { "type": "integer" },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateIamInitialAccessTokenRequest": {
+        "type": "object",
+        "required": ["realm_id", "policy_id", "label"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "policy_id": { "type": "string" },
+          "label": { "type": "string" },
+          "max_uses": { "type": "integer" },
+          "expires_in_hours": { "type": "integer" }
+        }
+      },
+      "IamInitialAccessTokenIssueResponse": {
+        "type": "object",
+        "required": ["token", "issued_token"],
+        "properties": {
+          "token": { "$ref": "#/components/schemas/IamInitialAccessTokenRecord" },
+          "issued_token": { "type": "string" }
+        }
+      }
+    }
+  }
+}

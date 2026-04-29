@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-04-28T18:33:25.816Z",
+  "environment": "http://127.0.0.1:4104",
+  "persistence_backend": "dynamodb-s3",
+  "runtime_table": "idp-iam-runtime-local",
+  "checks": {
+    "realm_id": "realm-idp-default",
+    "session_id": "iam-session-ce7f07b6-8e28-4db7-bc4c-71a1e95c232a.63e-Y0U_FKyKshx3vBW6n-m5NqoObb42",
+    "access_token_present": true,
+    "introspection_active_before_logout": true,
+    "introspection_active_after_logout": false,
+    "userinfo_subject_before_logout": "iam-user-idp-super-admin",
+    "userinfo_status_after_logout": 401,
+    "logout_revoked": true
+  }
+}

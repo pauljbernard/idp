@@ -1,0 +1,64 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Local development data
+local-data/
+durable-data/
+*.log
+
+# AWS
+.aws/
+aws-exports.js
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CDK
+cdk.out/
+*.js.map
+
+# Lambda layers
+layers/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+test-results/
+playwright-report/
+.playwright-mcp/
+.claude/
+.codex-write-check
+.codex-write-check-*
+AGENTS.md
+CLAUDE.md
+
+# Verification artifacts
+artifacts/scheduling-verification/
+
+# Security tokens and credentials
+*.pat
+
+# Research directory (contains internal analysis and sensitive data)
+research/
+
+# Local white papers and working essays not intended for source-controlled docs
+docs/analysis/agentic-specification-white-paper.md

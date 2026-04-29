@@ -1,0 +1,105 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Bootstrap API",
+    "version": "1.0.0",
+    "description": "Standalone IAM Phase K endpoints for operator bootstrap packaging and standalone deployment setup guidance."
+  },
+  "tags": [
+    {
+      "name": "IAM Standalone Bootstrap",
+      "description": "Bootstrap packaging endpoints for the standalone IAM product runtime."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/operations/bootstrap": {
+      "get": {
+        "tags": ["IAM Standalone Bootstrap"],
+        "summary": "Get standalone IAM bootstrap package",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM bootstrap package resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamBootstrapPackageResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/operations/bootstrap/regenerate": {
+      "post": {
+        "tags": ["IAM Standalone Bootstrap"],
+        "summary": "Regenerate standalone IAM bootstrap package",
+        "responses": {
+          "201": {
+            "description": "Standalone IAM bootstrap package regenerated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamBootstrapPackageRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamBootstrapEnvironmentVariable": {
+        "type": "object",
+        "required": ["key", "required", "summary"],
+        "properties": {
+          "key": { "type": "string" },
+          "required": { "type": "boolean" },
+          "summary": { "type": "string" }
+        }
+      },
+      "IamBootstrapArtifactRecord": {
+        "type": "object",
+        "required": ["path", "summary"],
+        "properties": {
+          "path": { "type": "string" },
+          "summary": { "type": "string" }
+        }
+      },
+      "IamBootstrapPackageRecord": {
+        "type": "object",
+        "required": ["id", "version_label", "summary", "generated_at", "generated_by_user_id"],
+        "properties": {
+          "id": { "type": "string" },
+          "version_label": { "type": "string" },
+          "summary": { "type": "string" },
+          "generated_at": { "type": "string", "format": "date-time" },
+          "generated_by_user_id": { "type": "string" },
+          "topology_mode": { "type": "string" },
+          "environment_variables": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamBootstrapEnvironmentVariable" }
+          },
+          "artifacts": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamBootstrapArtifactRecord" }
+          },
+          "aws_service_dependencies": { "type": "array", "items": { "type": "string" } },
+          "bootstrap_steps": { "type": "array", "items": { "type": "string" } },
+          "validation_steps": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "IamBootstrapPackageResponse": {
+        "type": "object",
+        "required": ["generated_at", "latest_package", "packages", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "latest_package": { "$ref": "#/components/schemas/IamBootstrapPackageRecord" },
+          "packages": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamBootstrapPackageRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

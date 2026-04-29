@@ -1,0 +1,59 @@
+# IDP Platform Git Attributes
+
+# Documentation files
+*.md text eol=lf
+docs/**/*.md text eol=lf
+CLAUDE.md text eol=lf
+README.md text eol=lf
+
+# Agent configuration files
+.claude/*.md text eol=lf
+.claude/*.json text eol=lf
+
+# Source code
+*.ts text eol=lf
+*.js text eol=lf
+*.tsx text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+
+# Configuration files
+*.yml text eol=lf
+*.yaml text eol=lf
+package.json text eol=lf
+tsconfig.json text eol=lf
+.eslintrc.json text eol=lf
+.prettierrc.json text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+
+# Archive files
+*.zip binary
+*.tar binary
+*.gz binary
+
+# IDE files
+.vscode/*.json text eol=lf
+
+# Docker files
+Dockerfile text eol=lf
+docker-compose.yml text eol=lf
+
+# AWS CloudFormation
+*.template text eol=lf
+*.cf.json text eol=lf
+
+# Ignore sensitive files from diff
+*.env diff=encrypted
+*.key diff=encrypted
+*.pem diff=encrypted
+*.p12 diff=encrypted

@@ -1,0 +1,156 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Dynamic Client Registration API",
+    "version": "1.0.0",
+    "description": "Standalone IAM Phase B endpoints for OIDC dynamic client registration and registration-access-token lifecycle."
+  },
+  "tags": [
+    {
+      "name": "IAM Dynamic Client Registration",
+      "description": "Dynamic client registration for standalone OIDC realms."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/realms/{realmId}/clients-registrations/openid-connect": {
+      "post": {
+        "tags": ["IAM Dynamic Client Registration"],
+        "summary": "Dynamically register OIDC client",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IamDynamicClientRegistrationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Dynamic client registered.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDynamicClientRegistrationResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/clients-registrations/openid-connect/{clientId}": {
+      "get": {
+        "tags": ["IAM Dynamic Client Registration"],
+        "summary": "Get registered OIDC client",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "clientId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registered client resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDynamicClientRegistrationResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["IAM Dynamic Client Registration"],
+        "summary": "Update registered OIDC client",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "clientId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IamDynamicClientRegistrationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registered client updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDynamicClientRegistrationResponse" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["IAM Dynamic Client Registration"],
+        "summary": "Archive registered OIDC client",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "clientId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registered client archived.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["archived", "client_id"],
+                  "properties": {
+                    "archived": { "type": "boolean" },
+                    "client_id": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamDynamicClientRegistrationRequest": {
+        "type": "object",
+        "required": ["client_name"],
+        "properties": {
+          "client_name": { "type": "string" },
+          "client_id": { "type": "string" },
+          "redirect_uris": { "type": "array", "items": { "type": "string" } },
+          "grant_types": { "type": "array", "items": { "type": "string" } },
+          "token_endpoint_auth_method": { "type": "string", "enum": ["none", "client_secret_basic", "client_secret_post"] },
+          "response_types": { "type": "array", "items": { "type": "string" } },
+          "scope": { "type": "string" },
+          "client_uri": { "type": "string" },
+          "policy_id": { "type": "string" }
+        }
+      },
+      "IamDynamicClientRegistrationResponse": {
+        "type": "object",
+        "required": ["client", "registration_client_uri", "registration_access_token"],
+        "properties": {
+          "client": {
+            "type": "object",
+            "required": ["id", "realm_id", "client_id", "name", "protocol", "access_type", "redirect_uris"],
+            "properties": {
+              "id": { "type": "string" },
+              "realm_id": { "type": "string" },
+              "client_id": { "type": "string" },
+              "name": { "type": "string" },
+              "protocol": { "type": "string" },
+              "access_type": { "type": "string" },
+              "redirect_uris": { "type": "array", "items": { "type": "string" } }
+            },
+            "additionalProperties": true
+          },
+          "registration_client_uri": { "type": "string" },
+          "registration_access_token": { "type": "string" },
+          "client_secret": { "type": "string" }
+        }
+      }
+    }
+  }
+}

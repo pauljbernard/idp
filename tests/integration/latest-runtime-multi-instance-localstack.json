@@ -1,0 +1,72 @@
+{
+  "generated_at": "2026-04-28T18:34:11.599Z",
+  "persistence_backend": "dynamodb-s3",
+  "runtime_table": "idp-iam-runtime-local",
+  "instances": {
+    "instance_a": "http://127.0.0.1:4105",
+    "instance_b": "http://127.0.0.1:4106"
+  },
+  "checks": {
+    "realm_id": "realm-idp-default",
+    "first_session_id": "iam-session-fc5d3a2d-a239-420d-8930-96ef23a524aa",
+    "second_session_id": "iam-session-fb891637-dd46-4981-b583-6de24336ae68",
+    "first_token_present": true,
+    "second_token_present": true,
+    "sessions_before_revoke_count": 23,
+    "revoke_others_current_session_id": "iam-session-fb891637-dd46-4981-b583-6de24336ae68",
+    "revoke_others_revoked_count": 2,
+    "logout_revoked": true,
+    "cross_instance_first_session_visible": true,
+    "cross_instance_first_token_active_before_revoke": true,
+    "cross_instance_first_session_revoked": true,
+    "cross_instance_first_token_inactive_after_revoke": true,
+    "cross_instance_second_session_visible": true,
+    "cross_instance_second_token_active_before_revoke": true,
+    "cross_instance_second_session_still_active_after_revoke_others": true,
+    "cross_instance_second_token_still_active_after_revoke_others": true,
+    "cross_instance_second_session_revoked_after_logout": true,
+    "cross_instance_second_token_inactive_after_logout": true
+  },
+  "diagnostics": {
+    "first_session_visible_on_instance_b": {
+      "attempts": 1,
+      "converged_in_ms": 456
+    },
+    "first_token_active_on_instance_b": {
+      "attempts": 1,
+      "converged_in_ms": 141
+    },
+    "second_session_visible_on_instance_a": {
+      "attempts": 1,
+      "converged_in_ms": 432
+    },
+    "second_token_active_on_instance_a": {
+      "attempts": 1,
+      "converged_in_ms": 140
+    },
+    "first_session_revoked_on_instance_a": {
+      "attempts": 1,
+      "converged_in_ms": 32
+    },
+    "first_token_inactive_on_instance_a": {
+      "attempts": 1,
+      "converged_in_ms": 142
+    },
+    "second_session_still_active_on_instance_a": {
+      "attempts": 1,
+      "converged_in_ms": 440
+    },
+    "second_token_still_active_on_instance_a": {
+      "attempts": 1,
+      "converged_in_ms": 134
+    },
+    "second_session_revoked_on_instance_b": {
+      "attempts": 1,
+      "converged_in_ms": 17
+    },
+    "second_token_inactive_on_instance_b": {
+      "attempts": 1,
+      "converged_in_ms": 129
+    }
+  }
+}

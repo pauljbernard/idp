@@ -1,0 +1,133 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Deployment API",
+    "version": "1.0.0",
+    "description": "Standalone IAM Phase K endpoints for AWS-native deployment topology review and operator-managed deployment posture."
+  },
+  "tags": [
+    {
+      "name": "IAM Standalone Deployment",
+      "description": "Standalone IAM deployment topology and operator packaging endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/operations/deployment": {
+      "get": {
+        "tags": ["IAM Standalone Deployment"],
+        "summary": "Get standalone IAM deployment topology",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM deployment profile resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDeploymentProfileResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["IAM Standalone Deployment"],
+        "summary": "Update standalone IAM deployment topology",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamDeploymentProfileRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Standalone IAM deployment profile updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDeploymentProfileRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamDeploymentResourceRecord": {
+        "type": "object",
+        "required": ["id", "label", "service", "category", "status", "summary"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "service": { "type": "string" },
+          "category": { "type": "string" },
+          "status": { "type": "string" },
+          "summary": { "type": "string" }
+        }
+      },
+      "IamDeploymentChangeRecord": {
+        "type": "object",
+        "required": ["id", "changed_at", "changed_by_user_id", "summary"],
+        "properties": {
+          "id": { "type": "string" },
+          "changed_at": { "type": "string", "format": "date-time" },
+          "changed_by_user_id": { "type": "string" },
+          "summary": { "type": "string" }
+        }
+      },
+      "IamDeploymentProfileRecord": {
+        "type": "object",
+        "required": ["id", "name", "summary", "topology_mode", "readiness_status", "regions"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "topology_mode": { "type": "string" },
+          "readiness_status": { "type": "string" },
+          "regions": { "type": "array", "items": { "type": "string" } },
+          "data_plane": { "type": "string" },
+          "secret_plane": { "type": "string" },
+          "orchestration_plane": { "type": "string" },
+          "edge_plane": { "type": "string" },
+          "notification_plane": { "type": "string" },
+          "observability_plane": { "type": "string" },
+          "estimated_monthly_cost_band": { "type": "string" },
+          "operator_notes": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamDeploymentProfileResponse": {
+        "type": "object",
+        "required": ["generated_at", "active_profile", "resources", "supported_topology_modes", "change_history", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "active_profile": { "$ref": "#/components/schemas/IamDeploymentProfileRecord" },
+          "resources": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamDeploymentResourceRecord" }
+          },
+          "supported_topology_modes": { "type": "array", "items": { "type": "string" } },
+          "change_history": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamDeploymentChangeRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "UpdateIamDeploymentProfileRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "topology_mode": { "type": "string" },
+          "regions": { "type": "array", "items": { "type": "string" } },
+          "estimated_monthly_cost_band": { "type": "string" },
+          "operator_notes": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

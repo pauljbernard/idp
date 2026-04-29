@@ -1,0 +1,98 @@
+{
+  "version": "1.1",
+  "last_updated": "2026-04-12",
+  "resolver": "docs/dependency-map.json",
+  "claim_registry": "docs/capability-registry.json",
+  "read_order": [
+    "agent-usage-guide",
+    "platform-constitution",
+    "platform-architecture",
+    "platform-requirements",
+    "maturity-model",
+    "capability-registry"
+  ],
+  "required_spec_fields": [
+    "support_tier",
+    "maturity_state",
+    "supported_profiles",
+    "evidence_class"
+  ],
+  "rules": [
+    "do_not_infer_support_from_implementation_presence",
+    "use_capability_registry_for_capability_family_resolution",
+    "use_status_and_support_matrices_for_current_support_posture",
+    "use_validation_guides_for_adoption_and_readiness_gates",
+    "treat_conflicts_or_missing_evidence_as_risk_not_license_to_guess"
+  ],
+  "conflict_resolution_order": [
+    "platform-constitution",
+    "platform-requirements",
+    "maintained-spec-frontmatter",
+    "capability-registry",
+    "docs/reference/",
+    "docs/implementation/"
+  ],
+  "routes": {
+    "platform": [
+      "platform-constitution",
+      "platform-architecture",
+      "platform-requirements"
+    ],
+    "support_or_readiness": [
+      "maturity-model",
+      "capability-registry",
+      "headless-iam-status-matrix",
+      "headless-iam-requirements-gap-matrix",
+      "headless-iam-standalone-validation-review-guide"
+    ],
+    "implementation_sequencing": [
+      "implementation-index",
+      "implementation-plan",
+      "roadmap",
+      "gap-remediation"
+    ],
+    "authentication": [
+      "oauth-flows",
+      "capability-registry",
+      "protocol-support-matrix",
+      "saml-profile-matrix",
+      "webauthn-support-matrix",
+      "federation-support-matrix"
+    ],
+    "operations": [
+      "deployment-modes",
+      "capability-registry",
+      "headless-iam-status-matrix"
+    ],
+    "security": [
+      "security-model",
+      "platform-requirements",
+      "maturity-model",
+      "headless-iam-status-matrix",
+      "headless-iam-standalone-validation-review-guide"
+    ],
+    "federation": [
+      "platform-requirements",
+      "capability-registry",
+      "federation-support-matrix",
+      "headless-iam-status-matrix",
+      "headless-iam-requirements-gap-matrix"
+    ],
+    "ui": [
+      "design-system",
+      "component-specs",
+      "interaction-patterns",
+      "information-architecture",
+      "design-tokens",
+      "capability-registry"
+    ]
+  },
+  "refs": [
+    "docs-root",
+    "dependency-map",
+    "capability-registry",
+    "headless-iam-status-matrix",
+    "headless-iam-requirements-gap-matrix",
+    "headless-iam-standalone-validation-review-guide"
+  ]
+}

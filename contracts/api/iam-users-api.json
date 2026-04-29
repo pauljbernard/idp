@@ -1,0 +1,175 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Users API",
+    "version": "1.1.0",
+    "description": "Phase 1 standalone IAM user administration endpoints with foundational privacy and portable-identity metadata."
+  },
+  "tags": [
+    {
+      "name": "IAM Users",
+      "description": "Standalone headless IAM user administration."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/users": {
+      "get": {
+        "tags": ["IAM Users"],
+        "summary": "List IAM users",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "search", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM users resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamUsersResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Users"],
+        "summary": "Create IAM user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamUserRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "IAM user created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamUserRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/users/{userId}": {
+      "put": {
+        "tags": ["IAM Users"],
+        "summary": "Update IAM user",
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamUserRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM user updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamUserRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamUserStatus": { "type": "string", "enum": ["STAGED", "ACTIVE", "DISABLED"] },
+      "IamIdentityPrivacyClassification": {
+        "type": "string",
+        "enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED", "PROTECTED"]
+      },
+      "IamUserRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "username", "email", "first_name", "last_name", "status", "synthetic", "required_actions", "role_ids", "group_ids", "created_at", "updated_at", "created_by_user_id", "updated_by_user_id"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamUserStatus" },
+          "synthetic": { "type": "boolean" },
+          "privacy_classification": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/IamIdentityPrivacyClassification" },
+              { "type": "null" }
+            ]
+          },
+          "home_organization_name": { "type": ["string", "null"] },
+          "external_subject_id": { "type": ["string", "null"] },
+          "required_actions": { "type": "array", "items": { "type": "string" } },
+          "role_ids": { "type": "array", "items": { "type": "string" } },
+          "group_ids": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamUsersResponse": {
+        "type": "object",
+        "required": ["generated_at", "users", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "users": { "type": "array", "items": { "$ref": "#/components/schemas/IamUserRecord" } },
+          "count": { "type": "integer" }
+        }
+      },
+      "CreateIamUserRequest": {
+        "type": "object",
+        "required": ["realm_id", "username", "email", "first_name", "last_name"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamUserStatus" },
+          "privacy_classification": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/IamIdentityPrivacyClassification" },
+              { "type": "null" }
+            ]
+          },
+          "home_organization_name": { "type": ["string", "null"] },
+          "external_subject_id": { "type": ["string", "null"] },
+          "required_actions": { "type": "array", "items": { "type": "string" } },
+          "role_ids": { "type": "array", "items": { "type": "string" } },
+          "group_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "UpdateIamUserRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamUserStatus" },
+          "privacy_classification": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/IamIdentityPrivacyClassification" },
+              { "type": "null" }
+            ]
+          },
+          "home_organization_name": { "type": ["string", "null"] },
+          "external_subject_id": { "type": ["string", "null"] },
+          "required_actions": { "type": "array", "items": { "type": "string" } },
+          "role_ids": { "type": "array", "items": { "type": "string" } },
+          "group_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

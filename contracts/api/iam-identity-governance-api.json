@@ -1,0 +1,532 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM Identity Governance API",
+    "version": "1.0.0",
+    "description": "Standalone IAM identity-governance endpoints for realm posture presets, privacy policies, delegated relationships, delegated consent records, and portable identity records."
+  },
+  "tags": [
+    {
+      "name": "IAM Identity Governance",
+      "description": "Foundational identity-governance endpoints for regulated and education-sensitive IAM posture."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/realm-posture-presets": {
+      "get": {
+        "tags": ["IAM Identity Governance"],
+        "summary": "List IAM realm posture presets",
+        "parameters": [
+          {
+            "name": "realm_template_id",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Realm posture presets resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamRealmPosturePresetsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/identity-privacy-policies": {
+      "get": {
+        "tags": ["IAM Identity Governance"],
+        "summary": "List IAM identity privacy policies",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity privacy policies resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamIdentityPrivacyPoliciesResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/delegated-relationships": {
+      "get": {
+        "tags": ["IAM Identity Governance"],
+        "summary": "List IAM delegated relationships",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delegated relationships resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDelegatedRelationshipsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/delegated-consents": {
+      "get": {
+        "tags": ["IAM Identity Governance"],
+        "summary": "List IAM delegated consent records",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "relationship_id",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "principal_user_id",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "delegate_user_id",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": { "$ref": "#/components/schemas/IamDelegatedConsentStatus" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delegated consent records resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDelegatedConsentsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Identity Governance"],
+        "summary": "Create IAM delegated consent record",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamDelegatedConsentRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Delegated consent record created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDelegatedConsentRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/delegated-consents/{consentId}": {
+      "put": {
+        "tags": ["IAM Identity Governance"],
+        "summary": "Update IAM delegated consent record",
+        "parameters": [
+          {
+            "name": "consentId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamDelegatedConsentRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delegated consent record updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamDelegatedConsentRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/portable-identities": {
+      "get": {
+        "tags": ["IAM Identity Governance"],
+        "summary": "List IAM portable identities",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Portable identities resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamPortableIdentitiesResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamRealmPosturePresetKind": {
+        "type": "string",
+        "enum": ["INSTITUTIONAL_SSO", "PRIVACY_SENSITIVE", "GUARDIAN_PROXY", "MINOR_SERVING", "PORTABLE_IDENTITY"]
+      },
+      "IamRealmPosturePresetStatus": {
+        "type": "string",
+        "enum": ["DRAFT", "ACTIVE", "ARCHIVED"]
+      },
+      "IamIdentityPrivacyClassification": {
+        "type": "string",
+        "enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED", "PROTECTED"]
+      },
+      "IamDelegatedRelationshipKind": {
+        "type": "string",
+        "enum": ["GUARDIAN", "PARENT", "CAREGIVER", "SPONSOR", "AUTHORIZED_PROXY", "LEGAL_REPRESENTATIVE"]
+      },
+      "IamDelegatedRelationshipStatus": {
+        "type": "string",
+        "enum": ["ACTIVE", "PAUSED", "REVOKED", "EXPIRED"]
+      },
+      "IamDelegatedConsentStatus": {
+        "type": "string",
+        "enum": ["ACTIVE", "REVOKED"]
+      },
+      "IamPortableIdentityStatus": {
+        "type": "string",
+        "enum": ["ACTIVE", "PROVISIONING", "DISABLED"]
+      },
+      "IamRealmPosturePresetRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "summary",
+          "kind",
+          "status",
+          "realm_template_id",
+          "privacy_classification",
+          "consent_required",
+          "delegated_relationships_enabled",
+          "portable_identity_enabled",
+          "supported_protocols",
+          "synthetic"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "kind": { "$ref": "#/components/schemas/IamRealmPosturePresetKind" },
+          "status": { "$ref": "#/components/schemas/IamRealmPosturePresetStatus" },
+          "realm_template_id": { "type": "string" },
+          "privacy_classification": { "$ref": "#/components/schemas/IamIdentityPrivacyClassification" },
+          "consent_required": { "type": "boolean" },
+          "delegated_relationships_enabled": { "type": "boolean" },
+          "portable_identity_enabled": { "type": "boolean" },
+          "supported_protocols": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["OIDC", "OAUTH2", "SAML"] }
+          },
+          "synthetic": { "type": "boolean" }
+        }
+      },
+      "IamIdentityPrivacyPolicyRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "realm_id",
+          "name",
+          "summary",
+          "classification",
+          "consent_required",
+          "data_minimization_enabled",
+          "protected_record_access",
+          "attribute_release_tags",
+          "synthetic"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "classification": { "$ref": "#/components/schemas/IamIdentityPrivacyClassification" },
+          "consent_required": { "type": "boolean" },
+          "data_minimization_enabled": { "type": "boolean" },
+          "protected_record_access": { "type": "boolean" },
+          "attribute_release_tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "synthetic": { "type": "boolean" }
+        }
+      },
+      "IamDelegatedRelationshipRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "realm_id",
+          "relationship_kind",
+          "status",
+          "principal_user_id",
+          "delegate_user_id",
+          "start_at",
+          "end_at",
+          "allowed_scopes",
+          "allowed_purposes",
+          "consent_required",
+          "consented_scope_names",
+          "consented_purpose_names",
+          "notes",
+          "synthetic"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "relationship_kind": { "$ref": "#/components/schemas/IamDelegatedRelationshipKind" },
+          "status": { "$ref": "#/components/schemas/IamDelegatedRelationshipStatus" },
+          "principal_user_id": { "type": "string" },
+          "delegate_user_id": { "type": "string" },
+          "start_at": { "type": ["string", "null"], "format": "date-time" },
+          "end_at": { "type": ["string", "null"], "format": "date-time" },
+          "allowed_scopes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "allowed_purposes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "consent_required": { "type": "boolean" },
+          "consented_scope_names": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "consented_purpose_names": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "notes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "synthetic": { "type": "boolean" }
+        }
+      },
+      "IamDelegatedConsentRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "realm_id",
+          "relationship_id",
+          "principal_user_id",
+          "delegate_user_id",
+          "status",
+          "scope_names",
+          "purpose_names",
+          "granted_at",
+          "expires_at",
+          "revoked_at",
+          "granted_by_user_id",
+          "revoked_by_user_id",
+          "notes",
+          "synthetic"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "relationship_id": { "type": "string" },
+          "principal_user_id": { "type": "string" },
+          "delegate_user_id": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamDelegatedConsentStatus" },
+          "scope_names": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "purpose_names": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "granted_at": { "type": "string", "format": "date-time" },
+          "expires_at": { "type": ["string", "null"], "format": "date-time" },
+          "revoked_at": { "type": ["string", "null"], "format": "date-time" },
+          "granted_by_user_id": { "type": "string" },
+          "revoked_by_user_id": { "type": ["string", "null"] },
+          "notes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "synthetic": { "type": "boolean" }
+        }
+      },
+      "IamPortableIdentityRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "realm_id",
+          "user_id",
+          "external_subject_id",
+          "issuer",
+          "home_organization_name",
+          "portable_identifier",
+          "relationship_id",
+          "status",
+          "attribute_release_policy_ids",
+          "synthetic"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "external_subject_id": { "type": "string" },
+          "issuer": { "type": "string" },
+          "home_organization_name": { "type": "string" },
+          "portable_identifier": { "type": "string" },
+          "relationship_id": { "type": ["string", "null"] },
+          "status": { "$ref": "#/components/schemas/IamPortableIdentityStatus" },
+          "attribute_release_policy_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "synthetic": { "type": "boolean" }
+        }
+      },
+      "IamRealmPosturePresetsResponse": {
+        "type": "object",
+        "required": ["generated_at", "realm_posture_presets", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "realm_posture_presets": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamRealmPosturePresetRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamIdentityPrivacyPoliciesResponse": {
+        "type": "object",
+        "required": ["generated_at", "identity_privacy_policies", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "identity_privacy_policies": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamIdentityPrivacyPolicyRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamDelegatedRelationshipsResponse": {
+        "type": "object",
+        "required": ["generated_at", "delegated_relationships", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "delegated_relationships": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamDelegatedRelationshipRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamDelegatedConsentsResponse": {
+        "type": "object",
+        "required": ["generated_at", "delegated_consents", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "delegated_consents": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamDelegatedConsentRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "CreateIamDelegatedConsentRequest": {
+        "type": "object",
+        "required": ["realm_id", "relationship_id", "scope_names"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "relationship_id": { "type": "string" },
+          "scope_names": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "purpose_names": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "expires_at": { "type": ["string", "null"], "format": "date-time" },
+          "notes": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "UpdateIamDelegatedConsentRequest": {
+        "type": "object",
+        "properties": {
+          "status": { "$ref": "#/components/schemas/IamDelegatedConsentStatus" },
+          "expires_at": { "type": ["string", "null"], "format": "date-time" },
+          "notes": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "IamPortableIdentitiesResponse": {
+        "type": "object",
+        "required": ["generated_at", "portable_identities", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "portable_identities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamPortableIdentityRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

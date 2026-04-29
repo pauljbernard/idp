@@ -1,0 +1,137 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM Resource Servers API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM full-IDP Phase H endpoints for authorization-service resource servers."
+  },
+  "tags": [
+    {
+      "name": "IAM Authorization Services",
+      "description": "Protected resource-server administration for standalone IAM authorization services."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/resource-servers": {
+      "get": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "List IAM resource servers",
+        "responses": {
+          "200": {
+            "description": "Resource servers resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamResourceServersResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "Create IAM resource server",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamResourceServerRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resource server created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamResourceServerRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/resource-servers/{resourceServerId}": {
+      "put": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "Update IAM resource server",
+        "parameters": [
+          { "name": "resourceServerId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamResourceServerRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resource server updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamResourceServerRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamResourceServerRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "client_record_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" },
+          "enforcement_mode": { "type": "string" },
+          "decision_strategy": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamResourceServersResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "resource_servers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamResourceServerRecord" }
+          },
+          "count": { "type": "number" }
+        }
+      },
+      "CreateIamResourceServerRequest": {
+        "type": "object",
+        "required": ["realm_id", "client_id", "name", "summary"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" },
+          "enforcement_mode": { "type": "string" },
+          "decision_strategy": { "type": "string" }
+        }
+      },
+      "UpdateIamResourceServerRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" },
+          "enforcement_mode": { "type": "string" },
+          "decision_strategy": { "type": "string" }
+        }
+      }
+    }
+  }
+}

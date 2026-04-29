@@ -1,0 +1,3 @@
+// Standalone UI boundary over the IAM-focused compatibility client.
+// App code should import this module instead of compatibility layers directly.
+export { idpApi, CLIENT_CONTEXT_EVENT, clearAuthenticatedSession, clearIamBrowserAuth, clearIamSession, getCurrentIamAccessToken, getCurrentIamAuthClientId, getCurrentIamAuthRealmId, getCurrentIamRealmId, getCurrentIamRefreshToken, getCurrentIamSessionId, getCurrentSessionId, setClientContextState, setCurrentIamAccessToken, setCurrentIamAuthClientId, setCurrentIamAuthRealmId, setCurrentIamRealmId, setCurrentIamRefreshToken, setCurrentIamSessionId, } from './iamCompatApi';

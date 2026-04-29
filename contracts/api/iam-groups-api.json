@@ -1,0 +1,141 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Groups API",
+    "version": "1.0.0",
+    "description": "Phase 1 standalone IAM group administration endpoints."
+  },
+  "tags": [
+    {
+      "name": "IAM Groups",
+      "description": "Standalone headless IAM group administration."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/groups": {
+      "get": {
+        "tags": ["IAM Groups"],
+        "summary": "List IAM groups",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM groups resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamGroupsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Groups"],
+        "summary": "Create IAM group",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamGroupRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "IAM group created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamGroupRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/groups/{groupId}": {
+      "put": {
+        "tags": ["IAM Groups"],
+        "summary": "Update IAM group",
+        "parameters": [
+          { "name": "groupId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamGroupRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM group updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamGroupRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamGroupStatus": { "type": "string", "enum": ["ACTIVE", "ARCHIVED"] },
+      "IamGroupRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "name", "summary", "status", "synthetic", "parent_group_id", "role_ids", "member_user_ids", "created_at", "updated_at", "created_by_user_id", "updated_by_user_id"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamGroupStatus" },
+          "synthetic": { "type": "boolean" },
+          "parent_group_id": { "type": ["string", "null"] },
+          "role_ids": { "type": "array", "items": { "type": "string" } },
+          "member_user_ids": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamGroupsResponse": {
+        "type": "object",
+        "required": ["generated_at", "groups", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "groups": { "type": "array", "items": { "$ref": "#/components/schemas/IamGroupRecord" } },
+          "count": { "type": "integer" }
+        }
+      },
+      "CreateIamGroupRequest": {
+        "type": "object",
+        "required": ["realm_id", "name"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamGroupStatus" },
+          "parent_group_id": { "type": ["string", "null"] },
+          "role_ids": { "type": "array", "items": { "type": "string" } },
+          "member_user_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "UpdateIamGroupRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamGroupStatus" },
+          "parent_group_id": { "type": ["string", "null"] },
+          "role_ids": { "type": "array", "items": { "type": "string" } },
+          "member_user_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

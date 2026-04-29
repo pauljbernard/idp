@@ -1,0 +1,223 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM User Profile Schemas API",
+    "version": "1.1.0",
+    "description": "Standalone headless IAM full-IDP Phase F endpoints for schema-driven user profiles, realm profile-schema governance, administrative user profile value management, and attribute-level privacy governance."
+  },
+  "tags": [
+    {
+      "name": "IAM User Profiles",
+      "description": "Schema-driven user profile and profile-schema administration endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/profile-schemas": {
+      "get": {
+        "tags": ["IAM User Profiles"],
+        "summary": "List IAM user profile schemas",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile schemas resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamUserProfileSchemasResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/profile-schema": {
+      "put": {
+        "tags": ["IAM User Profiles"],
+        "summary": "Update realm profile schema",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamUserProfileSchemaRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Realm profile schema updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamUserProfileSchemaRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/users/{userId}/profile": {
+      "get": {
+        "tags": ["IAM User Profiles"],
+        "summary": "Get administrative IAM user profile",
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM user profile resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamUserProfileWithSchemaResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["IAM User Profiles"],
+        "summary": "Update administrative IAM user profile",
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamUserProfileRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM user profile updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamUserProfileWithSchemaResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamUserProfilePrivacyClassification": {
+        "type": "string",
+        "enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]
+      },
+      "IamUserProfileMinimizationPosture": {
+        "type": "string",
+        "enum": ["NONE", "STANDARD", "STRICT"]
+      },
+      "IamUserProfileAttributeDefinition": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "key": { "type": "string" },
+          "label": { "type": "string" },
+          "type": { "type": "string" },
+          "required": { "type": "boolean" },
+          "multivalued": { "type": "boolean" },
+          "placeholder": { "type": ["string", "null"] },
+          "help_text": { "type": ["string", "null"] },
+          "allowed_values": { "type": "array", "items": { "type": "string" } },
+          "regex_pattern": { "type": ["string", "null"] },
+          "view_scopes": { "type": "array", "items": { "type": "string" } },
+          "edit_scopes": { "type": "array", "items": { "type": "string" } },
+          "privacy_classification": { "$ref": "#/components/schemas/IamUserProfilePrivacyClassification" },
+          "release_purposes": { "type": "array", "items": { "type": "string" } },
+          "consent_required": { "type": "boolean" },
+          "minimization_posture": { "$ref": "#/components/schemas/IamUserProfileMinimizationPosture" },
+          "synthetic": { "type": "boolean" },
+          "order_index": { "type": "number" }
+        }
+      },
+      "IamUserProfileSchemaRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "display_name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" },
+          "synthetic": { "type": "boolean" },
+          "attributes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamUserProfileAttributeDefinition" }
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamUserProfileRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamUserProfileWithSchemaResponse": {
+        "allOf": [
+          { "$ref": "#/components/schemas/IamUserProfileRecord" },
+          {
+            "type": "object",
+            "properties": {
+              "schema": { "$ref": "#/components/schemas/IamUserProfileSchemaRecord" }
+            }
+          }
+        ]
+      },
+      "IamUserProfileSchemasResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "schemas": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamUserProfileSchemaRecord" }
+          },
+          "count": { "type": "number" }
+        }
+      },
+      "UpdateIamUserProfileSchemaRequest": {
+        "type": "object",
+        "properties": {
+          "display_name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" },
+          "attributes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamUserProfileAttributeDefinition" }
+          }
+        }
+      },
+      "UpdateIamUserProfileRequest": {
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}

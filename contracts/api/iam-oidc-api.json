@@ -1,0 +1,347 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM OIDC API",
+    "version": "1.0.0",
+    "description": "Standalone IAM OIDC discovery, token, userinfo, introspection, revocation, and CIBA backchannel endpoints with authorization-code, PKCE, device authorization, CIBA, and token-exchange support."
+  },
+  "tags": [
+    {
+      "name": "IAM OIDC",
+      "description": "Standalone headless IAM OIDC and OAuth 2.0 runtime."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/realms/{realmId}/.well-known/openid-configuration": {
+      "get": {
+        "tags": ["IAM OIDC"],
+        "summary": "Get OIDC discovery document",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OIDC discovery document resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOidcDiscoveryDocument" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/openid-connect/certs": {
+      "get": {
+        "tags": ["IAM OIDC"],
+        "summary": "Get JWKS",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "JWKS resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamJwksResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/openid-connect/token": {
+      "post": {
+        "tags": ["IAM OIDC"],
+        "summary": "Issue OIDC token",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IamTokenRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OIDC token issued.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamTokenEndpointResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/openid-connect/ext/ciba/auth": {
+      "post": {
+        "tags": ["IAM OIDC"],
+        "summary": "Initialize CIBA backchannel authentication request",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IamBackchannelAuthenticationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "CIBA backchannel authentication request initialized.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamBackchannelAuthenticationResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/openid-connect/token/introspect": {
+      "post": {
+        "tags": ["IAM OIDC"],
+        "summary": "Introspect OIDC token",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IamTokenIntrospectionRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OIDC token introspected.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamTokenIntrospectionResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/openid-connect/revoke": {
+      "post": {
+        "tags": ["IAM OIDC"],
+        "summary": "Revoke OIDC token",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IamTokenRevocationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OIDC token revoked.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamTokenRevocationResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/openid-connect/userinfo": {
+      "get": {
+        "tags": ["IAM OIDC"],
+        "summary": "Get OIDC userinfo",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OIDC userinfo resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamUserInfoResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamOidcDiscoveryDocument": {
+        "type": "object",
+        "required": ["issuer", "authorization_endpoint", "token_endpoint", "userinfo_endpoint", "revocation_endpoint", "introspection_endpoint", "jwks_uri", "grant_types_supported", "response_types_supported", "subject_types_supported", "id_token_signing_alg_values_supported", "scopes_supported", "token_endpoint_auth_methods_supported"],
+        "properties": {
+          "issuer": { "type": "string" },
+          "authorization_endpoint": { "type": "string" },
+          "token_endpoint": { "type": "string" },
+          "userinfo_endpoint": { "type": "string" },
+          "revocation_endpoint": { "type": "string" },
+          "introspection_endpoint": { "type": "string" },
+          "jwks_uri": { "type": "string" },
+          "registration_endpoint": { "type": "string" },
+          "device_authorization_endpoint": { "type": "string" },
+          "backchannel_authentication_endpoint": { "type": "string" },
+          "pushed_authorization_request_endpoint": { "type": "string" },
+          "grant_types_supported": { "type": "array", "items": { "type": "string", "enum": ["authorization_code", "client_credentials", "password", "refresh_token", "urn:ietf:params:oauth:grant-type:device_code", "urn:openid:params:grant-type:ciba", "urn:ietf:params:oauth:grant-type:token-exchange"] } },
+          "response_types_supported": { "type": "array", "items": { "type": "string" } },
+          "subject_types_supported": { "type": "array", "items": { "type": "string", "enum": ["public"] } },
+          "id_token_signing_alg_values_supported": { "type": "array", "items": { "type": "string", "enum": ["RS256"] } },
+          "scopes_supported": { "type": "array", "items": { "type": "string" } },
+          "token_endpoint_auth_methods_supported": { "type": "array", "items": { "type": "string", "enum": ["client_secret_basic", "client_secret_post", "none"] } }
+        }
+      },
+      "IamBackchannelAuthenticationRequest": {
+        "type": "object",
+        "required": ["login_hint"],
+        "properties": {
+          "client_id": { "type": "string" },
+          "client_secret": { "type": "string" },
+          "scope": { "type": "string" },
+          "requested_purpose": { "type": "string" },
+          "login_hint": { "type": "string" },
+          "binding_message": { "type": "string" },
+          "requested_expiry": { "type": "integer" }
+        }
+      },
+      "IamBackchannelAuthenticationResponse": {
+        "type": "object",
+        "required": ["auth_req_id", "expires_in", "interval"],
+        "properties": {
+          "auth_req_id": { "type": "string" },
+          "expires_in": { "type": "integer" },
+          "interval": { "type": "integer" }
+        }
+      },
+      "IamJwksResponse": {
+        "type": "object",
+        "required": ["keys"],
+        "properties": {
+          "keys": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["kid", "kty", "alg", "use", "n", "e"],
+              "properties": {
+                "kid": { "type": "string" },
+                "kty": { "type": "string", "enum": ["RSA"] },
+                "alg": { "type": "string", "enum": ["RS256"] },
+                "use": { "type": "string", "enum": ["sig"] },
+                "n": { "type": "string" },
+                "e": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "IamTokenRequest": {
+        "type": "object",
+        "required": ["grant_type"],
+        "properties": {
+          "grant_type": { "type": "string", "enum": ["authorization_code", "client_credentials", "password", "refresh_token", "urn:ietf:params:oauth:grant-type:device_code", "urn:openid:params:grant-type:ciba", "urn:ietf:params:oauth:grant-type:token-exchange"] },
+          "client_id": { "type": "string" },
+          "client_secret": { "type": "string" },
+          "scope": { "type": "string" },
+          "requested_purpose": { "type": "string" },
+          "username": { "type": "string" },
+          "password": { "type": "string" },
+          "refresh_token": { "type": "string" },
+          "code": { "type": "string" },
+          "redirect_uri": { "type": "string" },
+          "code_verifier": { "type": "string" },
+          "device_code": { "type": "string" },
+          "auth_req_id": { "type": "string" },
+          "subject_token": { "type": "string" },
+          "audience": { "type": "string" },
+          "requested_token_type": { "type": "string" }
+        }
+      },
+      "IamTokenEndpointResponse": {
+        "type": "object",
+        "required": ["access_token", "expires_in", "token_type", "scope"],
+        "properties": {
+          "access_token": { "type": "string" },
+          "expires_in": { "type": "integer" },
+          "token_type": { "type": "string", "enum": ["Bearer"] },
+          "scope": { "type": "string" },
+          "refresh_token": { "type": "string" },
+          "refresh_expires_in": { "type": "integer" },
+          "id_token": { "type": "string" }
+        }
+      },
+      "IamTokenIntrospectionRequest": {
+        "type": "object",
+        "required": ["token"],
+        "properties": {
+          "token": { "type": "string" },
+          "client_id": { "type": "string" },
+          "client_secret": { "type": "string" }
+        }
+      },
+      "IamTokenIntrospectionResponse": {
+        "type": "object",
+        "required": ["active"],
+        "properties": {
+          "active": { "type": "boolean" },
+          "client_id": { "type": "string" },
+          "username": { "type": "string" },
+          "sub": { "type": "string" },
+          "scope": { "type": "string" },
+          "requested_purpose": { "type": ["string", "null"] },
+          "token_type": { "type": "string", "enum": ["Bearer"] },
+          "exp": { "type": "integer" },
+          "iat": { "type": "integer" },
+          "aud": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          },
+          "iss": { "type": "string" },
+          "realm_id": { "type": "string" }
+        }
+      },
+      "IamTokenRevocationRequest": {
+        "type": "object",
+        "required": ["token"],
+        "properties": {
+          "token": { "type": "string" },
+          "client_id": { "type": "string" },
+          "client_secret": { "type": "string" }
+        }
+      },
+      "IamTokenRevocationResponse": {
+        "type": "object",
+        "required": ["revoked", "revoked_at"],
+        "properties": {
+          "revoked": { "type": "boolean" },
+          "revoked_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "IamUserInfoResponse": {
+        "type": "object",
+        "required": ["sub"],
+        "properties": {
+          "sub": { "type": "string" },
+          "preferred_username": { "type": "string" },
+          "email": { "type": "string" },
+          "given_name": { "type": "string" },
+          "family_name": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    }
+  }
+}

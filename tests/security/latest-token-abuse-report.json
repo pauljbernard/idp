@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-04-29T01:42:54.498Z",
+  "environment": "http://127.0.0.1:4107",
+  "persistence_backend": "dynamodb-s3",
+  "runtime_table": "idp-iam-runtime-local",
+  "checks": {
+    "realm_id": "realm-idp-default",
+    "session_id": "iam-session-f5ba4102-01c4-41c7-926e-775b5c5d5af3.xarAECoyQLa62WAj3gOo5KpLwsFcKmvG",
+    "token_active_before_logout": true,
+    "token_active_after_logout": false,
+    "userinfo_subject_before_logout": "iam-user-idp-super-admin",
+    "refresh_grant_before_logout_status": 200,
+    "refresh_grant_after_logout_status": 400,
+    "logout_revoked": true,
+    "replayed_userinfo_status": 401,
+    "password_reset_ticket_id": "iam-password-reset-63f6238f-73ae-40fa-9b77-1ac1c579438f",
+    "password_reset_user_id": "iam-user-idp-super-admin",
+    "replayed_password_reset_status": 400,
+    "wrong_code_password_reset_status": 400
+  },
+  "diagnostics": {
+    "login_with_consent_ms": 749,
+    "issue_browser_token_ms": 1669,
+    "introspect_before_logout_ms": 124,
+    "userinfo_before_logout_ms": 16,
+    "refresh_grant_before_logout_ms": 416,
+    "logout_ms": 2499,
+    "introspect_after_logout_ms": 222,
+    "refresh_grant_after_logout_ms": 123,
+    "replayed_userinfo_ms": 13,
+    "password_reset_request_ms": 444,
+    "password_reset_confirm_ms": 596,
+    "password_reset_replay_ms": 323,
+    "password_reset_wrong_code_ms": 323
+  }
+}

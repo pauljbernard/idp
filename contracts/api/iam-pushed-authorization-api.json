@@ -1,0 +1,109 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Pushed Authorization Request API",
+    "version": "1.0.0",
+    "description": "Standalone IAM Phase B endpoints for pushed authorization requests and request-uri ledgers."
+  },
+  "tags": [
+    {
+      "name": "IAM Pushed Authorization",
+      "description": "PAR management and validation for standalone OIDC realms."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/pushed-authorization-requests": {
+      "get": {
+        "tags": ["IAM Pushed Authorization"],
+        "summary": "List pushed authorization requests",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "client_id", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "PAR records resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["requests", "count"],
+                  "properties": {
+                    "requests": { "type": "array", "items": { "$ref": "#/components/schemas/IamPushedAuthorizationRequestRecord" } },
+                    "count": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/openid-connect/ext/par/request": {
+      "post": {
+        "tags": ["IAM Pushed Authorization"],
+        "summary": "Create pushed authorization request",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["client_id", "redirect_uri", "response_type"],
+                "properties": {
+                  "client_id": { "type": "string" },
+                  "redirect_uri": { "type": "string" },
+                  "response_type": { "type": "string" },
+                  "scope": { "type": "string" },
+                  "requested_purpose": { "type": "string" },
+                  "state": { "type": "string" },
+                  "code_challenge": { "type": "string" },
+                  "code_challenge_method": { "type": "string", "enum": ["plain", "S256"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "PAR created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamPushedAuthorizationRequestResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamPushedAuthorizationRequestRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "client_id", "request_uri", "status", "expires_at", "created_at"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "request_uri": { "type": "string" },
+          "requested_purpose": { "type": ["string", "null"] },
+          "status": { "type": "string", "enum": ["ACTIVE", "CONSUMED", "EXPIRED"] },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "IamPushedAuthorizationRequestResponse": {
+        "type": "object",
+        "required": ["request_uri", "expires_in"],
+        "properties": {
+          "request_uri": { "type": "string" },
+          "expires_in": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

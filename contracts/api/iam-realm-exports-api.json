@@ -1,0 +1,90 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Realm Exports API",
+    "version": "1.0.0",
+    "description": "Phase 1 standalone IAM realm export endpoints."
+  },
+  "tags": [
+    {
+      "name": "IAM Realm Exports",
+      "description": "Standalone headless IAM realm export and rehearsal endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/realm-exports": {
+      "get": {
+        "tags": ["IAM Realm Exports"],
+        "summary": "List IAM realm exports",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Realm export artifacts resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamRealmExportsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/export": {
+      "post": {
+        "tags": ["IAM Realm Exports"],
+        "summary": "Create IAM realm export",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "201": {
+            "description": "Realm export created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamRealmExportRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamRealmExportRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "realm_name", "status", "exported_at", "created_by_user_id", "object_key", "summary"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "realm_name": { "type": "string" },
+          "status": { "type": "string", "enum": ["READY"] },
+          "exported_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "object_key": { "type": "string" },
+          "summary": {
+            "type": "object",
+            "required": ["user_count", "group_count", "role_count", "delegated_admin_count"],
+            "properties": {
+              "user_count": { "type": "integer" },
+              "group_count": { "type": "integer" },
+              "role_count": { "type": "integer" },
+              "delegated_admin_count": { "type": "integer" }
+            }
+          }
+        }
+      },
+      "IamRealmExportsResponse": {
+        "type": "object",
+        "required": ["generated_at", "realm_exports", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "realm_exports": { "type": "array", "items": { "$ref": "#/components/schemas/IamRealmExportRecord" } },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

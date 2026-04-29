@@ -1,0 +1,347 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM Federation Packaging API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM federation packaging endpoints for trust stores and reusable mapping profiles."
+  },
+  "tags": [
+    {
+      "name": "IAM Federation Packaging",
+      "description": "IAM federation packaging, trust, and mapping artifacts."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/federation-trust-stores": {
+      "get": {
+        "tags": ["IAM Federation Packaging"],
+        "summary": "List IAM federation trust stores",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "protocol",
+            "in": "query",
+            "required": false,
+            "schema": { "$ref": "#/components/schemas/IamIdentityProviderProtocol" }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": { "$ref": "#/components/schemas/IamFederationTrustStoreStatus" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Federation trust stores resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamFederationTrustStoresResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/federation-mapping-profiles": {
+      "get": {
+        "tags": ["IAM Federation Packaging"],
+        "summary": "List IAM federation mapping profiles",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "trust_store_id",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "protocol",
+            "in": "query",
+            "required": false,
+            "schema": { "$ref": "#/components/schemas/IamIdentityProviderProtocol" }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": { "$ref": "#/components/schemas/IamFederationMappingProfileStatus" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Federation mapping profiles resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamFederationMappingProfilesResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/federation-claim-preview": {
+      "post": {
+        "tags": ["IAM Federation Packaging"],
+        "summary": "Preview IAM federation claim release",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PreviewIamFederationClaimReleaseRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Federation claim release preview resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamFederationClaimPreviewResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamIdentityProviderProtocol": {
+        "type": "string",
+        "enum": ["OIDC", "SAML"]
+      },
+      "IamFederationTrustStoreStatus": {
+        "type": "string",
+        "enum": ["ACTIVE", "DISABLED", "ARCHIVED"]
+      },
+      "IamFederationMappingProfileStatus": {
+        "type": "string",
+        "enum": ["ACTIVE", "DISABLED", "ARCHIVED"]
+      },
+      "IamFederationClaimMappingRecord": {
+        "type": "object",
+        "required": ["source_attribute", "target_claim", "include_in_userinfo", "required"],
+        "properties": {
+          "source_attribute": { "type": "string" },
+          "target_claim": { "type": "string" },
+          "include_in_userinfo": { "type": "boolean" },
+          "required": { "type": "boolean" }
+        }
+      },
+      "IamFederationTrustStoreRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "realm_id",
+          "name",
+          "summary",
+          "status",
+          "supported_protocols",
+          "issuer_url",
+          "metadata_url",
+          "certificate_labels",
+          "synthetic",
+          "created_at",
+          "updated_at",
+          "created_by_user_id",
+          "updated_by_user_id"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamFederationTrustStoreStatus" },
+          "supported_protocols": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamIdentityProviderProtocol" }
+          },
+          "issuer_url": { "type": ["string", "null"] },
+          "metadata_url": { "type": ["string", "null"] },
+          "certificate_labels": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "synthetic": { "type": "boolean" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamFederationMappingProfileRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "realm_id",
+          "trust_store_id",
+          "name",
+          "summary",
+          "status",
+          "protocol",
+          "link_policy",
+          "attribute_release_policy_ids",
+          "claim_mappings",
+          "synthetic",
+          "created_at",
+          "updated_at",
+          "created_by_user_id",
+          "updated_by_user_id"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "trust_store_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamFederationMappingProfileStatus" },
+          "protocol": { "$ref": "#/components/schemas/IamIdentityProviderProtocol" },
+          "link_policy": {
+            "type": "string",
+            "enum": ["EMAIL_MATCH", "AUTO_CREATE", "MANUAL"]
+          },
+          "attribute_release_policy_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "claim_mappings": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamFederationClaimMappingRecord" }
+          },
+          "synthetic": { "type": "boolean" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamFederationTrustStoresResponse": {
+        "type": "object",
+        "required": ["generated_at", "federation_trust_stores", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "federation_trust_stores": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamFederationTrustStoreRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamFederationMappingProfilesResponse": {
+        "type": "object",
+        "required": ["generated_at", "federation_mapping_profiles", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "federation_mapping_profiles": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamFederationMappingProfileRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "PreviewIamFederationClaimReleaseRequest": {
+        "type": "object",
+        "required": ["realm_id", "provider_alias", "mapping_profile_id", "external_username_or_email"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "provider_alias": { "type": "string" },
+          "mapping_profile_id": { "type": "string" },
+          "external_username_or_email": { "type": "string" },
+          "target": {
+            "type": "string",
+            "enum": ["ACCESS_TOKEN", "ID_TOKEN", "USERINFO"]
+          },
+          "requested_purpose": { "type": ["string", "null"] },
+          "consent_granted": { "type": "boolean" }
+        }
+      },
+      "IamFederationClaimPreviewReleasedClaim": {
+        "type": "object",
+        "required": ["source_attribute", "target_claim", "value"],
+        "properties": {
+          "source_attribute": { "type": "string" },
+          "target_claim": { "type": "string" },
+          "value": {
+            "oneOf": [
+              { "type": "string" },
+              {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            ]
+          }
+        }
+      },
+      "IamFederationClaimPreviewSuppressedClaim": {
+        "type": "object",
+        "required": ["source_attribute", "target_claim", "reason"],
+        "properties": {
+          "source_attribute": { "type": "string" },
+          "target_claim": { "type": "string" },
+          "reason": {
+            "type": "string",
+            "enum": ["MISSING_REQUIRED_SOURCE_ATTRIBUTE", "USERINFO_EXCLUDED", "CONSENT_REQUIRED", "PURPOSE_NOT_ALLOWED"]
+          }
+        }
+      },
+      "IamFederationClaimPreviewResponse": {
+        "type": "object",
+        "required": [
+          "generated_at",
+          "realm_id",
+          "provider_id",
+          "provider_alias",
+          "provider_protocol",
+          "mapping_profile_id",
+          "trust_store_id",
+          "external_subject",
+          "requested_purpose",
+          "consent_granted",
+          "target",
+          "resolved_release_policy_ids",
+          "released_claims",
+          "suppressed_claims"
+        ],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "realm_id": { "type": "string" },
+          "provider_id": { "type": "string" },
+          "provider_alias": { "type": "string" },
+          "provider_protocol": { "$ref": "#/components/schemas/IamIdentityProviderProtocol" },
+          "mapping_profile_id": { "type": "string" },
+          "trust_store_id": { "type": "string" },
+          "external_subject": { "type": "string" },
+          "requested_purpose": { "type": ["string", "null"] },
+          "consent_granted": { "type": "boolean" },
+          "target": {
+            "type": "string",
+            "enum": ["ACCESS_TOKEN", "ID_TOKEN", "USERINFO"]
+          },
+          "resolved_release_policy_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "released_claims": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamFederationClaimPreviewReleasedClaim" }
+          },
+          "suppressed_claims": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamFederationClaimPreviewSuppressedClaim" }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Token Exchange API",
+    "version": "1.0.0",
+    "description": "Standalone IAM Phase B endpoints for token exchange ledgers and cross-client subject token reissuance."
+  },
+  "tags": [
+    {
+      "name": "IAM Token Exchange",
+      "description": "Token exchange activity and audit visibility for the standalone IAM subsystem."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/token-exchanges": {
+      "get": {
+        "tags": ["IAM Token Exchange"],
+        "summary": "List token exchanges",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "client_id", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token exchanges resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["token_exchanges", "count"],
+                  "properties": {
+                    "token_exchanges": { "type": "array", "items": { "$ref": "#/components/schemas/IamTokenExchangeRecord" } },
+                    "count": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamTokenExchangeRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "requesting_client_id", "audience_client_id", "subject_kind", "subject_id", "status", "created_at"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "requesting_client_id": { "type": "string" },
+          "audience_client_id": { "type": "string" },
+          "subject_kind": { "type": "string", "enum": ["USER", "SERVICE_ACCOUNT"] },
+          "subject_id": { "type": "string" },
+          "status": { "type": "string", "enum": ["SUCCEEDED", "FAILED"] },
+          "scope": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}

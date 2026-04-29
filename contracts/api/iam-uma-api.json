@@ -1,0 +1,112 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM UMA API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM full-IDP Phase H endpoints for UMA permission tickets and RPT-oriented authorization flows."
+  },
+  "tags": [
+    {
+      "name": "IAM UMA",
+      "description": "UMA permission-ticket and RPT grant endpoints for standalone IAM authorization services."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/permission-tickets": {
+      "get": {
+        "tags": ["IAM UMA"],
+        "summary": "List IAM permission tickets",
+        "responses": {
+          "200": {
+            "description": "Permission tickets resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamPermissionTicketsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/authz/permission-ticket": {
+      "post": {
+        "tags": ["IAM UMA"],
+        "summary": "Create IAM permission ticket",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamPermissionTicketRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Permission ticket issued.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamPermissionTicketRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateIamPermissionTicketRequest": {
+        "type": "object",
+        "required": ["resource_id", "scope_names", "subject_token"],
+        "properties": {
+          "resource_server_client_id": { "type": ["string", "null"] },
+          "resource_id": { "type": "string" },
+          "scope_names": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          },
+          "subject_token": { "type": "string" }
+        }
+      },
+      "IamPermissionTicketRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "resource_server_id": { "type": "string" },
+          "resource_server_client_id": { "type": "string" },
+          "requester_client_id": { "type": ["string", "null"] },
+          "subject_kind": { "type": "string" },
+          "subject_id": { "type": "string" },
+          "resource_id": { "type": "string" },
+          "resource_name": { "type": "string" },
+          "requested_scope_names": { "type": "array", "items": { "type": "string" } },
+          "granted_scope_names": { "type": "array", "items": { "type": "string" } },
+          "status": { "type": "string" },
+          "reason": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "exchanged_at": { "type": ["string", "null"], "format": "date-time" },
+          "evaluation_id": { "type": ["string", "null"] },
+          "rpt_token_id": { "type": ["string", "null"] }
+        }
+      },
+      "IamPermissionTicketsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "permission_tickets": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamPermissionTicketRecord" }
+          },
+          "count": { "type": "number" }
+        }
+      }
+    }
+  }
+}

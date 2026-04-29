@@ -1,0 +1,16 @@
+<samlp:AuthnRequest
+  xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+  ID="sp-interop-supported-request-1"
+  Version="2.0"
+  IssueInstant="2026-04-11T00:00:00.000Z"
+  ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+  AssertionConsumerServiceURL="https://sp.example.local/acs">
+  <samlp:NameIDPolicy
+    Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+    AllowCreate="false" />
+  <samlp:RequestedAuthnContext Comparison="exact">
+    <saml:AuthnContextClassRef xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+      urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+    </saml:AuthnContextClassRef>
+  </samlp:RequestedAuthnContext>
+</samlp:AuthnRequest>

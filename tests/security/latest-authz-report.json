@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-04-29T00:34:10.808Z",
+  "environment": "http://127.0.0.1:4108",
+  "checks": {
+    "realm_id": "realm-idp-default",
+    "session_id": "iam-session-d07fe338-58e9-4d49-adf9-c635af9a616a.T9lomBxP8IY3V7Yyy8FfBj5k-9TX3QpF",
+    "unauthenticated_clients_status": 401,
+    "unauthenticated_account_session_status": 401,
+    "unauthenticated_revoke_others_status": 401,
+    "valid_session_lookup_status": 200,
+    "cross_realm_session_lookup_status": 401,
+    "cross_realm_revoke_others_status": 400
+  }
+}

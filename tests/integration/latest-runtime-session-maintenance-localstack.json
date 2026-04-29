@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-04-28T18:33:01.915Z",
+  "environment": "http://127.0.0.1:4103",
+  "persistence_backend": "dynamodb-s3",
+  "runtime_table": "idp-iam-runtime-local",
+  "checks": {
+    "realm_id": "realm-idp-default",
+    "current_session_id": "iam-session-b57763a8-c3da-47ee-ad48-2dde7bea46de",
+    "revoked_session_id": "iam-session-b58366bc-4238-4286-b986-90cc8225393d.moGqbtNcy4oMMcwClPRFTrg0J1FOBJxu",
+    "sessions_before_count": 20,
+    "sessions_after_count": 20,
+    "active_sessions_after_count": 1,
+    "revoked_lookup_status": 401,
+    "current_lookup_status": 200
+  }
+}

@@ -1,0 +1,287 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM User Federation API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM Phase 4 directory-federation provider and sync endpoints."
+  },
+  "paths": {
+    "/api/v1/iam/user-federation/providers": {
+      "get": {
+        "summary": "List user federation providers",
+        "tags": ["IAM Federation"],
+        "parameters": [
+          { "name": "realm_id", "in": "query", "schema": { "type": "string" } },
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["LDAP", "SCIM", "AWS_IDENTITY_CENTER", "COGNITO_USER_POOL"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User federation providers",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserFederationProvidersResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create user federation provider",
+        "tags": ["IAM Federation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateUserFederationProviderRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Provider created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserFederationProvider" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/user-federation/providers/{providerId}": {
+      "put": {
+        "summary": "Update user federation provider",
+        "tags": ["IAM Federation"],
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateUserFederationProviderRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Provider updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserFederationProvider" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/user-federation/providers/{providerId}/sync": {
+      "post": {
+        "summary": "Run federation sync",
+        "tags": ["IAM Federation"],
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Sync job result",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FederationSyncJob" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/user-federation/sync-jobs": {
+      "get": {
+        "summary": "List federation sync jobs",
+        "tags": ["IAM Federation"],
+        "parameters": [
+          { "name": "realm_id", "in": "query", "schema": { "type": "string" } },
+          { "name": "provider_id", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sync jobs",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FederationSyncJobsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/federation/events": {
+      "get": {
+        "summary": "List federation events",
+        "tags": ["IAM Federation"],
+        "parameters": [
+          { "name": "realm_id", "in": "query", "schema": { "type": "string" } },
+          { "name": "provider_id", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Federation events",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FederationEventsResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ExternalIdentityProfile": {
+        "type": "object",
+        "required": ["subject", "username", "email", "first_name", "last_name", "group_names", "role_names"],
+        "properties": {
+          "subject": { "type": "string" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "group_names": { "type": "array", "items": { "type": "string" } },
+          "role_names": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "UserFederationProvider": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "kind": { "type": "string", "enum": ["LDAP", "SCIM", "AWS_IDENTITY_CENTER", "COGNITO_USER_POOL"] },
+          "status": { "type": "string", "enum": ["ACTIVE", "DISABLED", "ARCHIVED"] },
+          "import_strategy": { "type": "string", "enum": ["IMPORT", "READ_ONLY"] },
+          "connection_label": { "type": "string" },
+          "default_role_ids": { "type": "array", "items": { "type": "string" } },
+          "default_group_ids": { "type": "array", "items": { "type": "string" } },
+          "external_identities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ExternalIdentityProfile" }
+          }
+        }
+      },
+      "UserFederationProvidersResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "user_federation_providers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/UserFederationProvider" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "CreateUserFederationProviderRequest": {
+        "type": "object",
+        "required": ["realm_id", "name"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "kind": { "type": "string", "enum": ["LDAP", "SCIM", "AWS_IDENTITY_CENTER", "COGNITO_USER_POOL"] },
+          "status": { "type": "string", "enum": ["ACTIVE", "DISABLED", "ARCHIVED"] },
+          "import_strategy": { "type": "string", "enum": ["IMPORT", "READ_ONLY"] },
+          "connection_label": { "type": "string" },
+          "default_role_ids": { "type": "array", "items": { "type": "string" } },
+          "default_group_ids": { "type": "array", "items": { "type": "string" } },
+          "external_identities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ExternalIdentityProfile" }
+          }
+        }
+      },
+      "UpdateUserFederationProviderRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string", "enum": ["ACTIVE", "DISABLED", "ARCHIVED"] },
+          "import_strategy": { "type": "string", "enum": ["IMPORT", "READ_ONLY"] },
+          "connection_label": { "type": "string" },
+          "default_role_ids": { "type": "array", "items": { "type": "string" } },
+          "default_group_ids": { "type": "array", "items": { "type": "string" } },
+          "external_identities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ExternalIdentityProfile" }
+          }
+        }
+      },
+      "FederationSyncJob": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "provider_id": { "type": "string" },
+          "provider_name": { "type": "string" },
+          "status": { "type": "string", "enum": ["COMPLETED", "FAILED"] },
+          "started_at": { "type": "string", "format": "date-time" },
+          "completed_at": { "type": "string", "format": "date-time" },
+          "imported_count": { "type": "integer" },
+          "linked_count": { "type": "integer" },
+          "updated_count": { "type": "integer" },
+          "error_message": { "type": ["string", "null"] }
+        }
+      },
+      "FederationSyncJobsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "sync_jobs": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FederationSyncJob" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "FederationEvent": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "kind": { "type": "string" },
+          "provider_id": { "type": "string" },
+          "provider_name": { "type": "string" },
+          "user_id": { "type": ["string", "null"] },
+          "linked_identity_id": { "type": ["string", "null"] },
+          "occurred_at": { "type": "string", "format": "date-time" },
+          "summary": { "type": "string" },
+          "metadata": { "type": "object" }
+        }
+      },
+      "FederationEventsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "events": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FederationEvent" }
+          },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

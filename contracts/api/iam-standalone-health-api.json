@@ -1,0 +1,60 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Health API",
+    "version": "1.0.0",
+    "description": "Standalone IAM Phase K health endpoints for deployment, protocol, recovery, benchmark, audit, and readiness review posture."
+  },
+  "tags": [
+    {
+      "name": "IAM Standalone Health",
+      "description": "Health and advisory endpoints for the standalone IAM product runtime."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/operations/health": {
+      "get": {
+        "tags": ["IAM Standalone Health"],
+        "summary": "Get standalone IAM health summary",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM health summary resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamStandaloneHealthResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamStandaloneHealthCheck": {
+        "type": "object",
+        "required": ["id", "name", "status", "summary"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "status": { "type": "string" },
+          "summary": { "type": "string" }
+        }
+      },
+      "IamStandaloneHealthResponse": {
+        "type": "object",
+        "required": ["generated_at", "overall_status", "checks", "advisories", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "overall_status": { "type": "string" },
+          "checks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamStandaloneHealthCheck" }
+          },
+          "advisories": { "type": "array", "items": { "type": "string" } },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

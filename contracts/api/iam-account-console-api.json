@@ -1,0 +1,927 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Account Console API",
+    "version": "1.0.0",
+    "description": "Phase 3 standalone IAM account-console endpoints for session resolution, profile management, password rotation, MFA, session revocation, consent history, delegated-consent self-service management, and delegated-consent approval workflows."
+  },
+  "tags": [
+    {
+      "name": "IAM Account Console",
+      "description": "Standalone headless IAM self-service account and session-management endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/realms/{realmId}/account/session": {
+      "get": {
+        "tags": ["IAM Account Console"],
+        "summary": "Resolve current standalone IAM account session",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current IAM account session resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountSessionContextResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/profile": {
+      "get": {
+        "tags": ["IAM Account Console"],
+        "summary": "Get standalone IAM account profile",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM account profile resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountProfileResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["IAM Account Console"],
+        "summary": "Update standalone IAM account profile",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamAccountProfileRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM account profile updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountProfileResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/security": {
+      "get": {
+        "tags": ["IAM Account Console"],
+        "summary": "Get standalone IAM account security posture",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM account security posture resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountSecurityResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/password": {
+      "post": {
+        "tags": ["IAM Account Console"],
+        "summary": "Change standalone IAM account password",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChangeIamAccountPasswordRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM account password updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ChangeIamAccountPasswordResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/mfa/enroll": {
+      "post": {
+        "tags": ["IAM Account Console"],
+        "summary": "Start standalone IAM MFA enrollment",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "201": {
+            "description": "IAM MFA enrollment started.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BeginIamMfaEnrollmentResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/mfa/verify": {
+      "post": {
+        "tags": ["IAM Account Console"],
+        "summary": "Complete standalone IAM MFA enrollment",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VerifyIamMfaEnrollmentRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM MFA enabled.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountSecurityResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/mfa/disable": {
+      "post": {
+        "tags": ["IAM Account Console"],
+        "summary": "Disable standalone IAM MFA",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DisableIamMfaRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM MFA disabled.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountSecurityResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/sessions": {
+      "get": {
+        "tags": ["IAM Account Console"],
+        "summary": "List standalone IAM account sessions",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM account sessions resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountSessionsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/sessions/{sessionId}/revoke": {
+      "post": {
+        "tags": ["IAM Account Console"],
+        "summary": "Revoke one standalone IAM account session",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "sessionId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM account session revoked.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamSessionRevokeResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/sessions/revoke-others": {
+      "post": {
+        "tags": ["IAM Account Console"],
+        "summary": "Revoke every other standalone IAM account session",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Other IAM account sessions revoked.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamRevokeOtherSessionsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/consents": {
+      "get": {
+        "tags": ["IAM Account Console"],
+        "summary": "List standalone IAM account consents",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM account consents resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountConsentsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/delegated-relationships": {
+      "get": {
+        "tags": ["IAM Account Console"],
+        "summary": "List delegated relationships for the current IAM account",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "required": false, "schema": { "$ref": "#/components/schemas/IamDelegatedRelationshipStatus" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delegated relationships resolved for the current IAM account.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountDelegatedRelationshipsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/delegated-consents": {
+      "get": {
+        "tags": ["IAM Account Console"],
+        "summary": "List delegated consents for the current IAM account",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "relationship_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "required": false, "schema": { "$ref": "#/components/schemas/IamDelegatedConsentStatus" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delegated consent records resolved for the current IAM account.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountDelegatedConsentsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Account Console"],
+        "summary": "Grant delegated consent from the current IAM account",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamAccountDelegatedConsentRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Delegated consent granted from the current IAM account.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountDelegatedConsentRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/delegated-consents/{consentId}/revoke": {
+      "post": {
+        "tags": ["IAM Account Console"],
+        "summary": "Revoke delegated consent from the current IAM account",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "consentId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RevokeIamAccountDelegatedConsentRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delegated consent revoked from the current IAM account.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountDelegatedConsentRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/delegated-consent-requests": {
+      "get": {
+        "tags": ["IAM Account Console"],
+        "summary": "List delegated consent requests for the current IAM account",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "relationship_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "required": false, "schema": { "$ref": "#/components/schemas/IamDelegatedConsentRequestStatus" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delegated consent requests resolved for the current IAM account.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountDelegatedConsentRequestsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Account Console"],
+        "summary": "Create a delegated consent request from the current IAM account",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamAccountDelegatedConsentRequestRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Delegated consent request created from the current IAM account.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountDelegatedConsentRequestRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/delegated-consent-requests/{requestId}/approve": {
+      "post": {
+        "tags": ["IAM Account Console"],
+        "summary": "Approve a delegated consent request from the current IAM account",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "requestId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ApproveIamAccountDelegatedConsentRequestRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delegated consent request approved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountDelegatedConsentDecisionResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/delegated-consent-requests/{requestId}/deny": {
+      "post": {
+        "tags": ["IAM Account Console"],
+        "summary": "Deny a delegated consent request from the current IAM account",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "requestId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DenyIamAccountDelegatedConsentRequestRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delegated consent request denied.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountDelegatedConsentDecisionResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/delegated-consent-requests/{requestId}/cancel": {
+      "post": {
+        "tags": ["IAM Account Console"],
+        "summary": "Cancel a delegated consent request from the current IAM account",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "requestId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CancelIamAccountDelegatedConsentRequestRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delegated consent request cancelled.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAccountDelegatedConsentDecisionResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamClientProtocol": {
+        "type": "string",
+        "enum": ["OIDC", "SAML"]
+      },
+      "IamAccountAssuranceLevel": {
+        "type": "string",
+        "enum": ["PASSWORD", "MFA"]
+      },
+      "IamSessionStatus": {
+        "type": "string",
+        "enum": ["ACTIVE", "REVOKED", "EXPIRED"]
+      },
+      "IamLoginFlowUser": {
+        "type": "object",
+        "required": ["id", "username", "email", "first_name", "last_name"],
+        "properties": {
+          "id": { "type": "string" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" }
+        }
+      },
+      "IamAccountSessionSummary": {
+        "type": "object",
+        "required": ["session_id", "realm_id", "user_id", "client_id", "client_identifier", "client_name", "client_protocol", "scope_names", "assurance_level", "authenticated_at", "issued_at", "last_seen_at", "expires_at", "status", "is_current"],
+        "properties": {
+          "session_id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "client_id": { "type": ["string", "null"] },
+          "client_identifier": { "type": ["string", "null"] },
+          "client_name": { "type": ["string", "null"] },
+          "client_protocol": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/IamClientProtocol" },
+              { "type": "null" }
+            ]
+          },
+          "scope_names": { "type": "array", "items": { "type": "string" } },
+          "assurance_level": { "$ref": "#/components/schemas/IamAccountAssuranceLevel" },
+          "authenticated_at": { "type": "string", "format": "date-time" },
+          "issued_at": { "type": "string", "format": "date-time" },
+          "last_seen_at": { "type": "string", "format": "date-time" },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "status": { "$ref": "#/components/schemas/IamSessionStatus" },
+          "is_current": { "type": "boolean" }
+        }
+      },
+      "IamAccountSessionContextResponse": {
+        "type": "object",
+        "required": ["realm_id", "session", "user", "email_verified_at", "pending_required_actions", "mfa_enabled"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "session": { "$ref": "#/components/schemas/IamAccountSessionSummary" },
+          "user": { "$ref": "#/components/schemas/IamLoginFlowUser" },
+          "email_verified_at": { "type": ["string", "null"], "format": "date-time" },
+          "pending_required_actions": { "type": "array", "items": { "type": "string" } },
+          "mfa_enabled": { "type": "boolean" }
+        }
+      },
+      "IamAccountProfileResponse": {
+        "type": "object",
+        "required": ["realm_id", "user", "email_verified_at", "pending_required_actions"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "user": { "$ref": "#/components/schemas/IamLoginFlowUser" },
+          "email_verified_at": { "type": ["string", "null"], "format": "date-time" },
+          "pending_required_actions": { "type": "array", "items": { "type": "string" } },
+          "profile_schema": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "realm_id": { "type": "string" },
+              "display_name": { "type": "string" },
+              "summary": { "type": "string" },
+              "status": { "type": "string" },
+              "attributes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "key": { "type": "string" },
+                    "label": { "type": "string" },
+                    "type": { "type": "string" },
+                    "required": { "type": "boolean" },
+                    "multivalued": { "type": "boolean" },
+                    "placeholder": { "type": ["string", "null"] },
+                    "help_text": { "type": ["string", "null"] },
+                    "allowed_values": { "type": "array", "items": { "type": "string" } },
+                    "regex_pattern": { "type": ["string", "null"] },
+                    "view_scopes": { "type": "array", "items": { "type": "string" } },
+                    "edit_scopes": { "type": "array", "items": { "type": "string" } }
+                  }
+                }
+              }
+            }
+          },
+          "profile_attributes": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "UpdateIamAccountProfileRequest": {
+        "type": "object",
+        "properties": {
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "email": { "type": "string" },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "IamAccountSecurityResponse": {
+        "type": "object",
+        "required": ["realm_id", "user_id", "email_verified_at", "pending_required_actions", "mfa_enabled", "totp_reference_id", "backup_codes_reference_id", "last_login_at", "last_password_updated_at", "last_mfa_authenticated_at"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "email_verified_at": { "type": ["string", "null"], "format": "date-time" },
+          "pending_required_actions": { "type": "array", "items": { "type": "string" } },
+          "mfa_enabled": { "type": "boolean" },
+          "totp_reference_id": { "type": ["string", "null"] },
+          "backup_codes_reference_id": { "type": ["string", "null"] },
+          "last_login_at": { "type": ["string", "null"], "format": "date-time" },
+          "last_password_updated_at": { "type": ["string", "null"], "format": "date-time" },
+          "last_mfa_authenticated_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "ChangeIamAccountPasswordRequest": {
+        "type": "object",
+        "required": ["current_password", "new_password"],
+        "properties": {
+          "current_password": { "type": "string" },
+          "new_password": { "type": "string" }
+        }
+      },
+      "ChangeIamAccountPasswordResponse": {
+        "type": "object",
+        "required": ["password_updated_at"],
+        "properties": {
+          "password_updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "BeginIamMfaEnrollmentResponse": {
+        "type": "object",
+        "required": ["enrollment_id", "realm_id", "user_id", "otpauth_uri", "shared_secret", "backup_codes", "expires_at"],
+        "properties": {
+          "enrollment_id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "otpauth_uri": { "type": "string" },
+          "shared_secret": { "type": "string" },
+          "backup_codes": { "type": "array", "items": { "type": "string" } },
+          "expires_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "VerifyIamMfaEnrollmentRequest": {
+        "type": "object",
+        "required": ["enrollment_id", "code"],
+        "properties": {
+          "enrollment_id": { "type": "string" },
+          "code": { "type": "string" }
+        }
+      },
+      "DisableIamMfaRequest": {
+        "type": "object",
+        "required": ["code"],
+        "properties": {
+          "code": { "type": "string" }
+        }
+      },
+      "IamAccountSessionsResponse": {
+        "type": "object",
+        "required": ["generated_at", "sessions", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "sessions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamAccountSessionSummary" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamSessionRevokeResponse": {
+        "type": "object",
+        "required": ["revoked", "revoked_at"],
+        "properties": {
+          "revoked": { "type": "boolean" },
+          "revoked_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "IamRevokeOtherSessionsResponse": {
+        "type": "object",
+        "required": ["revoked_count", "current_session_id"],
+        "properties": {
+          "revoked_count": { "type": "integer" },
+          "current_session_id": { "type": "string" }
+        }
+      },
+      "IamAccountConsentRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "user_id", "client_id", "client_identifier", "client_name", "scope_names", "granted_at", "revoked_at"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "client_identifier": { "type": "string" },
+          "client_name": { "type": "string" },
+          "scope_names": { "type": "array", "items": { "type": "string" } },
+          "granted_at": { "type": "string", "format": "date-time" },
+          "revoked_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "IamAccountConsentsResponse": {
+        "type": "object",
+        "required": ["generated_at", "consents", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "consents": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamAccountConsentRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamDelegatedRelationshipStatus": {
+        "type": "string",
+        "enum": ["ACTIVE", "PAUSED", "REVOKED", "EXPIRED"]
+      },
+      "IamDelegatedConsentStatus": {
+        "type": "string",
+        "enum": ["ACTIVE", "REVOKED"]
+      },
+      "IamDelegatedConsentRequestStatus": {
+        "type": "string",
+        "enum": ["PENDING", "APPROVED", "DENIED", "CANCELLED", "EXPIRED"]
+      },
+      "IamAccountDelegatedParty": {
+        "type": "string",
+        "enum": ["PRINCIPAL", "DELEGATE"]
+      },
+      "IamAccountDelegatedRelationshipRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "relationship_kind", "status", "principal_user_id", "delegate_user_id", "start_at", "end_at", "allowed_scopes", "consent_required", "notes", "synthetic", "current_party", "counterpart_user", "can_manage_consents"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "relationship_kind": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamDelegatedRelationshipStatus" },
+          "principal_user_id": { "type": "string" },
+          "delegate_user_id": { "type": "string" },
+          "start_at": { "type": ["string", "null"], "format": "date-time" },
+          "end_at": { "type": ["string", "null"], "format": "date-time" },
+          "allowed_scopes": { "type": "array", "items": { "type": "string" } },
+          "allowed_purposes": { "type": "array", "items": { "type": "string" } },
+          "consent_required": { "type": "boolean" },
+          "consented_scope_names": { "type": "array", "items": { "type": "string" } },
+          "consented_purpose_names": { "type": "array", "items": { "type": "string" } },
+          "notes": { "type": "array", "items": { "type": "string" } },
+          "synthetic": { "type": "boolean" },
+          "current_party": { "$ref": "#/components/schemas/IamAccountDelegatedParty" },
+          "counterpart_user": { "$ref": "#/components/schemas/IamLoginFlowUser" },
+          "can_manage_consents": { "type": "boolean" }
+        }
+      },
+      "IamAccountDelegatedRelationshipsResponse": {
+        "type": "object",
+        "required": ["generated_at", "delegated_relationships", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "delegated_relationships": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamAccountDelegatedRelationshipRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamAccountDelegatedConsentRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "relationship_id", "principal_user_id", "delegate_user_id", "status", "scope_names", "purpose_names", "granted_at", "expires_at", "revoked_at", "granted_by_user_id", "revoked_by_user_id", "notes", "synthetic", "current_party", "counterpart_user", "can_manage", "relationship_kind", "relationship_status"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "relationship_id": { "type": "string" },
+          "principal_user_id": { "type": "string" },
+          "delegate_user_id": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamDelegatedConsentStatus" },
+          "scope_names": { "type": "array", "items": { "type": "string" } },
+          "purpose_names": { "type": "array", "items": { "type": "string" } },
+          "granted_at": { "type": "string", "format": "date-time" },
+          "expires_at": { "type": ["string", "null"], "format": "date-time" },
+          "revoked_at": { "type": ["string", "null"], "format": "date-time" },
+          "granted_by_user_id": { "type": "string" },
+          "revoked_by_user_id": { "type": ["string", "null"] },
+          "notes": { "type": "array", "items": { "type": "string" } },
+          "synthetic": { "type": "boolean" },
+          "current_party": { "$ref": "#/components/schemas/IamAccountDelegatedParty" },
+          "counterpart_user": { "$ref": "#/components/schemas/IamLoginFlowUser" },
+          "can_manage": { "type": "boolean" },
+          "relationship_kind": { "type": "string" },
+          "relationship_status": { "$ref": "#/components/schemas/IamDelegatedRelationshipStatus" }
+        }
+      },
+      "IamAccountDelegatedConsentsResponse": {
+        "type": "object",
+        "required": ["generated_at", "delegated_consents", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "delegated_consents": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamAccountDelegatedConsentRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamAccountDelegatedConsentRequestRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "relationship_id", "principal_user_id", "delegate_user_id", "requested_by_user_id", "status", "requested_scope_names", "requested_purpose_names", "requested_at", "expires_at", "responded_at", "decided_by_user_id", "delegated_consent_id", "request_notes", "decision_notes", "synthetic", "current_party", "counterpart_user", "can_approve", "can_deny", "can_cancel", "relationship_kind", "relationship_status"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "relationship_id": { "type": "string" },
+          "principal_user_id": { "type": "string" },
+          "delegate_user_id": { "type": "string" },
+          "requested_by_user_id": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamDelegatedConsentRequestStatus" },
+          "requested_scope_names": { "type": "array", "items": { "type": "string" } },
+          "requested_purpose_names": { "type": "array", "items": { "type": "string" } },
+          "requested_at": { "type": "string", "format": "date-time" },
+          "expires_at": { "type": ["string", "null"], "format": "date-time" },
+          "responded_at": { "type": ["string", "null"], "format": "date-time" },
+          "decided_by_user_id": { "type": ["string", "null"] },
+          "delegated_consent_id": { "type": ["string", "null"] },
+          "request_notes": { "type": "array", "items": { "type": "string" } },
+          "decision_notes": { "type": "array", "items": { "type": "string" } },
+          "synthetic": { "type": "boolean" },
+          "current_party": { "$ref": "#/components/schemas/IamAccountDelegatedParty" },
+          "counterpart_user": { "$ref": "#/components/schemas/IamLoginFlowUser" },
+          "can_approve": { "type": "boolean" },
+          "can_deny": { "type": "boolean" },
+          "can_cancel": { "type": "boolean" },
+          "relationship_kind": { "type": "string" },
+          "relationship_status": { "$ref": "#/components/schemas/IamDelegatedRelationshipStatus" }
+        }
+      },
+      "IamAccountDelegatedConsentRequestsResponse": {
+        "type": "object",
+        "required": ["generated_at", "delegated_consent_requests", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "delegated_consent_requests": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamAccountDelegatedConsentRequestRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      },
+      "CreateIamAccountDelegatedConsentRequestRequest": {
+        "type": "object",
+        "required": ["relationship_id", "requested_scope_names"],
+        "properties": {
+          "relationship_id": { "type": "string" },
+          "requested_scope_names": { "type": "array", "items": { "type": "string" } },
+          "requested_purpose_names": { "type": "array", "items": { "type": "string" } },
+          "expires_at": { "type": ["string", "null"], "format": "date-time" },
+          "request_notes": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "ApproveIamAccountDelegatedConsentRequestRequest": {
+        "type": "object",
+        "properties": {
+          "expires_at": { "type": ["string", "null"], "format": "date-time" },
+          "decision_notes": { "type": "array", "items": { "type": "string" } },
+          "consent_notes": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "DenyIamAccountDelegatedConsentRequestRequest": {
+        "type": "object",
+        "properties": {
+          "decision_notes": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "CancelIamAccountDelegatedConsentRequestRequest": {
+        "type": "object",
+        "properties": {
+          "decision_notes": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "IamAccountDelegatedConsentDecisionResponse": {
+        "type": "object",
+        "required": ["request", "delegated_consent"],
+        "properties": {
+          "request": { "$ref": "#/components/schemas/IamAccountDelegatedConsentRequestRecord" },
+          "delegated_consent": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/IamAccountDelegatedConsentRecord" },
+              { "type": "null" }
+            ]
+          }
+        }
+      },
+      "CreateIamAccountDelegatedConsentRequest": {
+        "type": "object",
+        "required": ["relationship_id", "scope_names"],
+        "properties": {
+          "relationship_id": { "type": "string" },
+          "scope_names": { "type": "array", "items": { "type": "string" } },
+          "purpose_names": { "type": "array", "items": { "type": "string" } },
+          "expires_at": { "type": ["string", "null"], "format": "date-time" },
+          "notes": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "RevokeIamAccountDelegatedConsentRequest": {
+        "type": "object",
+        "properties": {
+          "notes": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

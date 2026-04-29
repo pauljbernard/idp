@@ -1,0 +1,363 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM WebAuthn API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM full-IDP Phase E endpoints for passkey registration, passkey authentication, account credential inventory, and administrative credential review."
+  },
+  "paths": {
+    "/api/v1/iam/webauthn/credentials": {
+      "get": {
+        "summary": "List passkey credentials",
+        "tags": ["IAM WebAuthn"],
+        "security": [
+          { "BearerAuth": [] },
+          { "ApiKeyAuth": [] },
+          { "SessionIdHeader": [], "TenantIdHeader": [] }
+        ],
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Optional realm filter."
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Optional user filter."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Passkey credential list",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WebAuthnCredentialsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/login/passkey/begin": {
+      "post": {
+        "summary": "Begin passkey authentication",
+        "tags": ["IAM WebAuthn"],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username_or_email"],
+                "properties": {
+                  "username_or_email": { "type": "string" },
+                  "client_id": { "type": "string" },
+                  "scope": {
+                    "oneOf": [
+                      { "type": "string" },
+                      { "type": "array", "items": { "type": "string" } }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Passkey authentication challenge",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BeginAuthenticationResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/login/passkey/complete": {
+      "post": {
+        "summary": "Complete passkey authentication",
+        "tags": ["IAM WebAuthn"],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["challenge_id", "credential_id", "proof_signature"],
+                "properties": {
+                  "challenge_id": { "type": "string" },
+                  "credential_id": { "type": "string" },
+                  "proof_signature": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM login response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamLoginResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/webauthn/register/begin": {
+      "post": {
+        "summary": "Begin passkey registration",
+        "tags": ["IAM WebAuthn"],
+        "security": [
+          { "SessionIdHeader": [] }
+        ],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Passkey registration challenge",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BeginRegistrationResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/webauthn/register/complete": {
+      "post": {
+        "summary": "Complete passkey registration",
+        "tags": ["IAM WebAuthn"],
+        "security": [
+          { "SessionIdHeader": [] }
+        ],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["challenge_id", "credential_id", "device_label", "public_key_jwk", "algorithm", "proof_signature"],
+                "properties": {
+                  "challenge_id": { "type": "string" },
+                  "credential_id": { "type": "string" },
+                  "device_label": { "type": "string" },
+                  "public_key_jwk": { "type": "object", "additionalProperties": true },
+                  "algorithm": { "type": "string", "enum": ["ES256"] },
+                  "transports": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  },
+                  "proof_signature": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registered passkey credential",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WebAuthnCredential" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/webauthn/credentials": {
+      "get": {
+        "summary": "List account passkeys",
+        "tags": ["IAM WebAuthn"],
+        "security": [
+          { "SessionIdHeader": [] }
+        ],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account passkey credentials",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WebAuthnCredentialsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/account/webauthn/credentials/{credentialId}/revoke": {
+      "post": {
+        "summary": "Revoke account passkey",
+        "tags": ["IAM WebAuthn"],
+        "security": [
+          { "SessionIdHeader": [] }
+        ],
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "credentialId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Revoked passkey credential",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WebAuthnCredential" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamLoginResponse": {
+        "type": "object",
+        "required": ["realm_id", "next_step", "login_transaction_id", "session_id", "user", "client", "pending_required_actions", "pending_scope_consent", "pending_mfa", "post_login_destination"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "next_step": { "type": "string" },
+          "login_transaction_id": { "type": ["string", "null"] },
+          "session_id": { "type": ["string", "null"] },
+          "user": { "type": "object", "additionalProperties": true },
+          "client": { "type": ["object", "null"], "additionalProperties": true },
+          "pending_required_actions": { "type": "array", "items": { "type": "string" } },
+          "pending_scope_consent": { "type": "array", "items": { "type": "string" } },
+          "pending_mfa": { "type": "boolean" },
+          "post_login_destination": { "type": "string" }
+        }
+      },
+      "BeginRegistrationResponse": {
+        "type": "object",
+        "required": ["challenge_id", "realm_id", "user_id", "username", "display_name", "challenge", "rp_id", "rp_name", "expires_at"],
+        "properties": {
+          "challenge_id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "username": { "type": "string" },
+          "display_name": { "type": "string" },
+          "challenge": { "type": "string" },
+          "rp_id": { "type": "string" },
+          "rp_name": { "type": "string" },
+          "expires_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "BeginAuthenticationResponse": {
+        "type": "object",
+        "required": ["challenge_id", "realm_id", "user_id", "username", "display_name", "challenge", "client_id", "requested_scope_names", "allowed_credentials", "expires_at"],
+        "properties": {
+          "challenge_id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "username": { "type": "string" },
+          "display_name": { "type": "string" },
+          "challenge": { "type": "string" },
+          "client_id": { "type": ["string", "null"] },
+          "requested_scope_names": { "type": "array", "items": { "type": "string" } },
+          "allowed_credentials": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["credential_id", "device_label", "transports", "last_used_at"],
+              "properties": {
+                "credential_id": { "type": "string" },
+                "device_label": { "type": "string" },
+                "transports": { "type": "array", "items": { "type": "string" } },
+                "last_used_at": { "type": ["string", "null"], "format": "date-time" }
+              }
+            }
+          },
+          "expires_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "WebAuthnCredential": {
+        "type": "object",
+        "required": ["id", "realm_id", "user_id", "username", "email", "credential_id", "device_label", "algorithm", "transports", "created_at", "last_used_at", "disabled_at", "sign_count", "status", "synthetic"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "credential_id": { "type": "string" },
+          "device_label": { "type": "string" },
+          "algorithm": { "type": "string", "enum": ["ES256"] },
+          "transports": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "last_used_at": { "type": ["string", "null"], "format": "date-time" },
+          "disabled_at": { "type": ["string", "null"], "format": "date-time" },
+          "sign_count": { "type": "integer" },
+          "status": { "type": "string", "enum": ["ACTIVE", "REVOKED"] },
+          "synthetic": { "type": "boolean" }
+        }
+      },
+      "WebAuthnCredentialsResponse": {
+        "type": "object",
+        "required": ["generated_at", "credentials", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "credentials": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/WebAuthnCredential" }
+          },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

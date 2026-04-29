@@ -1,0 +1,267 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM Organizations API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM full-IDP Phase F endpoints for realm-scoped organizations and organization membership lifecycle management."
+  },
+  "tags": [
+    {
+      "name": "IAM Organizations",
+      "description": "Organization registry and membership administration endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/organizations": {
+      "get": {
+        "tags": ["IAM Organizations"],
+        "summary": "List IAM organizations",
+        "responses": {
+          "200": {
+            "description": "Organizations resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOrganizationsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Organizations"],
+        "summary": "Create IAM organization",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamOrganizationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Organization created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOrganizationRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/organizations/{organizationId}": {
+      "put": {
+        "tags": ["IAM Organizations"],
+        "summary": "Update IAM organization",
+        "parameters": [
+          { "name": "organizationId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamOrganizationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Organization updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOrganizationRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/organization-memberships": {
+      "get": {
+        "tags": ["IAM Organizations"],
+        "summary": "List IAM organization memberships",
+        "responses": {
+          "200": {
+            "description": "Organization memberships resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOrganizationMembershipsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Organizations"],
+        "summary": "Create IAM organization membership",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamOrganizationMembershipRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Organization membership created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOrganizationMembershipRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/organization-memberships/{membershipId}": {
+      "put": {
+        "tags": ["IAM Organizations"],
+        "summary": "Update IAM organization membership",
+        "parameters": [
+          { "name": "membershipId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamOrganizationMembershipRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Organization membership updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamOrganizationMembershipRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamOrganizationRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "summary": { "type": "string" },
+          "kind": { "type": "string" },
+          "status": { "type": "string" },
+          "domain_hint": { "type": ["string", "null"] },
+          "linked_identity_provider_aliases": { "type": "array", "items": { "type": "string" } },
+          "synthetic": { "type": "boolean" },
+          "source_organization_id": { "type": ["string", "null"] },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamOrganizationMembershipRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "organization_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "role": { "type": "string" },
+          "status": { "type": "string" },
+          "synthetic": { "type": "boolean" },
+          "invited_at": { "type": ["string", "null"], "format": "date-time" },
+          "joined_at": { "type": ["string", "null"], "format": "date-time" },
+          "suspended_at": { "type": ["string", "null"], "format": "date-time" },
+          "revoked_at": { "type": ["string", "null"], "format": "date-time" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamOrganizationsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "organizations": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamOrganizationRecord" }
+          },
+          "count": { "type": "number" }
+        }
+      },
+      "IamOrganizationMembershipsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "memberships": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                { "$ref": "#/components/schemas/IamOrganizationMembershipRecord" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "organization_name": { "type": "string" },
+                    "username": { "type": "string" },
+                    "email": { "type": "string" }
+                  }
+                }
+              ]
+            }
+          },
+          "count": { "type": "number" }
+        }
+      },
+      "CreateIamOrganizationRequest": {
+        "type": "object",
+        "required": ["realm_id", "name", "summary"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "kind": { "type": "string" },
+          "status": { "type": "string" },
+          "domain_hint": { "type": ["string", "null"] },
+          "linked_identity_provider_aliases": { "type": "array", "items": { "type": "string" } },
+          "source_organization_id": { "type": ["string", "null"] }
+        }
+      },
+      "UpdateIamOrganizationRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "kind": { "type": "string" },
+          "status": { "type": "string" },
+          "domain_hint": { "type": ["string", "null"] },
+          "linked_identity_provider_aliases": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "CreateIamOrganizationMembershipRequest": {
+        "type": "object",
+        "required": ["realm_id", "organization_id", "user_id"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "organization_id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "role": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      },
+      "UpdateIamOrganizationMembershipRequest": {
+        "type": "object",
+        "properties": {
+          "role": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      }
+    }
+  }
+}

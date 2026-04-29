@@ -1,0 +1,63 @@
+{
+  "targets": [
+    {
+      "target_id": "reference-bounded-fixture",
+      "target_name": "Reference bounded SP fixture",
+      "target_kind": "fixture-calibration",
+      "validation_mode": "target-harness",
+      "status": "active",
+      "profile_id": "saml-sp-bounded-redirect-post-v1",
+      "client_id": "saml-test-service-provider",
+      "request_fixture": "tests/fixtures/saml/bounded-sp-authn-request.xml",
+      "expected_request_id": "sp-interop-supported-request-1",
+      "expected_acs_url": "https://sp.example.local/acs",
+      "supports_relay_state": true,
+      "supports_idp_initiated": true,
+      "supports_logout_response": true,
+      "notes": [
+        "This target calibrates the bounded SAML target harness against the declared Redirect/Post profile.",
+        "It is not a third-party SP interoperability claim by itself."
+      ]
+    },
+    {
+      "target_id": "simplesamlphp-bounded-profile-candidate",
+      "target_name": "SimpleSAMLphp bounded profile candidate",
+      "target_kind": "family-shape-calibration",
+      "validation_mode": "target-harness",
+      "status": "candidate",
+      "profile_id": "saml-sp-bounded-redirect-post-v1",
+      "client_id": "saml-test-service-provider",
+      "request_fixture": "tests/fixtures/saml/simplesamlphp-bounded-authn-request.xml",
+      "expected_request_id": "simplesamlphp-request-1",
+      "expected_acs_url": "https://sp.example.local/acs",
+      "supports_relay_state": true,
+      "supports_idp_initiated": true,
+      "supports_logout_response": true,
+      "notes": [
+        "This target calibrates the bounded SAML harness against a SimpleSAMLphp-shaped AuthnRequest fixture.",
+        "It is still synthetic family-shape evidence, not live third-party SP interoperability."
+      ]
+    },
+    {
+      "target_id": "simplesamlphp-live-bounded-profile",
+      "target_name": "SimpleSAMLphp live bounded profile",
+      "target_kind": "live-external-candidate",
+      "validation_mode": "live-external",
+      "status": "active",
+      "profile_id": "saml-sp-bounded-redirect-post-v1",
+      "client_id": "saml-test-service-provider-live-local",
+      "request_fixture": "tests/fixtures/saml/simplesamlphp-bounded-authn-request.xml",
+      "expected_request_id": "simplesamlphp-request-1",
+      "expected_acs_url": "https://127.0.0.1:19443/simplesaml/module.php/saml/sp/saml2-acs.php/default-sp",
+      "supports_relay_state": true,
+      "supports_idp_initiated": true,
+      "supports_logout_response": true,
+      "requires_live_sp_deployment": true,
+      "expected_sp_family": "SimpleSAMLphp",
+      "notes": [
+        "This target is reserved for execution against a real SimpleSAMLphp deployment constrained to the bounded Redirect/Post profile.",
+        "No pass artifact should be recorded for this target until the harness is driven from a real live SP environment."
+      ]
+    }
+  ]
+}

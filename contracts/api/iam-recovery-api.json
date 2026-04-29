@@ -1,0 +1,118 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Recovery API",
+    "version": "1.0.0",
+    "description": "Standalone IAM Phase K recovery endpoints for hardened recovery posture and recovery-drill evidence."
+  },
+  "tags": [
+    {
+      "name": "IAM Recovery",
+      "description": "Recovery profile and recovery drill endpoints for the standalone IAM product runtime."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/operations/recovery": {
+      "get": {
+        "tags": ["IAM Recovery"],
+        "summary": "Get standalone IAM recovery profile",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM recovery profile resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamRecoveryProfileResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/operations/recovery/drills": {
+      "post": {
+        "tags": ["IAM Recovery"],
+        "summary": "Run standalone IAM recovery drill",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "backup_id": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Standalone IAM recovery drill recorded.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamRecoveryDrillRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamRecoveryProfileRecord": {
+        "type": "object",
+        "required": ["id", "name", "backup_storage_mode", "database_recovery_mode", "replication_mode", "rpo_target_minutes", "rto_target_minutes", "immutability_enabled", "operator_notes", "updated_at"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "backup_storage_mode": { "type": "string" },
+          "database_recovery_mode": { "type": "string" },
+          "replication_mode": { "type": "string" },
+          "rpo_target_minutes": { "type": "integer" },
+          "rto_target_minutes": { "type": "integer" },
+          "immutability_enabled": { "type": "boolean" },
+          "operator_notes": { "type": "array", "items": { "type": "string" } },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "IamRecoveryDrillRecord": {
+        "type": "object",
+        "required": ["id", "backup_id", "restore_record_id", "resilience_run_id", "executed_at", "executed_by_user_id", "status", "measured_recovery_minutes", "rpo_target_minutes", "rto_target_minutes", "integrity_validated", "notes"],
+        "properties": {
+          "id": { "type": "string" },
+          "backup_id": { "type": "string" },
+          "restore_record_id": { "type": "string" },
+          "resilience_run_id": { "type": "string" },
+          "executed_at": { "type": "string", "format": "date-time" },
+          "executed_by_user_id": { "type": "string" },
+          "status": { "type": "string" },
+          "measured_recovery_minutes": { "type": "integer" },
+          "rpo_target_minutes": { "type": "integer" },
+          "rto_target_minutes": { "type": "integer" },
+          "integrity_validated": { "type": "boolean" },
+          "notes": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "IamRecoveryProfileResponse": {
+        "type": "object",
+        "required": ["generated_at", "profile", "latest_drill", "drills", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "profile": { "$ref": "#/components/schemas/IamRecoveryProfileRecord" },
+          "latest_drill": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/IamRecoveryDrillRecord" },
+              { "type": "null" }
+            ]
+          },
+          "drills": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamRecoveryDrillRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

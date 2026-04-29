@@ -1,0 +1,288 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Realms API",
+    "version": "1.2.0",
+    "description": "Phase 1 standalone IAM endpoints for subsystem summary, realm registry CRUD, and foundational posture visibility."
+  },
+  "tags": [
+    {
+      "name": "IAM Realms",
+      "description": "Standalone headless IAM realm administration endpoints."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/summary": {
+      "get": {
+        "tags": ["IAM Realms"],
+        "summary": "Get Phase 1 IAM summary",
+        "responses": {
+          "200": {
+            "description": "IAM Phase 1 summary.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IamSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms": {
+      "get": {
+        "tags": ["IAM Realms"],
+        "summary": "List standalone IAM realms",
+        "parameters": [
+          {
+            "name": "scope_kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/IamRealmScopeKind"
+            }
+          },
+          {
+            "name": "binding_target_kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/IamBindingTargetKind"
+            }
+          },
+          {
+            "name": "binding_target_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Standalone IAM realms resolved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IamRealmsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Realms"],
+        "summary": "Create standalone IAM realm",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIamRealmRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "IAM realm created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IamRealmRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}": {
+      "put": {
+        "tags": ["IAM Realms"],
+        "summary": "Update standalone IAM realm",
+        "parameters": [
+          {
+            "name": "realmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateIamRealmRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM realm updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IamRealmRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamRealmScopeKind": {
+        "type": "string",
+        "enum": ["PLATFORM_DEFAULT", "STANDALONE_VALIDATION", "TENANT_OVERRIDE"]
+      },
+      "IamBindingTargetKind": {
+        "type": "string",
+        "enum": ["APPLICATION", "TENANT_SPACE"]
+      },
+      "IamRealmStatus": {
+        "type": "string",
+        "enum": ["STANDALONE_VALIDATION", "READY_FOR_FOUNDATION_PHASE", "ACTIVE", "ARCHIVED"]
+      },
+      "IamSummaryResponse": {
+        "type": "object",
+        "required": [
+          "generated_at",
+          "phase",
+          "subsystem_status",
+          "migration_state",
+          "admin_surface_route",
+          "scope_model",
+          "global_admin_role",
+          "realm_count",
+          "realm_template_count",
+          "realm_binding_count",
+          "validation_domain_count",
+          "user_count",
+          "group_count",
+          "role_count",
+          "delegated_admin_count",
+          "realm_export_count",
+          "realm_posture_preset_count",
+          "identity_privacy_policy_count",
+          "delegated_relationship_count",
+          "portable_identity_count",
+          "first_contract_ids",
+          "next_recommended_phase"
+        ],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "phase": { "type": "string", "enum": ["PHASE_1"] },
+          "subsystem_status": { "type": "string", "enum": ["REALM_RBAC_FOUNDATION_IMPLEMENTED"] },
+          "migration_state": { "type": "string", "enum": ["BLOCKED_UNTIL_PHASE_6"] },
+          "admin_surface_route": { "type": "string" },
+          "scope_model": { "type": "string", "enum": ["STANDALONE_MULTI_REALM_WITH_CONSUMER_BINDINGS"] },
+          "global_admin_role": { "type": "string", "enum": ["super_administrator"] },
+          "realm_count": { "type": "integer" },
+          "realm_template_count": { "type": "integer" },
+          "realm_binding_count": { "type": "integer" },
+          "validation_domain_count": { "type": "integer" },
+          "user_count": { "type": "integer" },
+          "group_count": { "type": "integer" },
+          "role_count": { "type": "integer" },
+          "delegated_admin_count": { "type": "integer" },
+          "realm_export_count": { "type": "integer" },
+          "realm_posture_preset_count": { "type": "integer" },
+          "identity_privacy_policy_count": { "type": "integer" },
+          "delegated_relationship_count": { "type": "integer" },
+          "portable_identity_count": { "type": "integer" },
+          "first_contract_ids": { "type": "array", "items": { "type": "string" } },
+          "next_recommended_phase": { "type": "string", "enum": ["PHASE_2_CLIENT_PROTOCOL_RUNTIME"] }
+        }
+      },
+      "IamRealmRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "summary",
+          "scope_kind",
+          "status",
+          "synthetic",
+          "intended_consumers",
+          "supported_protocols",
+          "template_id",
+          "posture_preset_ids",
+          "source_realm_id",
+          "owner_tenant_id",
+          "created_at",
+          "updated_at",
+          "created_by_user_id",
+          "updated_by_user_id"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "scope_kind": { "$ref": "#/components/schemas/IamRealmScopeKind" },
+          "status": { "$ref": "#/components/schemas/IamRealmStatus" },
+          "synthetic": { "type": "boolean" },
+          "intended_consumers": { "type": "array", "items": { "type": "string" } },
+          "supported_protocols": { "type": "array", "items": { "type": "string", "enum": ["OIDC", "OAUTH2", "SAML"] } },
+          "template_id": { "type": ["string", "null"] },
+          "posture_preset_ids": { "type": "array", "items": { "type": "string" } },
+          "source_realm_id": { "type": ["string", "null"] },
+          "owner_tenant_id": { "type": ["string", "null"] },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamRealmsResponse": {
+        "type": "object",
+        "required": ["generated_at", "realms", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "realms": { "type": "array", "items": { "$ref": "#/components/schemas/IamRealmRecord" } },
+          "count": { "type": "integer" }
+        }
+      },
+      "CreateIamRealmRequest": {
+        "type": "object",
+        "required": ["name", "summary"],
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "scope_kind": { "$ref": "#/components/schemas/IamRealmScopeKind" },
+          "status": { "$ref": "#/components/schemas/IamRealmStatus" },
+          "intended_consumers": { "type": "array", "items": { "type": "string" } },
+          "supported_protocols": { "type": "array", "items": { "type": "string", "enum": ["OIDC", "OAUTH2", "SAML"] } },
+          "template_id": { "type": ["string", "null"] },
+          "posture_preset_ids": { "type": "array", "items": { "type": "string" } },
+          "owner_tenant_id": { "type": ["string", "null"] },
+          "clone_from_realm_id": { "type": ["string", "null"] }
+        }
+      },
+      "UpdateIamRealmRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/IamRealmStatus" },
+          "intended_consumers": { "type": "array", "items": { "type": "string" } },
+          "supported_protocols": { "type": "array", "items": { "type": "string", "enum": ["OIDC", "OAUTH2", "SAML"] } },
+          "posture_preset_ids": {
+            "type": ["array", "null"],
+            "items": { "type": "string" }
+          },
+          "owner_tenant_id": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

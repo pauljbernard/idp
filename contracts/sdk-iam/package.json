@@ -1,0 +1,12 @@
+{
+  "name": "@idp/sdk-iam",
+  "version": "0.1.0",
+  "description": "Internal IAM SDK contract and transport scaffold for standalone IDP integrations",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test:contract": "node ../../scripts/verify-sdk-iam-contract.js"
+  }
+}

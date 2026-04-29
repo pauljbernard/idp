@@ -1,0 +1,167 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Protocol Mappers API",
+    "version": "1.0.0",
+    "description": "Phase 2 standalone IAM protocol-mapper administration endpoints."
+  },
+  "tags": [
+    {
+      "name": "IAM Protocol Mappers",
+      "description": "Standalone headless IAM protocol-mapper administration."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/protocol-mappers": {
+      "get": {
+        "tags": ["IAM Protocol Mappers"],
+        "summary": "List IAM protocol mappers",
+        "parameters": [
+          { "name": "realm_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "target_kind", "in": "query", "required": false, "schema": { "$ref": "#/components/schemas/IamProtocolMapperTargetKind" } },
+          { "name": "target_id", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "protocol", "in": "query", "required": false, "schema": { "$ref": "#/components/schemas/IamClientProtocol" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "IAM protocol mappers resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamProtocolMappersResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Protocol Mappers"],
+        "summary": "Create IAM protocol mapper",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamProtocolMapperRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "IAM protocol mapper created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamProtocolMapperRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/protocol-mappers/{mapperId}": {
+      "put": {
+        "tags": ["IAM Protocol Mappers"],
+        "summary": "Update IAM protocol mapper",
+        "parameters": [
+          { "name": "mapperId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamProtocolMapperRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IAM protocol mapper updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamProtocolMapperRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamClientProtocol": { "type": "string", "enum": ["OIDC", "SAML"] },
+      "IamProtocolMapperTargetKind": { "type": "string", "enum": ["CLIENT", "CLIENT_SCOPE"] },
+      "IamMapperSourceKind": {
+        "type": "string",
+        "enum": ["USER_PROPERTY", "USERNAME", "SUBJECT_ID", "REALM_ROLE_NAMES", "GROUP_NAMES", "STATIC_VALUE", "CLIENT_ID", "SERVICE_ACCOUNT"]
+      },
+      "IamMapperStatus": { "type": "string", "enum": ["ACTIVE", "DISABLED"] },
+      "IamProtocolMapperRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "name", "protocol", "target_kind", "target_id", "source_kind", "claim_name", "user_property", "static_value", "multivalued", "include_in_access_token", "include_in_id_token", "include_in_userinfo", "status", "synthetic", "created_at", "updated_at", "created_by_user_id", "updated_by_user_id"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "protocol": { "$ref": "#/components/schemas/IamClientProtocol" },
+          "target_kind": { "$ref": "#/components/schemas/IamProtocolMapperTargetKind" },
+          "target_id": { "type": "string" },
+          "source_kind": { "$ref": "#/components/schemas/IamMapperSourceKind" },
+          "claim_name": { "type": "string" },
+          "user_property": { "type": ["string", "null"] },
+          "static_value": { "type": ["string", "null"] },
+          "multivalued": { "type": "boolean" },
+          "include_in_access_token": { "type": "boolean" },
+          "include_in_id_token": { "type": "boolean" },
+          "include_in_userinfo": { "type": "boolean" },
+          "status": { "$ref": "#/components/schemas/IamMapperStatus" },
+          "synthetic": { "type": "boolean" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamProtocolMappersResponse": {
+        "type": "object",
+        "required": ["generated_at", "protocol_mappers", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "protocol_mappers": { "type": "array", "items": { "$ref": "#/components/schemas/IamProtocolMapperRecord" } },
+          "count": { "type": "integer" }
+        }
+      },
+      "CreateIamProtocolMapperRequest": {
+        "type": "object",
+        "required": ["realm_id", "name", "target_kind", "target_id", "source_kind", "claim_name"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "name": { "type": "string" },
+          "protocol": { "$ref": "#/components/schemas/IamClientProtocol" },
+          "target_kind": { "$ref": "#/components/schemas/IamProtocolMapperTargetKind" },
+          "target_id": { "type": "string" },
+          "source_kind": { "$ref": "#/components/schemas/IamMapperSourceKind" },
+          "claim_name": { "type": "string" },
+          "user_property": { "type": ["string", "null"] },
+          "static_value": { "type": ["string", "null"] },
+          "multivalued": { "type": "boolean" },
+          "include_in_access_token": { "type": "boolean" },
+          "include_in_id_token": { "type": "boolean" },
+          "include_in_userinfo": { "type": "boolean" },
+          "status": { "$ref": "#/components/schemas/IamMapperStatus" }
+        }
+      },
+      "UpdateIamProtocolMapperRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "claim_name": { "type": "string" },
+          "user_property": { "type": ["string", "null"] },
+          "static_value": { "type": ["string", "null"] },
+          "multivalued": { "type": "boolean" },
+          "include_in_access_token": { "type": "boolean" },
+          "include_in_id_token": { "type": "boolean" },
+          "include_in_userinfo": { "type": "boolean" },
+          "status": { "$ref": "#/components/schemas/IamMapperStatus" }
+        }
+      }
+    }
+  }
+}

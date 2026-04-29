@@ -1,0 +1,163 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM Protected Resources API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM full-IDP Phase H endpoints for protected resource administration."
+  },
+  "tags": [
+    {
+      "name": "IAM Authorization Services",
+      "description": "Protected resource administration for standalone IAM authorization services."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/authz/resources": {
+      "get": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "List IAM protected resources",
+        "responses": {
+          "200": {
+            "description": "Protected resources resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamProtectedResourcesResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "Create IAM protected resource",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamProtectedResourceRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Protected resource created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamProtectedResourceRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/authz/resources/{resourceId}": {
+      "put": {
+        "tags": ["IAM Authorization Services"],
+        "summary": "Update IAM protected resource",
+        "parameters": [
+          { "name": "resourceId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamProtectedResourceRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Protected resource updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamProtectedResourceRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamProtectedResourceRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "resource_server_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "uri": { "type": ["string", "null"] },
+          "type_label": { "type": ["string", "null"] },
+          "status": { "type": "string" },
+          "owner_user_ids": { "type": "array", "items": { "type": "string" } },
+          "scope_ids": { "type": "array", "items": { "type": "string" } },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamProtectedResourcesResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "resources": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamProtectedResourceRecord" }
+          },
+          "count": { "type": "number" }
+        }
+      },
+      "CreateIamProtectedResourceRequest": {
+        "type": "object",
+        "required": ["realm_id", "resource_server_id", "name", "summary"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "resource_server_id": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "uri": { "type": ["string", "null"] },
+          "type_label": { "type": ["string", "null"] },
+          "status": { "type": "string" },
+          "owner_user_ids": { "type": "array", "items": { "type": "string" } },
+          "scope_ids": { "type": "array", "items": { "type": "string" } },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      },
+      "UpdateIamProtectedResourceRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "uri": { "type": ["string", "null"] },
+          "type_label": { "type": ["string", "null"] },
+          "status": { "type": "string" },
+          "owner_user_ids": { "type": "array", "items": { "type": "string" } },
+          "scope_ids": { "type": "array", "items": { "type": "string" } },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

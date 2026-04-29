@@ -1,0 +1,122 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Benchmarks API",
+    "version": "1.0.0",
+    "description": "Standalone IAM Phase K benchmark-suite endpoints for performance and resilience evidence."
+  },
+  "tags": [
+    {
+      "name": "IAM Benchmarks",
+      "description": "Benchmark catalog and benchmark execution endpoints for the standalone IAM runtime."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/operations/benchmarks": {
+      "get": {
+        "tags": ["IAM Benchmarks"],
+        "summary": "Get standalone IAM benchmark catalog",
+        "responses": {
+          "200": {
+            "description": "Standalone IAM benchmark catalog resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamBenchmarkCatalogResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/operations/benchmarks/run": {
+      "post": {
+        "tags": ["IAM Benchmarks"],
+        "summary": "Run standalone IAM benchmark suite",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "suite_id": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Standalone IAM benchmark run recorded.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamBenchmarkRunRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamBenchmarkSuiteRecord": {
+        "type": "object",
+        "required": ["id", "name", "category", "summary", "target"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "category": { "type": "string" },
+          "summary": { "type": "string" },
+          "target": { "type": "string" }
+        }
+      },
+      "IamBenchmarkMetricRecord": {
+        "type": "object",
+        "required": ["id", "name", "unit", "value", "target", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "unit": { "type": "string" },
+          "value": { "type": "number" },
+          "target": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      },
+      "IamBenchmarkRunRecord": {
+        "type": "object",
+        "required": ["id", "suite_id", "suite_name", "executed_at", "executed_by_user_id", "overall_status", "metrics", "observations", "count"],
+        "properties": {
+          "id": { "type": "string" },
+          "suite_id": { "type": "string" },
+          "suite_name": { "type": "string" },
+          "executed_at": { "type": "string", "format": "date-time" },
+          "executed_by_user_id": { "type": "string" },
+          "overall_status": { "type": "string" },
+          "metrics": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamBenchmarkMetricRecord" }
+          },
+          "observations": { "type": "array", "items": { "type": "string" } },
+          "count": { "type": "integer" }
+        }
+      },
+      "IamBenchmarkCatalogResponse": {
+        "type": "object",
+        "required": ["generated_at", "suites", "runs", "count"],
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "suites": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamBenchmarkSuiteRecord" }
+          },
+          "runs": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IamBenchmarkRunRecord" }
+          },
+          "count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

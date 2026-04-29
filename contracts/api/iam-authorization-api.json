@@ -1,0 +1,184 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Standalone IAM Authorization API",
+    "version": "1.0.0",
+    "description": "Standalone IAM full-IDP Phase A endpoints for redirect-based OIDC authorization requests and PKCE-bound authorization-code handoff."
+  },
+  "tags": [
+    {
+      "name": "IAM Authorization",
+      "description": "Standalone headless IAM authorization-request and browser handoff runtime."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/realms/{realmId}/protocol/openid-connect/auth": {
+      "get": {
+        "tags": ["IAM Authorization"],
+        "summary": "Initiate authorization request",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "client_id", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "redirect_uri", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "response_type", "in": "query", "required": false, "schema": { "type": "string", "enum": ["code"] } },
+          { "name": "response_mode", "in": "query", "required": false, "schema": { "type": "string", "enum": ["query"] } },
+          { "name": "scope", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "requested_purpose", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "state", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "nonce", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "prompt", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "code_challenge", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "code_challenge_method", "in": "query", "required": false, "schema": { "type": "string", "enum": ["plain", "S256"] } }
+        ],
+        "responses": {
+          "302": {
+            "description": "Browser redirected into the standalone IAM login surface."
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/openid-connect/auth/requests/{requestId}": {
+      "get": {
+        "tags": ["IAM Authorization"],
+        "summary": "Get authorization request detail",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "requestId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorization request detail resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthorizationRequestDetailResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/realms/{realmId}/protocol/openid-connect/auth/continue": {
+      "post": {
+        "tags": ["IAM Authorization"],
+        "summary": "Continue authorization request from an authenticated IAM session",
+        "parameters": [
+          { "name": "realmId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "X-IAM-Session-ID", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["authorization_request_id"],
+                "properties": {
+                  "authorization_request_id": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorization request continued.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamAuthorizationContinuationResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamAuthorizationRequestRecord": {
+        "type": "object",
+        "required": ["id", "realm_id", "client_id", "client_name", "redirect_uri", "response_type", "response_mode", "requested_scope_names", "prompt_values", "created_at", "expires_at", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "client_id": { "type": "string" },
+          "client_name": { "type": "string" },
+          "redirect_uri": { "type": "string" },
+          "response_type": { "type": "string", "enum": ["code"] },
+          "response_mode": { "type": "string", "enum": ["query"] },
+          "requested_scope_names": { "type": "array", "items": { "type": "string" } },
+          "requested_purpose": { "type": ["string", "null"] },
+          "state": { "type": ["string", "null"] },
+          "nonce": { "type": ["string", "null"] },
+          "prompt_values": { "type": "array", "items": { "type": "string" } },
+          "code_challenge": { "type": ["string", "null"] },
+          "code_challenge_method": { "type": ["string", "null"], "enum": ["plain", "S256", null] },
+          "created_at": { "type": "string", "format": "date-time" },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "status": { "type": "string", "enum": ["PENDING", "AUTHORIZED", "CANCELLED", "EXPIRED"] }
+        }
+      },
+      "IamLoginResponse": {
+        "type": "object",
+        "required": ["realm_id", "next_step", "login_transaction_id", "session_id", "user", "client", "pending_required_actions", "pending_scope_consent", "pending_mfa", "post_login_destination"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "next_step": { "type": "string", "enum": ["AUTHENTICATED", "REQUIRED_ACTIONS", "CONSENT_REQUIRED", "MFA_REQUIRED"] },
+          "login_transaction_id": { "type": ["string", "null"] },
+          "session_id": { "type": ["string", "null"] },
+          "user": {
+            "type": "object",
+            "required": ["id", "username", "email", "first_name", "last_name"],
+            "properties": {
+              "id": { "type": "string" },
+              "username": { "type": "string" },
+              "email": { "type": "string" },
+              "first_name": { "type": "string" },
+              "last_name": { "type": "string" }
+            }
+          },
+          "client": {
+            "oneOf": [
+              { "type": "null" },
+              {
+                "type": "object",
+                "required": ["id", "client_id", "name", "protocol"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "client_id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "protocol": { "type": "string", "enum": ["OIDC", "SAML"] }
+                }
+              }
+            ]
+          },
+          "pending_required_actions": { "type": "array", "items": { "type": "string" } },
+          "pending_scope_consent": { "type": "array", "items": { "type": "string" } },
+          "pending_mfa": { "type": "boolean" },
+          "post_login_destination": { "type": "string" }
+        }
+      },
+      "IamAuthorizationRequestDetailResponse": {
+        "type": "object",
+        "required": ["request", "can_auto_continue"],
+        "properties": {
+          "request": { "$ref": "#/components/schemas/IamAuthorizationRequestRecord" },
+          "can_auto_continue": { "type": "boolean" }
+        }
+      },
+      "IamAuthorizationContinuationResponse": {
+        "type": "object",
+        "required": ["status", "request"],
+        "properties": {
+          "status": { "type": "string", "enum": ["AUTHORIZED", "ERROR", "INTERACTION_REQUIRED"] },
+          "request": { "$ref": "#/components/schemas/IamAuthorizationRequestRecord" },
+          "redirect_url": { "type": "string" },
+          "error": { "type": "string" },
+          "error_description": { "type": "string" },
+          "authorization_code_id": { "type": "string" },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "login_response": { "$ref": "#/components/schemas/IamLoginResponse" }
+        }
+      }
+    }
+  }
+}

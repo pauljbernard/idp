@@ -1,0 +1,11 @@
+services:
+  simplesamlphp:
+    image: cirrusid/simplesamlphp:latest
+    container_name: idp-simplesamlphp-live-external
+    ports:
+      - "${SIMPLESAMLPHP_HOST_PORT:-19443}:443"
+    environment:
+      SIMPLESAMLPHP_ADMIN_PASSWORD: "${SIMPLESAMLPHP_ADMIN_PASSWORD:-StandaloneIAM!SimpleSAMLAdmin2026}"
+    volumes:
+      - ./simplesamlphp-authsources.php:/var/simplesamlphp/config/authsources.php:ro
+      - ./simplesamlphp-saml20-idp-remote.php:/var/simplesamlphp/metadata/saml20-idp-remote.php:ro

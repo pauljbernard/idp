@@ -1,0 +1,58 @@
+{
+  "generated_at": "2026-04-29T02:13:20.164Z",
+  "environment": "http://127.0.0.1:4107",
+  "persistence_backend": "dynamodb-s3",
+  "runtime_table": "idp-iam-runtime-local",
+  "budgets": {
+    "iam-public-catalog-runtime": {
+      "maxP99": 1500,
+      "maxErrors": 0,
+      "maxNon2xx": 0,
+      "minTotalRequests": 1
+    },
+    "iam-login-runtime": {
+      "maxP99": 3000,
+      "maxErrors": 0,
+      "maxNon2xx": 0,
+      "minTotalRequests": 1
+    }
+  },
+  "suites": [
+    {
+      "name": "iam-public-catalog-runtime",
+      "requests": {
+        "average": 126.75,
+        "mean": 126.75,
+        "total": 1014
+      },
+      "latency": {
+        "average": 116.95,
+        "p90": 152,
+        "p99": 186,
+        "max": 203
+      },
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0
+    },
+    {
+      "name": "iam-login-runtime",
+      "requests": {
+        "average": 8.23,
+        "mean": 8.23,
+        "total": 100
+      },
+      "latency": {
+        "average": 598.71,
+        "p90": 738,
+        "p99": 836,
+        "max": 1032
+      },
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0
+    }
+  ],
+  "overall_pass": true,
+  "failures": []
+}

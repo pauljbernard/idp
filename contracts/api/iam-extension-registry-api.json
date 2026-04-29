@@ -1,0 +1,446 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IAM Extension Registry API",
+    "version": "1.0.0",
+    "description": "Standalone headless IAM full-IDP Phase I endpoints for extension packages, provider interfaces, providers, and realm-bound provider activation."
+  },
+  "tags": [
+    {
+      "name": "IAM Extensions",
+      "description": "Extension-registry and provider-framework endpoints for the standalone IAM subsystem."
+    }
+  ],
+  "paths": {
+    "/api/v1/iam/extensions/summary": {
+      "get": {
+        "tags": ["IAM Extensions"],
+        "summary": "Get IAM extension registry summary",
+        "responses": {
+          "200": {
+            "description": "Extension registry summary resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamExtensionRegistrySummaryResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/extension-interfaces": {
+      "get": {
+        "tags": ["IAM Extensions"],
+        "summary": "List IAM provider interfaces",
+        "responses": {
+          "200": {
+            "description": "Provider interfaces resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamProviderInterfacesResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/extensions": {
+      "get": {
+        "tags": ["IAM Extensions"],
+        "summary": "List IAM extension packages",
+        "responses": {
+          "200": {
+            "description": "Extension packages resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamExtensionPackagesResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Extensions"],
+        "summary": "Create IAM extension package",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamExtensionPackageRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Extension package created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamExtensionPackageRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/extensions/{extensionId}": {
+      "put": {
+        "tags": ["IAM Extensions"],
+        "summary": "Update IAM extension package",
+        "parameters": [
+          { "name": "extensionId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamExtensionPackageRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Extension package updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamExtensionPackageRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/providers": {
+      "get": {
+        "tags": ["IAM Extensions"],
+        "summary": "List IAM extension providers",
+        "responses": {
+          "200": {
+            "description": "Providers resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamExtensionProvidersResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Extensions"],
+        "summary": "Create IAM extension provider",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamExtensionProviderRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Provider created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamExtensionProviderRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/providers/{providerId}": {
+      "put": {
+        "tags": ["IAM Extensions"],
+        "summary": "Update IAM extension provider",
+        "parameters": [
+          { "name": "providerId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamExtensionProviderRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Provider updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamExtensionProviderRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/provider-bindings": {
+      "get": {
+        "tags": ["IAM Extensions"],
+        "summary": "List IAM extension bindings",
+        "responses": {
+          "200": {
+            "description": "Bindings resolved.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamExtensionBindingsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["IAM Extensions"],
+        "summary": "Create IAM extension binding",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateIamExtensionBindingRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Binding created.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamExtensionBindingRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/iam/provider-bindings/{bindingId}": {
+      "put": {
+        "tags": ["IAM Extensions"],
+        "summary": "Update IAM extension binding",
+        "parameters": [
+          { "name": "bindingId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateIamExtensionBindingRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Binding updated.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IamExtensionBindingRecord" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IamExtensionRegistrySummaryResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "phase": { "type": "string" },
+          "subsystem_status": { "type": "string" },
+          "extension_interface_count": { "type": "number" },
+          "extension_package_count": { "type": "number" },
+          "extension_provider_count": { "type": "number" },
+          "active_extension_provider_count": { "type": "number" },
+          "extension_binding_count": { "type": "number" },
+          "active_extension_binding_count": { "type": "number" },
+          "theme_package_provider_count": { "type": "number" },
+          "next_recommended_phase": { "type": "string" }
+        }
+      },
+      "IamProviderInterfaceRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "kind": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "contract_version": { "type": "string" },
+          "binding_slots": { "type": "array", "items": { "type": "string" } },
+          "configuration_fields": { "type": "array", "items": { "type": "string" } },
+          "runtime_expectations": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "IamProviderInterfacesResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "interfaces": { "type": "array", "items": { "$ref": "#/components/schemas/IamProviderInterfaceRecord" } },
+          "count": { "type": "number" }
+        }
+      },
+      "IamExtensionPackageRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "key": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "publisher": { "type": "string" },
+          "version": { "type": "string" },
+          "source_type": { "type": "string" },
+          "delivery_model": { "type": "string" },
+          "status": { "type": "string" },
+          "interface_kinds": { "type": "array", "items": { "type": "string" } },
+          "provider_ids": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamExtensionPackagesResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "extensions": { "type": "array", "items": { "$ref": "#/components/schemas/IamExtensionPackageRecord" } },
+          "count": { "type": "number" }
+        }
+      },
+      "CreateIamExtensionPackageRequest": {
+        "type": "object",
+        "required": ["key", "name", "summary", "interface_kinds"],
+        "properties": {
+          "key": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "publisher": { "type": "string" },
+          "version": { "type": "string" },
+          "source_type": { "type": "string" },
+          "delivery_model": { "type": "string" },
+          "status": { "type": "string" },
+          "interface_kinds": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "UpdateIamExtensionPackageRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "publisher": { "type": "string" },
+          "version": { "type": "string" },
+          "source_type": { "type": "string" },
+          "delivery_model": { "type": "string" },
+          "status": { "type": "string" },
+          "interface_kinds": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "IamExtensionProviderRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "extension_id": { "type": "string" },
+          "key": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "interface_kind": { "type": "string" },
+          "status": { "type": "string" },
+          "implementation_mode": { "type": "string" },
+          "runtime_reference": { "type": "string" },
+          "supported_protocols": { "type": "array", "items": { "type": "string" } },
+          "binding_slots": { "type": "array", "items": { "type": "string" } },
+          "configuration_fields": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamExtensionProvidersResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "providers": { "type": "array", "items": { "$ref": "#/components/schemas/IamExtensionProviderRecord" } },
+          "count": { "type": "number" }
+        }
+      },
+      "CreateIamExtensionProviderRequest": {
+        "type": "object",
+        "required": ["extension_id", "key", "name", "summary", "interface_kind"],
+        "properties": {
+          "extension_id": { "type": "string" },
+          "key": { "type": "string" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "interface_kind": { "type": "string" },
+          "status": { "type": "string" },
+          "implementation_mode": { "type": "string" },
+          "runtime_reference": { "type": "string" },
+          "supported_protocols": { "type": "array", "items": { "type": "string" } },
+          "binding_slots": { "type": "array", "items": { "type": "string" } },
+          "configuration_fields": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "UpdateIamExtensionProviderRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string" },
+          "implementation_mode": { "type": "string" },
+          "runtime_reference": { "type": "string" },
+          "supported_protocols": { "type": "array", "items": { "type": "string" } },
+          "binding_slots": { "type": "array", "items": { "type": "string" } },
+          "configuration_fields": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "IamExtensionBindingRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "realm_id": { "type": "string" },
+          "provider_id": { "type": "string" },
+          "interface_kind": { "type": "string" },
+          "binding_slot": { "type": "string" },
+          "priority": { "type": "number" },
+          "status": { "type": "string" },
+          "configuration": { "type": "object", "additionalProperties": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "created_by_user_id": { "type": "string" },
+          "updated_by_user_id": { "type": "string" }
+        }
+      },
+      "IamExtensionBindingsResponse": {
+        "type": "object",
+        "properties": {
+          "generated_at": { "type": "string", "format": "date-time" },
+          "bindings": { "type": "array", "items": { "$ref": "#/components/schemas/IamExtensionBindingRecord" } },
+          "count": { "type": "number" }
+        }
+      },
+      "CreateIamExtensionBindingRequest": {
+        "type": "object",
+        "required": ["realm_id", "provider_id", "binding_slot"],
+        "properties": {
+          "realm_id": { "type": "string" },
+          "provider_id": { "type": "string" },
+          "binding_slot": { "type": "string" },
+          "priority": { "type": "number" },
+          "status": { "type": "string" },
+          "configuration": { "type": "object", "additionalProperties": true }
+        }
+      },
+      "UpdateIamExtensionBindingRequest": {
+        "type": "object",
+        "properties": {
+          "provider_id": { "type": "string" },
+          "binding_slot": { "type": "string" },
+          "priority": { "type": "number" },
+          "status": { "type": "string" },
+          "configuration": { "type": "object", "additionalProperties": true }
+        }
+      }
+    }
+  }
+}
