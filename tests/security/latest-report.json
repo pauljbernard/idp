@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-04T20:25:49.934Z",
+  "generated_at": "2026-04-29T00:33:53.583Z",
   "environment": "http://127.0.0.1:4101",
   "http_checks": {
     "health_status": 200,
@@ -20,6 +20,6 @@
       "critical": 0,
       "total": 0
     },
-    "high_or_critical_count": 0
+    "moderate_or_higher_count": 0
   }
 }

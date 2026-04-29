@@ -75,14 +75,25 @@ interface IamDeploymentRuntimeState {
   change_history: IamDeploymentChangeRecord[];
 }
 
+const SUPPORTED_TOPOLOGY_MODES: IamDeploymentTopologyMode[] = [
+  'AWS_SINGLE_REGION_COST_OPTIMIZED',
+  'AWS_SINGLE_REGION_HA',
+];
+
+function assertSupportedTopologyMode(mode: IamDeploymentTopologyMode): void {
+  if (!SUPPORTED_TOPOLOGY_MODES.includes(mode)) {
+    throw new Error(`Unsupported deployment topology for the current support profile: ${mode}`);
+  }
+}
+
 function buildDefaultProfile(): IamDeploymentProfileRecord {
   const now = nowIso();
   return {
-    id: 'iam-standalone-aws-production',
-    name: 'Standalone IAM AWS Production',
-    summary: 'AWS-native standalone deployment profile for the reusable IAM product runtime.',
+    id: 'iam-standalone-aws-single-region-bounded',
+    name: 'Standalone IAM AWS Single-Region Bounded Production',
+    summary: 'Bounded single-region AWS deployment profile for the standalone IAM runtime with shared-durable state and explicit exclusions for rolling upgrades and multi-site.',
     topology_mode: 'AWS_SINGLE_REGION_HA',
-    readiness_status: 'READY_FOR_STANDALONE_DEPLOYMENT',
+    readiness_status: 'NEEDS_REVIEW',
     regions: ['us-east-1'],
     data_plane: 'DYNAMODB_AND_S3',
     secret_plane: 'AWS_KMS_AND_SECRETS_MANAGER',
@@ -93,7 +104,8 @@ function buildDefaultProfile(): IamDeploymentProfileRecord {
     estimated_monthly_cost_band: '$$',
     operator_notes: [
       'The standalone IAM product runtime remains deployable without any downstream application coupling.',
-      'DynamoDB and S3 are the target persistence plane; local JSON files remain validation fixtures only.'
+      'DynamoDB and S3 are the target persistence plane; local JSON files remain validation fixtures only.',
+      'The supported bounded production posture is single-region only; rolling upgrades and multi-site remain explicitly deferred.',
     ],
     created_at: now,
     updated_at: now,
@@ -266,17 +278,16 @@ export const LocalIamDeploymentRuntimeStore = {
       generated_at: nowIso(),
       active_profile: clone(state.active_profile),
       resources: resourcesForProfile(state.active_profile),
-      supported_topology_modes: [
-        'AWS_SINGLE_REGION_COST_OPTIMIZED',
-        'AWS_SINGLE_REGION_HA',
-        'AWS_MULTI_REGION_WARM_STANDBY',
-      ],
+      supported_topology_modes: [...SUPPORTED_TOPOLOGY_MODES],
       change_history: clone(state.change_history),
       count: 1,
     };
   },
 
   updateDeploymentProfile(actorUserId: string, input: UpdateIamDeploymentProfileInput): IamDeploymentProfileRecord {
+    if (input.topology_mode) {
+      assertSupportedTopologyMode(input.topology_mode);
+    }
     const updatedRegions = Array.isArray(input.regions)
       ? input.regions
           .filter((value): value is string => typeof value === 'string')
@@ -296,7 +307,7 @@ export const LocalIamDeploymentRuntimeStore = {
       operator_notes: Array.isArray(input.operator_notes)
         ? input.operator_notes.filter((value): value is string => typeof value === 'string').map((value) => value.trim()).filter(Boolean)
         : state.active_profile.operator_notes,
-      readiness_status: 'READY_FOR_STANDALONE_DEPLOYMENT',
+      readiness_status: 'NEEDS_REVIEW',
       updated_at: nowIso(),
       updated_by_user_id: actorUserId,
     };
@@ -313,6 +324,9 @@ export const LocalIamDeploymentRuntimeStore = {
   },
 
   async updateDeploymentProfileAsync(actorUserId: string, input: UpdateIamDeploymentProfileInput): Promise<IamDeploymentProfileRecord> {
+    if (input.topology_mode) {
+      assertSupportedTopologyMode(input.topology_mode);
+    }
     const persistedState = await loadStateAsync();
     const updatedRegions = Array.isArray(input.regions)
       ? input.regions
@@ -333,7 +347,7 @@ export const LocalIamDeploymentRuntimeStore = {
       operator_notes: Array.isArray(input.operator_notes)
         ? input.operator_notes.filter((value): value is string => typeof value === 'string').map((value) => value.trim()).filter(Boolean)
         : persistedState.active_profile.operator_notes,
-      readiness_status: 'READY_FOR_STANDALONE_DEPLOYMENT',
+      readiness_status: 'NEEDS_REVIEW',
       updated_at: nowIso(),
       updated_by_user_id: actorUserId,
     };

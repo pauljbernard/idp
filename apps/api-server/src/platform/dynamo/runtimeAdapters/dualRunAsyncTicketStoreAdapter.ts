@@ -14,17 +14,29 @@ export class DualRunAsyncTicketStoreAdapter implements AsyncTicketStoreAdapter {
   ) {}
 
   async addPasswordResetTicket(ticket: StoredIamPasswordResetTicket): Promise<void> {
-    await this.legacy.addPasswordResetTicket(ticket);
-    if (this.mode.dualWrite || this.mode.readV2) {
+    if (this.mode.dualWrite) {
+      await this.legacy.addPasswordResetTicket(ticket);
       await this.v2.addPasswordResetTicket(ticket);
+      return;
     }
+    if (this.mode.readV2) {
+      await this.v2.addPasswordResetTicket(ticket);
+      return;
+    }
+    await this.legacy.addPasswordResetTicket(ticket);
   }
 
   async putPasswordResetTicket(ticket: StoredIamPasswordResetTicket): Promise<void> {
-    await this.legacy.putPasswordResetTicket(ticket);
-    if (this.mode.dualWrite || this.mode.readV2) {
+    if (this.mode.dualWrite) {
+      await this.legacy.putPasswordResetTicket(ticket);
       await this.v2.putPasswordResetTicket(ticket);
+      return;
     }
+    if (this.mode.readV2) {
+      await this.v2.putPasswordResetTicket(ticket);
+      return;
+    }
+    await this.legacy.putPasswordResetTicket(ticket);
   }
 
   async getPasswordResetTicket(realmId: string, ticketId: string): Promise<StoredIamPasswordResetTicket | null> {
@@ -35,17 +47,29 @@ export class DualRunAsyncTicketStoreAdapter implements AsyncTicketStoreAdapter {
   }
 
   async addEmailVerificationTicket(ticket: StoredIamEmailVerificationTicket): Promise<void> {
-    await this.legacy.addEmailVerificationTicket(ticket);
-    if (this.mode.dualWrite || this.mode.readV2) {
+    if (this.mode.dualWrite) {
+      await this.legacy.addEmailVerificationTicket(ticket);
       await this.v2.addEmailVerificationTicket(ticket);
+      return;
     }
+    if (this.mode.readV2) {
+      await this.v2.addEmailVerificationTicket(ticket);
+      return;
+    }
+    await this.legacy.addEmailVerificationTicket(ticket);
   }
 
   async putEmailVerificationTicket(ticket: StoredIamEmailVerificationTicket): Promise<void> {
-    await this.legacy.putEmailVerificationTicket(ticket);
-    if (this.mode.dualWrite || this.mode.readV2) {
+    if (this.mode.dualWrite) {
+      await this.legacy.putEmailVerificationTicket(ticket);
       await this.v2.putEmailVerificationTicket(ticket);
+      return;
     }
+    if (this.mode.readV2) {
+      await this.v2.putEmailVerificationTicket(ticket);
+      return;
+    }
+    await this.legacy.putEmailVerificationTicket(ticket);
   }
 
   async getEmailVerificationTicket(realmId: string, ticketId: string): Promise<StoredIamEmailVerificationTicket | null> {
@@ -60,17 +84,29 @@ export class DualRunAsyncTicketStoreAdapter implements AsyncTicketStoreAdapter {
     userId: string,
     enrollment: StoredPendingIamMfaEnrollment,
   ): Promise<void> {
-    await this.legacy.replacePendingMfaEnrollmentForUser(realmId, userId, enrollment);
-    if (this.mode.dualWrite || this.mode.readV2) {
+    if (this.mode.dualWrite) {
+      await this.legacy.replacePendingMfaEnrollmentForUser(realmId, userId, enrollment);
       await this.v2.replacePendingMfaEnrollmentForUser(realmId, userId, enrollment);
+      return;
     }
+    if (this.mode.readV2) {
+      await this.v2.replacePendingMfaEnrollmentForUser(realmId, userId, enrollment);
+      return;
+    }
+    await this.legacy.replacePendingMfaEnrollmentForUser(realmId, userId, enrollment);
   }
 
   async putPendingMfaEnrollment(enrollment: StoredPendingIamMfaEnrollment): Promise<void> {
-    await this.legacy.putPendingMfaEnrollment(enrollment);
-    if (this.mode.dualWrite || this.mode.readV2) {
+    if (this.mode.dualWrite) {
+      await this.legacy.putPendingMfaEnrollment(enrollment);
       await this.v2.putPendingMfaEnrollment(enrollment);
+      return;
     }
+    if (this.mode.readV2) {
+      await this.v2.putPendingMfaEnrollment(enrollment);
+      return;
+    }
+    await this.legacy.putPendingMfaEnrollment(enrollment);
   }
 
   async getPendingMfaEnrollment(

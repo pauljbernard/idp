@@ -6,6 +6,7 @@ import {
   generateKeyPairSync,
   randomBytes,
   randomUUID,
+  scrypt,
   scryptSync,
   sign,
   timingSafeEqual,
@@ -32,6 +33,7 @@ import { DualRunAsyncIssuedTokenStoreAdapter } from './dynamo/runtimeAdapters/du
 import { DynamoAsyncIssuedTokenStoreAdapter } from './dynamo/runtimeAdapters/dynamoAsyncIssuedTokenStoreAdapter';
 import { LegacyAsyncIssuedTokenStoreAdapter } from './dynamo/runtimeAdapters/legacyAsyncIssuedTokenStoreAdapter';
 import { NoopAsyncIssuedTokenStoreAdapter } from './dynamo/runtimeAdapters/noopAsyncRuntimeAdapters';
+import { BOUNDED_SUPPORTED_SAML_SP_PROFILE } from './iamSamlSupportMatrixRuntime';
 import { LocalIamSessionIndexStore } from './iamSessionIndex';
 import { LocalIamTokenOwnershipIndexStore } from './iamTokenOwnershipIndex';
 import { LocalIamFoundationStore, type IamGroupRecord, type IamRoleRecord, type IamUserRecord } from './iamFoundation';
@@ -46,6 +48,7 @@ import {
   readCompatibilityBootstrapPassword,
   readCompatibilitySyntheticClientSecret,
 } from './legacyEnvironment';
+import { promisify } from 'util';
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -54,6 +57,7 @@ function clone<T>(value: T): T {
 const deferredPersistenceContext = new AsyncLocalStorage<{ dirty: boolean }>();
 const signingPrivateKeyCache = new Map<string, ReturnType<typeof createPrivateKey>>();
 const signingPublicKeyCache = new Map<string, ReturnType<typeof createPublicKey>>();
+const scryptAsync = promisify(scrypt);
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -141,6 +145,32 @@ function envKeyToken(value: string): string {
 const IAM_SECRET_HASH_VERSION = 'scrypt-v1';
 const IAM_SECRET_HASH_KEY_LENGTH = 64;
 const syntheticSecretHashVerificationCache = new Map<string, string>();
+const syntheticUserCredentialVerificationCache = new Map<string, string>();
+
+function syntheticUserCredentialCacheKey(user: IamUserRecord): string {
+  return `${user.realm_id}:${user.id}`;
+}
+
+function syntheticUserCredentialCacheValue(credential: StoredIamUserCredential, password: string): string {
+  const passwordFingerprint = createHash('sha256').update(password).digest('base64url');
+  return `${credential.password_hash}:${passwordFingerprint}`;
+}
+
+function clearSyntheticUserCredentialVerificationCache(user: IamUserRecord): void {
+  syntheticUserCredentialVerificationCache.delete(syntheticUserCredentialCacheKey(user));
+}
+
+function cacheSyntheticUserCredentialVerification(user: IamUserRecord, credential: StoredIamUserCredential, password: string): void {
+  syntheticUserCredentialVerificationCache.set(
+    syntheticUserCredentialCacheKey(user),
+    syntheticUserCredentialCacheValue(credential, password),
+  );
+}
+
+function isSyntheticUserCredentialCacheHit(user: IamUserRecord, credential: StoredIamUserCredential, password: string): boolean {
+  return syntheticUserCredentialVerificationCache.get(syntheticUserCredentialCacheKey(user))
+    === syntheticUserCredentialCacheValue(credential, password);
+}
 
 function hashSecret(value: string): string {
   const salt = randomBytes(16);
@@ -169,6 +199,34 @@ function verifySecretHash(storedHash: string, suppliedValue: string): { valid: b
       const salt = Buffer.from(saltEncoded, 'base64url');
       const expectedDigest = Buffer.from(digestEncoded, 'base64url');
       const suppliedDigest = scryptSync(suppliedValue, salt, expectedDigest.length);
+      return {
+        valid: timingSafeEqual(expectedDigest, suppliedDigest),
+        legacy: false,
+      };
+    } catch {
+      return { valid: false, legacy: false };
+    }
+  }
+
+  return {
+    valid: verifyLegacySha256Secret(storedHash, suppliedValue),
+    legacy: true,
+  };
+}
+
+async function verifySecretHashAsync(storedHash: string, suppliedValue: string): Promise<{ valid: boolean; legacy: boolean }> {
+  const [version, saltEncoded, digestEncoded] = storedHash.split('$');
+  if (
+    version === IAM_SECRET_HASH_VERSION
+    && typeof saltEncoded === 'string'
+    && saltEncoded.length > 0
+    && typeof digestEncoded === 'string'
+    && digestEncoded.length > 0
+  ) {
+    try {
+      const salt = Buffer.from(saltEncoded, 'base64url');
+      const expectedDigest = Buffer.from(digestEncoded, 'base64url');
+      const suppliedDigest = await scryptAsync(suppliedValue, salt, expectedDigest.length) as Buffer;
       return {
         valid: timingSafeEqual(expectedDigest, suppliedDigest),
         legacy: false,
@@ -1528,6 +1586,14 @@ function ensureRealmSeeds() {
   const seedSignature = `${LocalIamFoundationStore.getStateRevision()}:${buildCompatibilityCredentialEnvSignature()}`;
   const runtimeState = protocolRuntimeStateRepository.load();
   const signingKeys = signingKeyRepository.load();
+  const persistedSeedSnapshot = JSON.stringify({
+    clients: runtimeState.clients,
+    client_scopes: runtimeState.client_scopes,
+    protocol_mappers: runtimeState.protocol_mappers,
+    service_accounts: runtimeState.service_accounts,
+    user_credentials: runtimeState.user_credentials,
+    signing_keys: runtimeState.signing_keys,
+  });
 
   if (signingKeys.filter((key) => key.status === 'ACTIVE').length === 0) {
     signingKeys.push(generateSigningKey(null));
@@ -1549,6 +1615,16 @@ function ensureRealmSeeds() {
     .forEach((user) => {
       ensureUserCredentialRecord(user, { synthetic: true });
     });
+  if (persistedSeedSnapshot !== JSON.stringify({
+    clients: runtimeState.clients,
+    client_scopes: runtimeState.client_scopes,
+    protocol_mappers: runtimeState.protocol_mappers,
+    service_accounts: runtimeState.service_accounts,
+    user_credentials: runtimeState.user_credentials,
+    signing_keys: runtimeState.signing_keys,
+  })) {
+    protocolRuntimeStateRepository.save(runtimeState);
+  }
   lastRealmSeedSignature = seedSignature;
 }
 
@@ -2054,6 +2130,26 @@ function seedRealmRuntime(
       default_scope_ids: [samlScopeId],
       optional_scope_ids: [],
     },
+    {
+      client_id: 'saml-test-service-provider-live-local',
+      name: 'SAML Test Service Provider Live Local',
+      summary: 'Loopback SimpleSAMLphp service provider used for live bounded external SAML interoperability validation.',
+      protocol: 'SAML' as const,
+      access_type: 'CONFIDENTIAL' as const,
+      standard_flow_enabled: false,
+      direct_access_grants_enabled: true,
+      service_account_enabled: false,
+      redirect_uris: [
+        'https://127.0.0.1:19443/simplesaml/module.php/saml/sp/saml2-acs.php/default-sp',
+        'https://localhost:19443/simplesaml/module.php/saml/sp/saml2-acs.php/default-sp',
+        'https://127.0.0.1:29443/simplesaml/module.php/saml/sp/saml2-acs.php/default-sp',
+        'https://localhost:29443/simplesaml/module.php/saml/sp/saml2-acs.php/default-sp',
+      ],
+      base_url: 'https://127.0.0.1:19443',
+      root_url: 'https://127.0.0.1:19443',
+      default_scope_ids: [samlScopeId],
+      optional_scope_ids: [],
+    },
   ];
 
   defaultClientIds.forEach((clientSeed) => {
@@ -2228,6 +2324,11 @@ function ensureUserCredentialRecord(
       existing.synthetic = options?.synthetic ?? existing.synthetic;
       existing.updated_at = nowIso();
       persistStateSyncOnly();
+      if (existing.synthetic && nextPassword === defaultPasswordForUser(user)) {
+        cacheSyntheticUserCredentialVerification(user, existing, nextPassword);
+      } else {
+        clearSyntheticUserCredentialVerificationCache(user);
+      }
     }
     return existing;
   }
@@ -2241,6 +2342,11 @@ function ensureUserCredentialRecord(
   };
   credentials.push(record);
   persistStateSyncOnly();
+  if (record.synthetic) {
+    cacheSyntheticUserCredentialVerification(user, record, options?.password ?? defaultPasswordForUser(user));
+  } else {
+    clearSyntheticUserCredentialVerificationCache(user);
+  }
   return record;
 }
 
@@ -3131,14 +3237,65 @@ function validateUserPassword(realmId: string, username: string, password: strin
   if (!credential) {
     throw new Error('Invalid user credentials');
   }
+  if (
+    credential.synthetic
+    && password === defaultPasswordForUser(user)
+    && isSyntheticUserCredentialCacheHit(user, credential, password)
+  ) {
+    return user;
+  }
   const verification = verifySecretHash(credential.password_hash, password);
   if (!verification.valid) {
     throw new Error('Invalid user credentials');
+  }
+  if (credential.synthetic && password === defaultPasswordForUser(user)) {
+    cacheSyntheticUserCredentialVerification(user, credential, password);
+  } else {
+    clearSyntheticUserCredentialVerificationCache(user);
   }
   if (verification.legacy) {
     credential.password_hash = hashSecret(password);
     credential.updated_at = nowIso();
     persistStateSyncOnly();
+    if (credential.synthetic && password === defaultPasswordForUser(user)) {
+      cacheSyntheticUserCredentialVerification(user, credential, password);
+    }
+  }
+  return user;
+}
+
+async function validateUserPasswordAsync(realmId: string, username: string, password: string): Promise<IamUserRecord> {
+  const user = listUsersForRealm(realmId).find((candidate) => candidate.username === username || candidate.email === username);
+  if (!user) {
+    throw new Error('Invalid user credentials');
+  }
+  const credential = userCredentialRepository.load().find((candidate) => candidate.realm_id === realmId && candidate.user_id === user.id);
+  if (!credential) {
+    throw new Error('Invalid user credentials');
+  }
+  if (
+    credential.synthetic
+    && password === defaultPasswordForUser(user)
+    && isSyntheticUserCredentialCacheHit(user, credential, password)
+  ) {
+    return user;
+  }
+  const verification = await verifySecretHashAsync(credential.password_hash, password);
+  if (!verification.valid) {
+    throw new Error('Invalid user credentials');
+  }
+  if (credential.synthetic && password === defaultPasswordForUser(user)) {
+    cacheSyntheticUserCredentialVerification(user, credential, password);
+  } else {
+    clearSyntheticUserCredentialVerificationCache(user);
+  }
+  if (verification.legacy) {
+    credential.password_hash = hashSecret(password);
+    credential.updated_at = nowIso();
+    persistStateSyncOnly();
+    if (credential.synthetic && password === defaultPasswordForUser(user)) {
+      cacheSyntheticUserCredentialVerification(user, credential, password);
+    }
   }
   return user;
 }
@@ -3441,19 +3598,19 @@ function samlLogoutDestinationForClient(client: StoredIamClient): string {
 }
 
 function supportedSamlRequestBindings(): IamSamlBinding[] {
-  return ['REDIRECT'];
+  return [...BOUNDED_SUPPORTED_SAML_SP_PROFILE.request_bindings];
 }
 
 function supportedSamlResponseBindings(): IamSamlBinding[] {
-  return ['POST'];
+  return [...BOUNDED_SUPPORTED_SAML_SP_PROFILE.response_bindings];
 }
 
 function assertSupportedSamlRequestId(requestId: string | null): string {
   const normalizedRequestId = requestId?.trim() || '';
-  if (!normalizedRequestId) {
+  if (BOUNDED_SUPPORTED_SAML_SP_PROFILE.request_id_required && !normalizedRequestId) {
     throw new Error('SAML request_id is required for the current supported profile');
   }
-  if (normalizedRequestId.length > 256) {
+  if (normalizedRequestId.length > BOUNDED_SUPPORTED_SAML_SP_PROFILE.max_request_id_length) {
     throw new Error('SAML request_id exceeds the supported profile length limit');
   }
   return normalizedRequestId;
@@ -3476,34 +3633,37 @@ function assertSupportedSamlRequestProfile(
   const protocolBinding = parseOptionalXmlAttribute(requestXml, 'ProtocolBinding');
   if (
     protocolBinding
-    && protocolBinding !== 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+    && !BOUNDED_SUPPORTED_SAML_SP_PROFILE.response_bindings.some(
+      (binding) => protocolBinding === `urn:oasis:names:tc:SAML:2.0:bindings:HTTP-${binding}`,
+    )
   ) {
     throw new Error(`Unsupported SAML response binding for the current profile: ${protocolBinding}`);
   }
 
   const isPassive = parseOptionalXmlAttribute(requestXml, 'IsPassive');
-  if (isPassive === 'true') {
+  if (!BOUNDED_SUPPORTED_SAML_SP_PROFILE.passive_requests_supported && isPassive === 'true') {
     throw new Error('Passive SAML authentication requests are not supported for the current profile');
   }
 
   const nameIdFormat = parseOptionalXmlElementAttribute(requestXml, 'NameIDPolicy', 'Format');
   if (
     nameIdFormat
-    && nameIdFormat !== 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
-    && nameIdFormat !== 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified'
+    && !BOUNDED_SUPPORTED_SAML_SP_PROFILE.supported_nameid_formats.includes(nameIdFormat)
   ) {
     throw new Error(`Unsupported SAML NameIDPolicy format for the current profile: ${nameIdFormat}`);
   }
 
   const allowCreate = parseOptionalXmlElementAttribute(requestXml, 'NameIDPolicy', 'AllowCreate');
-  if (allowCreate === 'true') {
+  if (!BOUNDED_SUPPORTED_SAML_SP_PROFILE.allow_create_supported && allowCreate === 'true') {
     throw new Error('SAML NameIDPolicy AllowCreate=true is not supported for the current profile');
   }
 
   const requestedAuthnContextComparison = parseOptionalXmlElementAttribute(requestXml, 'RequestedAuthnContext', 'Comparison');
   if (
     requestedAuthnContextComparison
-    && requestedAuthnContextComparison !== 'exact'
+    && !BOUNDED_SUPPORTED_SAML_SP_PROFILE.supported_requested_authn_context_comparisons.includes(
+      requestedAuthnContextComparison,
+    )
   ) {
     throw new Error(`Unsupported RequestedAuthnContext comparison for the current profile: ${requestedAuthnContextComparison}`);
   }
@@ -3511,7 +3671,7 @@ function assertSupportedSamlRequestProfile(
   const authnContextClassRefs = parseXmlElementTextValues(requestXml, 'AuthnContextClassRef');
   if (
     authnContextClassRefs.some(
-      (value) => value !== 'urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport',
+      (value) => !BOUNDED_SUPPORTED_SAML_SP_PROFILE.supported_requested_authn_context_class_refs.includes(value),
     )
   ) {
     throw new Error('Unsupported RequestedAuthnContext class for the current profile');
@@ -3996,6 +4156,11 @@ export const LocalIamProtocolRuntimeStore = {
   validateUserCredentials(realmId: string, username: string, password: string): IamUserRecord {
     ensureRealmSeeds();
     return clone(validateUserPassword(realmId, username, password));
+  },
+
+  async validateUserCredentialsAsync(realmId: string, username: string, password: string): Promise<IamUserRecord> {
+    ensureRealmSeeds();
+    return clone(await validateUserPasswordAsync(realmId, username, password));
   },
 
   setUserPasswordSyncOnly(realmId: string, userId: string, password: string): {
@@ -5527,7 +5692,7 @@ export const LocalIamProtocolRuntimeStore = {
     const acsUrl = resolveRequestedSamlAcsUrl(client, null, issuer);
     const loginServiceUrl = samlLoginServiceUrl(issuer, client.client_id);
     const logoutServiceUrl = samlLogoutServiceUrl(issuer, client.client_id);
-    const metadataXml = `<?xml version="1.0" encoding="UTF-8"?><EntityDescriptor entityID="${escapeXml(issuer)}" xmlns="urn:oasis:names:tc:SAML:2.0:metadata"><IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">${buildSamlSigningKeyDescriptorXml(signingKey)}<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="${escapeXml(loginServiceUrl)}"/><SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="${escapeXml(logoutServiceUrl)}"/></IDPSSODescriptor><Extensions xmlns:idp="https://idp.local/iam"><idp:ServiceProvider clientId="${escapeXml(client.client_id)}" assertionConsumerService="${escapeXml(acsUrl)}" requestBinding="REDIRECT" responseBinding="POST" exactAcsMatchRequired="true" signingKeyId="${escapeXml(signingKey.key_id)}"/></Extensions></EntityDescriptor>`;
+    const metadataXml = `<?xml version="1.0" encoding="UTF-8"?><EntityDescriptor entityID="${escapeXml(issuer)}" xmlns="urn:oasis:names:tc:SAML:2.0:metadata"><IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">${buildSamlSigningKeyDescriptorXml(signingKey)}<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-${escapeXml(BOUNDED_SUPPORTED_SAML_SP_PROFILE.request_bindings[0])}" Location="${escapeXml(loginServiceUrl)}"/><SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-${escapeXml(BOUNDED_SUPPORTED_SAML_SP_PROFILE.request_bindings[0])}" Location="${escapeXml(logoutServiceUrl)}"/></IDPSSODescriptor><Extensions xmlns:idp="https://idp.local/iam"><idp:ServiceProvider clientId="${escapeXml(client.client_id)}" assertionConsumerService="${escapeXml(acsUrl)}" requestBinding="${escapeXml(BOUNDED_SUPPORTED_SAML_SP_PROFILE.request_bindings[0])}" responseBinding="${escapeXml(BOUNDED_SUPPORTED_SAML_SP_PROFILE.response_bindings[0])}" exactAcsMatchRequired="${String(BOUNDED_SUPPORTED_SAML_SP_PROFILE.exact_acs_match_required)}" signingKeyId="${escapeXml(signingKey.key_id)}"/></Extensions></EntityDescriptor>`;
     return {
       realm_id: realmId,
       client_id: client.client_id,

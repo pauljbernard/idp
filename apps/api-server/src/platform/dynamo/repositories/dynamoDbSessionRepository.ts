@@ -15,6 +15,7 @@ export class DynamoDbSessionRepository implements SessionRepository {
     const response = await this.client.send(new GetCommand({
       TableName: this.tableName,
       Key: runtimeKeys.session(sessionId),
+      ConsistentRead: true,
     }));
     const item = response.Item as AccountSessionItem | undefined;
     if (!item || item.realm_id !== realmId) {

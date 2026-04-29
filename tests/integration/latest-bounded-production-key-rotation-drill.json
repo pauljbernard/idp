@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-04-28T22:25:08.405Z",
+  "environment": "http://127.0.0.1:4114",
+  "persistence_backend": "dynamodb-s3",
+  "runtime_table": "idp-iam-runtime-local",
+  "checks": {
+    "all_steps_passed": true,
+    "overall_pass": true,
+    "realm_id": "realm-idp-default",
+    "rotation_id": "iam-key-rotation-c641bbfa-4732-4695-bf79-a9954e9fe94a",
+    "rotation_replay_same_id": true,
+    "activated_key_record_id": "iam-key-9ba24caa-36e4-41ca-8f67-b1c2be34bbab",
+    "activated_key_id": "kid-5d8c4f13-646",
+    "pre_rotation_token_kid": "kid-e9c0a99a-aef",
+    "post_rotation_token_kid": "kid-5d8c4f13-646",
+    "old_token_still_active_after_rotation": true,
+    "new_token_active_after_rotation": true,
+    "jwks_contains_old_kid": true,
+    "jwks_contains_new_kid": true,
+    "active_run_cleared": true,
+    "rotation_count_before": 1,
+    "rotation_count_after": 2,
+    "first_token_subject_before_rotation": "iam-user-idp-super-admin",
+    "first_token_subject_after_rotation": "iam-user-idp-super-admin",
+    "second_token_subject_after_rotation": "iam-user-idp-super-admin"
+  }
+}

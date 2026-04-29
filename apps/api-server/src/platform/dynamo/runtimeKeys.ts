@@ -24,6 +24,20 @@ export const runtimeKeys = {
     };
   },
 
+  accountSecurityState(realmId: string, userId: string): { pk: string; sk: string } {
+    return {
+      pk: `USERSTATE#${realmId}#${userId}`,
+      sk: 'ACCOUNTSECURITY',
+    };
+  },
+
+  userLockoutState(realmId: string, userId: string): { pk: string; sk: string } {
+    return {
+      pk: `USERSTATE#${realmId}#${userId}`,
+      sk: 'LOCKOUT',
+    };
+  },
+
   loginTransaction(transactionId: string): { pk: string; sk: string } {
     return {
       pk: `TICKET#${transactionId}`,
@@ -49,6 +63,13 @@ export const runtimeKeys = {
     return {
       pk: `TICKET#${enrollmentId}`,
       sk: 'PENDINGMFA',
+    };
+  },
+
+  loginAttempt(attemptId: string): { pk: string; sk: string } {
+    return {
+      pk: `LOGINATTEMPT#${attemptId}`,
+      sk: 'ATTEMPT',
     };
   },
 
@@ -111,6 +132,13 @@ export const runtimeKeys = {
     return {
       gsi1pk: `USER#${userId}`,
       gsi1sk: `LOGINTRANSACTION#${createdAt}#${transactionId}`,
+    };
+  },
+
+  loginAttemptsByUser(userId: string, occurredAt: string, attemptId: string): { gsi1pk: string; gsi1sk: string } {
+    return {
+      gsi1pk: `USER#${userId}`,
+      gsi1sk: `LOGINATTEMPT#${occurredAt}#${attemptId}`,
     };
   },
 };

@@ -1,0 +1,54 @@
+{
+  "generated_at": "2026-04-29T01:34:29.260Z",
+  "suite": "bounded-saml-sp-live-external-target",
+  "evidence_class": "external-interoperability-candidate",
+  "target": {
+    "target_id": "simplesamlphp-live-bounded-profile",
+    "target_name": "SimpleSAMLphp live bounded profile",
+    "target_kind": "live-external-candidate",
+    "validation_mode": "live-external"
+  },
+  "supported_profile_id": "saml-sp-bounded-redirect-post-v1",
+  "checks": {
+    "overall_pass": true,
+    "metadata_status": 200,
+    "metadata_declares_redirect_request_binding": true,
+    "metadata_declares_post_response_binding": true,
+    "metadata_declares_exact_acs_match": true,
+    "support_matrix_profile_id": "saml-sp-bounded-redirect-post-v1",
+    "support_matrix_request_bindings": [
+      "REDIRECT"
+    ],
+    "support_matrix_response_bindings": [
+      "POST"
+    ],
+    "anonymous_request_status": 400,
+    "anonymous_request_rejected": true,
+    "unsupported_request_status": 400,
+    "unsupported_request_rejected": true,
+    "supported_request_xml_accepted": true,
+    "request_fixture_path": ".tmp/integration/bounded-saml-sp-live-external-target/generated-live-external-authn-request.xml",
+    "tracked_request_status": 200,
+    "tracked_request_binding": "REDIRECT",
+    "tracked_request_id": "simplesamlphp-live-request-1",
+    "login_status": 200,
+    "login_contains_signature": true,
+    "login_contains_expected_audience": true,
+    "login_contains_expected_authn_context": true,
+    "login_echoes_relay_state": true,
+    "login_contains_in_response_to_supported_request": true,
+    "logout_status": 200,
+    "logout_contains_signature": true,
+    "logout_contains_in_response_to": true,
+    "uncorrelated_logout_status": 400,
+    "uncorrelated_logout_rejected": true,
+    "idp_initiated_status": 200,
+    "idp_initiated_request_id_present": true,
+    "idp_initiated_mode": "IDP_INITIATED",
+    "idp_initiated_login_status": 200,
+    "idp_initiated_login_echoes_request_id": true,
+    "idp_initiated_login_echoes_relay_state": true,
+    "idp_initiated_response_contains_destination": true,
+    "idp_initiated_request_completed": true
+  }
+}

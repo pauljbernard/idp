@@ -6,8 +6,8 @@ status: stable
 version: "1.0"
 dependencies: [platform-architecture]
 support_tier: "profile-specific"
-maturity_state: "mixed-by-deployment-mode"
-supported_profiles: [local-filesystem-proving-runtime]
+maturity_state: "supported-for-bounded-production"
+supported_profiles: [local-filesystem-proving-runtime, aws-single-region-cost-optimized, aws-single-region-bounded-multi-instance]
 evidence_class: "internal-runtime"
 tags: [specification, technical, operations]
 last_updated: "2026-04-12"
@@ -23,6 +23,8 @@ Last updated: 2026-04-11
 - Maturity state: `Mixed by deployment mode`
 - Supported profiles:
   - `local-filesystem-proving-runtime`
+  - `aws-single-region-cost-optimized`
+  - `aws-single-region-bounded-multi-instance`
 - Evidence class: `Internal runtime`
 
 ## Purpose
@@ -33,22 +35,25 @@ This document is the Phase 0 support matrix for deployment and operating-mode cl
 
 | Deployment mode | Current maturity | Evidence class | Current posture | Support decision | Next gate |
 | --- | --- | --- | --- | --- | --- |
-| Local filesystem proving runtime | Supported | Internal runtime | Real and actively used for development and validation | Supported for local proving and development use | Preserve |
-| Shared durable runtime repositories under runtime flags | Implemented | Internal runtime | Significant migration work exists, but the state plane is not yet fully authoritative across major IAM domains | Not yet production-grade | Complete Phase 1 state-plane work |
-| AWS-native serverless-first reference architecture | Modeled | Synthetic | Strong target posture in spec and deployment modeling | Architecture target only | Operational deployment and cost/resilience evidence |
-| Multi-instance concurrent runtime | Implemented in parts, not yet credible overall | Internal runtime | Some async reload and propagation tests exist, but not enough for full product support | Not yet supported as a broad product claim | Concurrent-instance proof for major IAM domains |
-| Rolling-upgrade / multi-site / HA topology | Modeled absent | Synthetic | No meaningful runtime evidence | Deferred | Explicit defer or later HA work |
+| Local filesystem proving runtime | Supported | Internal runtime | Real and actively used for development and validation | Supported for local proving and development use only | Preserve |
+| AWS single-region cost-optimized bounded production | Supported | Internal runtime | Shared-durable runtime and runtime evidence now support a bounded single-region production claim | Supported for bounded production | Add operator runbook and release-gate evidence |
+| AWS single-region bounded multi-instance production | Supported | Internal runtime | Multi-instance runtime correctness is now evidence-backed for the bounded shared-durable runtime path | Supported for bounded production | Publish rolling-upgrade and operator posture explicitly |
+| AWS-native serverless-first reference architecture beyond bounded profiles | Modeled | Synthetic | Strong target posture in spec and deployment modeling remains broader than current supported claims | Architecture target only | Operational deployment and cost/resilience evidence |
+| Rolling-upgrade single-region production profile | Deferred explicitly | Synthetic | Governed deferment exists; no governed rolling-upgrade evidence exists | Deferred | Reopen only in a later HA phase |
+| Multi-site or multi-region warm-standby production profile | Deferred explicitly | Synthetic | Governed deferment exists; no governed multi-region operating evidence exists | Deferred | Reopen only in a later HA phase |
 
 ## Current Claim Boundary
 
 The product may claim:
 
 - a strong local proving runtime,
+- bounded single-region AWS production support,
+- bounded single-region multi-instance runtime support,
 - a clear AWS-native/serverless-first architecture target,
-- and ongoing migration toward shared durable runtime repositories.
+- and ongoing migration beyond those bounded profiles toward broader operating credibility.
 
 The product shall not yet claim:
 
-- production-grade shared durable state,
-- multi-instance HA credibility,
-- or multi-site / rolling-upgrade support.
+- rolling-upgrade support,
+- multi-site or multi-region warm-standby support,
+- or general HA parity outside the explicitly declared bounded single-region profiles.

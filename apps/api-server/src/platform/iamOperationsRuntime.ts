@@ -4,7 +4,14 @@ import {
   LocalIamAdvancedOAuthRuntimeStore,
   type IamAdvancedOAuthTransientStateMaintenanceResult,
 } from './iamAdvancedOAuthRuntime';
-import { loadOrCreatePersistedState, reloadOrCreatePersistedStateAsync, savePersistedState, savePersistedStateAsync } from './persistence';
+import {
+  loadOrCreatePersistedState,
+  readDurableArtifact,
+  reloadOrCreatePersistedStateAsync,
+  savePersistedState,
+  savePersistedStateAsync,
+  writeDurableArtifact,
+} from './persistence';
 import {
   LocalIamAuthenticationRuntimeStore,
   type IamAuthenticationTransientStateMaintenanceResult,
@@ -124,7 +131,7 @@ interface StoredIamBackupArtifactRecord {
     active_session_count: number;
     active_signing_key_count: number;
   };
-  snapshot: IamOperationsSnapshot;
+  snapshot?: IamOperationsSnapshot | null;
 }
 
 export interface IamBackupArtifactRecord {
@@ -1084,6 +1091,31 @@ function toPublicBackup(record: StoredIamBackupArtifactRecord): IamBackupArtifac
   };
 }
 
+function materializeBackupSnapshot(record: StoredIamBackupArtifactRecord): IamOperationsSnapshot {
+  if (record.snapshot) {
+    return clone(record.snapshot);
+  }
+
+  const durableArtifact = readDurableArtifact(record.object_key);
+  if (!durableArtifact) {
+    throw new Error(`Missing durable backup artifact for ${record.id} at ${record.object_key}`);
+  }
+
+  let parsedSnapshot: unknown;
+  try {
+    parsedSnapshot = JSON.parse(durableArtifact.content);
+  } catch (error) {
+    throw new Error(`Failed to parse durable backup artifact for ${record.id}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  const checksum = hashSnapshot(parsedSnapshot);
+  if (checksum !== record.checksum_sha256) {
+    throw new Error(`Checksum mismatch for durable backup artifact ${record.id}`);
+  }
+
+  return clone(parsedSnapshot as IamOperationsSnapshot);
+}
+
 function evaluateReadinessChecks(operationsState: IamOperationsRuntimeState = state): IamReadinessCheck[] {
   const foundationSummary = LocalIamFoundationStore.getSummary();
   const protocolSummary = LocalIamProtocolRuntimeStore.getSummary();
@@ -1412,16 +1444,18 @@ export const LocalIamOperationsRuntimeStore = {
     const { snapshot, summary } = collectSnapshot();
     const backupId = `iam-backup-${randomUUID()}`;
     const label = input?.label?.trim() || `Standalone IAM backup ${new Date().toLocaleString()}`;
+    const objectKey = `iam/operations/backups/${backupId}.json`;
+    const durableArtifact = writeDurableArtifact(objectKey, JSON.stringify(snapshot));
     const record: StoredIamBackupArtifactRecord = {
       id: backupId,
       label,
       status: 'READY',
-      checksum_sha256: hashSnapshot(snapshot),
-      object_key: `iam/operations/backups/${backupId}.json`,
+      checksum_sha256: durableArtifact.checksum_sha256,
+      object_key: objectKey,
       created_at: nowIso(),
       created_by_user_id: actorUserId,
       summary,
-      snapshot,
+      snapshot: null,
     };
     state.backups.unshift(record);
     state.backups = state.backups.slice(0, 50);
@@ -1449,16 +1483,18 @@ export const LocalIamOperationsRuntimeStore = {
       const { snapshot, summary } = collectSnapshot();
       const backupId = `iam-backup-${randomUUID()}`;
       const label = input?.label?.trim() || `Standalone IAM backup ${new Date().toLocaleString()}`;
+      const objectKey = `iam/operations/backups/${backupId}.json`;
+      const durableArtifact = writeDurableArtifact(objectKey, JSON.stringify(snapshot));
       const record: StoredIamBackupArtifactRecord = {
         id: backupId,
         label,
         status: 'READY',
-        checksum_sha256: hashSnapshot(snapshot),
-        object_key: `iam/operations/backups/${backupId}.json`,
+        checksum_sha256: durableArtifact.checksum_sha256,
+        object_key: objectKey,
         created_at: nowIso(),
         created_by_user_id: actorUserId,
         summary,
-        snapshot,
+        snapshot: null,
       };
       persistedState.backups.unshift(record);
       persistedState.backups = persistedState.backups.slice(0, 50);
@@ -1506,24 +1542,25 @@ export const LocalIamOperationsRuntimeStore = {
     if (!backup) {
       throw new Error(`Unknown IAM backup artifact: ${backupId}`);
     }
+    const snapshot = materializeBackupSnapshot(backup);
 
     if (mode === 'EXECUTE') {
-      LocalIamFoundationStore.importState(backup.snapshot.foundation);
-      LocalIamAuthFlowStore.importState(backup.snapshot.auth_flows ?? {});
-      LocalIamProtocolRuntimeStore.importState(backup.snapshot.protocol);
-      LocalIamAuthenticationRuntimeStore.importState(backup.snapshot.authentication);
-      LocalIamSessionIndexStore.importState(backup.snapshot.session_index ?? {});
-      LocalIamTokenOwnershipIndexStore.importState(backup.snapshot.token_ownership_index ?? {});
-      LocalIamFederationSessionIndexStore.importState(backup.snapshot.federation_session_index ?? {});
-      LocalIamWebAuthnStore.importState(backup.snapshot.webauthn ?? {});
-      LocalIamAuthorizationRuntimeStore.importState(backup.snapshot.authorization ?? {});
-      LocalIamAuthorizationServicesStore.importState(backup.snapshot.authorization_services ?? {});
-      LocalIamAdvancedOAuthRuntimeStore.importState(backup.snapshot.advanced_oauth ?? {});
-      LocalIamFederationRuntimeStore.importState(backup.snapshot.federation);
-      LocalIamExperienceRuntimeStore.importState(backup.snapshot.experience);
-      LocalIamUserProfileStore.importState(backup.snapshot.user_profiles ?? {});
-      LocalIamOrganizationStore.importState(backup.snapshot.organizations ?? {});
-      LocalIamSecurityAuditStore.importState(backup.snapshot.security_audit);
+      LocalIamFoundationStore.importState(snapshot.foundation);
+      LocalIamAuthFlowStore.importState(snapshot.auth_flows ?? {});
+      LocalIamProtocolRuntimeStore.importState(snapshot.protocol);
+      LocalIamAuthenticationRuntimeStore.importState(snapshot.authentication);
+      LocalIamSessionIndexStore.importState(snapshot.session_index ?? {});
+      LocalIamTokenOwnershipIndexStore.importState(snapshot.token_ownership_index ?? {});
+      LocalIamFederationSessionIndexStore.importState(snapshot.federation_session_index ?? {});
+      LocalIamWebAuthnStore.importState(snapshot.webauthn ?? {});
+      LocalIamAuthorizationRuntimeStore.importState(snapshot.authorization ?? {});
+      LocalIamAuthorizationServicesStore.importState(snapshot.authorization_services ?? {});
+      LocalIamAdvancedOAuthRuntimeStore.importState(snapshot.advanced_oauth ?? {});
+      LocalIamFederationRuntimeStore.importState(snapshot.federation);
+      LocalIamExperienceRuntimeStore.importState(snapshot.experience);
+      LocalIamUserProfileStore.importState(snapshot.user_profiles ?? {});
+      LocalIamOrganizationStore.importState(snapshot.organizations ?? {});
+      LocalIamSecurityAuditStore.importState(snapshot.security_audit);
     }
 
     const record: IamRestoreRecord = {
@@ -1555,6 +1592,7 @@ export const LocalIamOperationsRuntimeStore = {
     if (!backup) {
       throw new Error(`Unknown IAM backup artifact: ${backupId}`);
     }
+    const snapshot = materializeBackupSnapshot(backup);
     const idempotencyKey = normalizeIdempotencyKey(input?.idempotency_key);
     const existingRecord = resolveRecordedRestore(persistedState, actorUserId, backup.id, mode, idempotencyKey);
     if (existingRecord) {
@@ -1600,22 +1638,25 @@ export const LocalIamOperationsRuntimeStore = {
 
     const lease = await acquireRestoreLeaseAsync(actorUserId, backup.id, mode);
     try {
-      LocalIamFoundationStore.importState(backup.snapshot.foundation);
-      LocalIamAuthFlowStore.importState(backup.snapshot.auth_flows ?? {});
-      LocalIamProtocolRuntimeStore.importState(backup.snapshot.protocol);
-      LocalIamAuthenticationRuntimeStore.importState(backup.snapshot.authentication);
-      LocalIamSessionIndexStore.importState(backup.snapshot.session_index ?? {});
-      LocalIamTokenOwnershipIndexStore.importState(backup.snapshot.token_ownership_index ?? {});
-      LocalIamFederationSessionIndexStore.importState(backup.snapshot.federation_session_index ?? {});
-      LocalIamWebAuthnStore.importState(backup.snapshot.webauthn ?? {});
-      LocalIamAuthorizationRuntimeStore.importState(backup.snapshot.authorization ?? {});
-      LocalIamAuthorizationServicesStore.importState(backup.snapshot.authorization_services ?? {});
-      LocalIamAdvancedOAuthRuntimeStore.importState(backup.snapshot.advanced_oauth ?? {});
-      LocalIamFederationRuntimeStore.importState(backup.snapshot.federation);
-      LocalIamExperienceRuntimeStore.importState(backup.snapshot.experience);
-      LocalIamUserProfileStore.importState(backup.snapshot.user_profiles ?? {});
-      LocalIamOrganizationStore.importState(backup.snapshot.organizations ?? {});
-      LocalIamSecurityAuditStore.importState(backup.snapshot.security_audit);
+      if (!snapshot) {
+        throw new Error(`Unable to materialize backup snapshot for ${backup.id}`);
+      }
+      LocalIamFoundationStore.importState(snapshot.foundation);
+      LocalIamAuthFlowStore.importState(snapshot.auth_flows ?? {});
+      LocalIamProtocolRuntimeStore.importState(snapshot.protocol);
+      LocalIamAuthenticationRuntimeStore.importState(snapshot.authentication);
+      LocalIamSessionIndexStore.importState(snapshot.session_index ?? {});
+      LocalIamTokenOwnershipIndexStore.importState(snapshot.token_ownership_index ?? {});
+      LocalIamFederationSessionIndexStore.importState(snapshot.federation_session_index ?? {});
+      LocalIamWebAuthnStore.importState(snapshot.webauthn ?? {});
+      LocalIamAuthorizationRuntimeStore.importState(snapshot.authorization ?? {});
+      LocalIamAuthorizationServicesStore.importState(snapshot.authorization_services ?? {});
+      LocalIamAdvancedOAuthRuntimeStore.importState(snapshot.advanced_oauth ?? {});
+      LocalIamFederationRuntimeStore.importState(snapshot.federation);
+      LocalIamExperienceRuntimeStore.importState(snapshot.experience);
+      LocalIamUserProfileStore.importState(snapshot.user_profiles ?? {});
+      LocalIamOrganizationStore.importState(snapshot.organizations ?? {});
+      LocalIamSecurityAuditStore.importState(snapshot.security_audit);
 
       const record: IamRestoreRecord = {
         id: `iam-restore-${randomUUID()}`,

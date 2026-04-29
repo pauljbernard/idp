@@ -1,0 +1,188 @@
+{
+  "report_path": "/Volumes/data/development/hmh/idp/tests/integration/latest-runtime-distributed-bundle.json",
+  "bundle_generated_at": "2026-04-28T18:34:44.392Z",
+  "bundle_age_hours": 0,
+  "bundle_stale": false,
+  "environment": {
+    "aws_endpoint": "http://127.0.0.1:4566",
+    "state_table": "idp-platform-state-local",
+    "runtime_table": "idp-iam-runtime-local",
+    "rate_limit_table": "idp-rate-limit-local",
+    "durable_bucket": "idp-durable-local",
+    "runtime_dual_write": "true",
+    "runtime_read_v2": "true"
+  },
+  "bundle_checks": {
+    "total_steps": 6,
+    "passed_steps": 6,
+    "failed_steps": 0,
+    "all_steps_passed": true
+  },
+  "expected_steps": 6,
+  "actual_steps": 6,
+  "missing_step_count": 0,
+  "failed_step_count": 0,
+  "missing_steps": [],
+  "failed_steps": [],
+  "missing_artifact_count": 0,
+  "stale_artifact_count": 0,
+  "slow_convergence_count": 0,
+  "slow_token_abuse_diagnostic_count": 0,
+  "checks": {
+    "bundle_stale": false,
+    "missing_step_count": 0,
+    "failed_step_count": 0,
+    "missing_artifact_count": 0,
+    "stale_artifact_count": 0,
+    "slow_convergence_count": 0,
+    "slow_token_abuse_diagnostic_count": 0,
+    "overall_pass": true
+  },
+  "artifacts": [
+    {
+      "label": "runtime-cutover-localstack",
+      "path": "/Volumes/data/development/hmh/idp/tests/integration/latest-runtime-cutover-localstack.json",
+      "exists": true,
+      "age_hours": 0.04,
+      "stale": false
+    },
+    {
+      "label": "runtime-session-maintenance-localstack",
+      "path": "/Volumes/data/development/hmh/idp/tests/integration/latest-runtime-session-maintenance-localstack.json",
+      "exists": true,
+      "age_hours": 0.03,
+      "stale": false
+    },
+    {
+      "label": "runtime-token-revocation-localstack",
+      "path": "/Volumes/data/development/hmh/idp/tests/integration/latest-runtime-token-revocation-localstack.json",
+      "exists": true,
+      "age_hours": 0.02,
+      "stale": false
+    },
+    {
+      "label": "runtime-multi-instance-localstack",
+      "path": "/Volumes/data/development/hmh/idp/tests/integration/latest-runtime-multi-instance-localstack.json",
+      "exists": true,
+      "age_hours": 0.01,
+      "stale": false
+    },
+    {
+      "label": "security-token-abuse",
+      "path": "/Volumes/data/development/hmh/idp/tests/security/latest-token-abuse-report.json",
+      "exists": true,
+      "age_hours": 0,
+      "stale": false
+    }
+  ],
+  "step_results": [
+    {
+      "name": "verify-distributed-test-env",
+      "status": "passed",
+      "started_at": "2026-04-28T18:32:13.696Z",
+      "completed_at": "2026-04-28T18:32:14.025Z",
+      "duration_ms": 329,
+      "exit_code": 0,
+      "artifact": null,
+      "artifact_present": null,
+      "log_path": "/Volumes/data/development/hmh/idp/tests/integration/runtime-distributed-bundle-logs/verify-distributed-test-env.log",
+      "log_present": true,
+      "spawn_error": null
+    },
+    {
+      "name": "runtime-cutover-localstack",
+      "status": "passed",
+      "started_at": "2026-04-28T18:32:14.025Z",
+      "completed_at": "2026-04-28T18:32:41.906Z",
+      "duration_ms": 27881,
+      "exit_code": 0,
+      "artifact": "/Volumes/data/development/hmh/idp/tests/integration/latest-runtime-cutover-localstack.json",
+      "artifact_present": true,
+      "log_path": "/Volumes/data/development/hmh/idp/tests/integration/runtime-distributed-bundle-logs/runtime-cutover-localstack.log",
+      "log_present": true,
+      "spawn_error": null
+    },
+    {
+      "name": "runtime-session-maintenance-localstack",
+      "status": "passed",
+      "started_at": "2026-04-28T18:32:41.906Z",
+      "completed_at": "2026-04-28T18:33:06.921Z",
+      "duration_ms": 25015,
+      "exit_code": 0,
+      "artifact": "/Volumes/data/development/hmh/idp/tests/integration/latest-runtime-session-maintenance-localstack.json",
+      "artifact_present": true,
+      "log_path": "/Volumes/data/development/hmh/idp/tests/integration/runtime-distributed-bundle-logs/runtime-session-maintenance-localstack.log",
+      "log_present": true,
+      "spawn_error": null
+    },
+    {
+      "name": "runtime-token-revocation-localstack",
+      "status": "passed",
+      "started_at": "2026-04-28T18:33:06.921Z",
+      "completed_at": "2026-04-28T18:33:30.823Z",
+      "duration_ms": 23902,
+      "exit_code": 0,
+      "artifact": "/Volumes/data/development/hmh/idp/tests/integration/latest-runtime-token-revocation-localstack.json",
+      "artifact_present": true,
+      "log_path": "/Volumes/data/development/hmh/idp/tests/integration/runtime-distributed-bundle-logs/runtime-token-revocation-localstack.log",
+      "log_present": true,
+      "spawn_error": null
+    },
+    {
+      "name": "runtime-multi-instance-localstack",
+      "status": "passed",
+      "started_at": "2026-04-28T18:33:30.823Z",
+      "completed_at": "2026-04-28T18:34:16.606Z",
+      "duration_ms": 45783,
+      "exit_code": 0,
+      "artifact": "/Volumes/data/development/hmh/idp/tests/integration/latest-runtime-multi-instance-localstack.json",
+      "artifact_present": true,
+      "log_path": "/Volumes/data/development/hmh/idp/tests/integration/runtime-distributed-bundle-logs/runtime-multi-instance-localstack.log",
+      "log_present": true,
+      "spawn_error": null
+    },
+    {
+      "name": "security-token-abuse",
+      "status": "passed",
+      "started_at": "2026-04-28T18:34:16.606Z",
+      "completed_at": "2026-04-28T18:34:44.392Z",
+      "duration_ms": 27786,
+      "exit_code": 0,
+      "artifact": "/Volumes/data/development/hmh/idp/tests/security/latest-token-abuse-report.json",
+      "artifact_present": true,
+      "log_path": "/Volumes/data/development/hmh/idp/tests/integration/runtime-distributed-bundle-logs/security-token-abuse.log",
+      "log_present": true,
+      "spawn_error": null
+    }
+  ],
+  "convergence_thresholds_ms": {
+    "first_session_visible_on_instance_b": 5000,
+    "first_token_active_on_instance_b": 5000,
+    "second_session_visible_on_instance_a": 5000,
+    "second_token_active_on_instance_a": 5000,
+    "first_session_revoked_on_instance_a": 7500,
+    "first_token_inactive_on_instance_a": 7500,
+    "second_session_still_active_on_instance_a": 5000,
+    "second_token_still_active_on_instance_a": 5000,
+    "second_session_revoked_on_instance_b": 7500,
+    "second_token_inactive_on_instance_b": 7500
+  },
+  "token_abuse_diagnostic_thresholds_ms": {
+    "login_with_consent_ms": 10000,
+    "issue_browser_token_ms": 10000,
+    "introspect_before_logout_ms": 5000,
+    "userinfo_before_logout_ms": 5000,
+    "refresh_grant_before_logout_ms": 7500,
+    "logout_ms": 7500,
+    "introspect_after_logout_ms": 5000,
+    "refresh_grant_after_logout_ms": 7500,
+    "replayed_userinfo_ms": 5000,
+    "password_reset_request_ms": 7500,
+    "password_reset_confirm_ms": 7500,
+    "password_reset_replay_ms": 5000,
+    "password_reset_wrong_code_ms": 5000
+  },
+  "failing_diagnostics": [],
+  "failing_token_abuse_diagnostics": [],
+  "overall_pass": true
+}

@@ -1,18 +1,24 @@
 import type {
+  StoredIamAccountSecurityState,
   StoredIamAccountSession,
   StoredIamEmailVerificationTicket,
+  StoredIamLoginAttempt,
   StoredIamLoginTransaction,
   StoredIamPasswordResetTicket,
   StoredPendingIamMfaEnrollment,
+  StoredIamUserLockoutState,
 } from '../iamAuthenticationRuntime';
 import type { StoredIamIssuedToken } from '../iamProtocolRuntime';
 import type {
+  AccountSecurityStateItem,
   AccountSessionItem,
   EmailVerificationTicketItem,
   IssuedTokenItem,
+  LoginAttemptItem,
   LoginTransactionItem,
   PasswordResetTicketItem,
   PendingMfaEnrollmentItem,
+  UserLockoutStateItem,
 } from './runtimeItems';
 import { runtimeKeys, toEpochSeconds } from './runtimeKeys';
 
@@ -64,6 +70,39 @@ export function fromAccountSessionItem(item: AccountSessionItem): StoredIamAccou
     session_proof_hash: item.session_proof_hash,
     federated_login_context: item.federated_login_context ? { ...item.federated_login_context } : null,
     synthetic: item.synthetic,
+  };
+}
+
+export function toAccountSecurityStateItem(record: StoredIamAccountSecurityState): AccountSecurityStateItem {
+  return {
+    ...runtimeKeys.accountSecurityState(record.realm_id, record.user_id),
+    entity_type: 'ACCOUNT_SECURITY_STATE',
+    realm_id: record.realm_id,
+    user_id: record.user_id,
+    email_verified_at: record.email_verified_at,
+    last_login_at: record.last_login_at,
+    last_password_updated_at: record.last_password_updated_at,
+    last_mfa_authenticated_at: record.last_mfa_authenticated_at,
+    last_passkey_authenticated_at: record.last_passkey_authenticated_at,
+    created_at: record.last_password_updated_at ?? record.last_login_at ?? new Date(0).toISOString(),
+    updated_at: record.last_login_at
+      ?? record.last_password_updated_at
+      ?? record.last_mfa_authenticated_at
+      ?? record.last_passkey_authenticated_at
+      ?? new Date(0).toISOString(),
+    version: 1,
+  };
+}
+
+export function fromAccountSecurityStateItem(item: AccountSecurityStateItem): StoredIamAccountSecurityState {
+  return {
+    realm_id: item.realm_id,
+    user_id: item.user_id,
+    email_verified_at: item.email_verified_at,
+    last_login_at: item.last_login_at,
+    last_password_updated_at: item.last_password_updated_at,
+    last_mfa_authenticated_at: item.last_mfa_authenticated_at,
+    last_passkey_authenticated_at: item.last_passkey_authenticated_at,
   };
 }
 
@@ -218,6 +257,66 @@ export function fromPendingMfaEnrollmentItem(item: PendingMfaEnrollmentItem): St
     created_at: item.created_at,
     expires_at: item.expires_at,
     consumed_at: item.consumed_at,
+  };
+}
+
+export function toLoginAttemptItem(record: StoredIamLoginAttempt): LoginAttemptItem {
+  return {
+    ...runtimeKeys.loginAttempt(record.id),
+    ...(record.user_id ? runtimeKeys.loginAttemptsByUser(record.user_id, record.occurred_at, record.id) : {}),
+    entity_type: 'LOGIN_ATTEMPT',
+    realm_id: record.realm_id,
+    attempt_id: record.id,
+    user_id: record.user_id,
+    username_or_email: record.username_or_email,
+    client_identifier: record.client_identifier,
+    outcome: record.outcome,
+    summary: record.summary,
+    occurred_at: record.occurred_at,
+    created_at: record.occurred_at,
+    updated_at: record.occurred_at,
+    version: 1,
+  };
+}
+
+export function fromLoginAttemptItem(item: LoginAttemptItem): StoredIamLoginAttempt {
+  return {
+    id: item.attempt_id,
+    realm_id: item.realm_id,
+    user_id: item.user_id,
+    username_or_email: item.username_or_email,
+    client_identifier: item.client_identifier,
+    outcome: item.outcome,
+    summary: item.summary,
+    occurred_at: item.occurred_at,
+  };
+}
+
+export function toUserLockoutStateItem(record: StoredIamUserLockoutState): UserLockoutStateItem {
+  return {
+    ...runtimeKeys.userLockoutState(record.realm_id, record.user_id),
+    entity_type: 'USER_LOCKOUT_STATE',
+    realm_id: record.realm_id,
+    user_id: record.user_id,
+    failed_attempt_count: record.failed_attempt_count,
+    last_failed_at: record.last_failed_at,
+    lockout_until: record.lockout_until,
+    locked_at: record.locked_at,
+    created_at: record.locked_at ?? record.last_failed_at ?? new Date(0).toISOString(),
+    updated_at: record.last_failed_at ?? record.lockout_until ?? record.locked_at ?? new Date(0).toISOString(),
+    version: 1,
+    expires_at_epoch: record.lockout_until ? toEpochSeconds(record.lockout_until) : undefined,
+  };
+}
+
+export function fromUserLockoutStateItem(item: UserLockoutStateItem): StoredIamUserLockoutState {
+  return {
+    realm_id: item.realm_id,
+    user_id: item.user_id,
+    failed_attempt_count: item.failed_attempt_count,
+    last_failed_at: item.last_failed_at,
+    lockout_until: item.lockout_until,
+    locked_at: item.locked_at,
   };
 }
 

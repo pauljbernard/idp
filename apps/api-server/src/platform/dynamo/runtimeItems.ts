@@ -3,12 +3,15 @@ export interface RuntimeBaseItem {
   sk: string;
   entity_type:
     | 'ACCOUNT_SESSION'
+    | 'ACCOUNT_SECURITY_STATE'
     | 'LOGIN_TRANSACTION'
+    | 'LOGIN_ATTEMPT'
     | 'PASSWORD_RESET_TICKET'
     | 'EMAIL_VERIFICATION_TICKET'
     | 'PENDING_MFA_ENROLLMENT'
     | 'ISSUED_TOKEN'
-    | 'ISSUED_TOKEN_LOOKUP';
+    | 'ISSUED_TOKEN_LOOKUP'
+    | 'USER_LOCKOUT_STATE';
   realm_id: string;
   created_at: string;
   updated_at: string;
@@ -46,6 +49,16 @@ export interface AccountSessionItem extends RuntimeBaseItem {
     external_subject: string;
   } | null;
   synthetic: boolean;
+}
+
+export interface AccountSecurityStateItem extends RuntimeBaseItem {
+  entity_type: 'ACCOUNT_SECURITY_STATE';
+  user_id: string;
+  email_verified_at: string | null;
+  last_login_at: string | null;
+  last_password_updated_at: string | null;
+  last_mfa_authenticated_at: string | null;
+  last_passkey_authenticated_at: string | null;
 }
 
 export interface LoginTransactionItem extends RuntimeBaseItem {
@@ -108,6 +121,26 @@ export interface PendingMfaEnrollmentItem extends RuntimeBaseItem {
   backup_codes: string[];
   expires_at: string;
   consumed_at: string | null;
+}
+
+export interface LoginAttemptItem extends RuntimeBaseItem {
+  entity_type: 'LOGIN_ATTEMPT';
+  attempt_id: string;
+  user_id: string | null;
+  username_or_email: string;
+  client_identifier: string | null;
+  outcome: 'SUCCESS' | 'FAILED_CREDENTIALS' | 'FAILED_MFA' | 'FAILED_PASSKEY' | 'LOCKED';
+  summary: string;
+  occurred_at: string;
+}
+
+export interface UserLockoutStateItem extends RuntimeBaseItem {
+  entity_type: 'USER_LOCKOUT_STATE';
+  user_id: string;
+  failed_attempt_count: number;
+  last_failed_at: string | null;
+  lockout_until: string | null;
+  locked_at: string | null;
 }
 
 export interface IssuedTokenItem extends RuntimeBaseItem {

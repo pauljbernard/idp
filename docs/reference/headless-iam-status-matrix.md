@@ -6,12 +6,12 @@ status: stable
 version: "1.0"
 dependencies: []
 tags: [reference, lookup, headless-iam-status-matrix.md]
-last_updated: "2026-04-12"
+last_updated: "2026-04-28"
 related: []
 ---
 # Headless IAM Status Matrix
 
-Last updated: 2026-04-11
+Last updated: 2026-04-28
 
 ## Purpose
 
@@ -51,16 +51,17 @@ The current standalone IAM implementation is best described as:
 
 - constitutionally aligned in product direction,
 - feature-rich enough to support a serious standalone IAM release candidate,
-- not yet support-matrix complete,
-- not yet production-grade as a full standalone IdP,
-- and not yet parity-credible outside a narrow supported OIDC surface.
+- now materially credible for bounded single-region standalone deployment,
+- not yet support-matrix complete across the full protocol and federation surface,
+- not yet production-grade as a broad standalone IdP,
+- and not yet parity-credible with Keycloak outside bounded supported profiles.
 
 The primary maturity blockers remain:
 
-- process-local state and shared-state credibility,
 - standards hardening for passkeys and SAML,
 - live federation adapter depth,
-- and evidence quality beyond synthetic or internal validation.
+- stronger HA posture beyond bounded single-region support,
+- and evidence quality beyond LocalStack-backed validation in a real target environment.
 
 Architectural boundary correction has also progressed in the current workspace:
 
@@ -76,20 +77,14 @@ Operational readiness evidence has improved materially in the current workspace:
 - restore readiness now requires a validated `DRY_RUN` rehearsal that matches the current backup lineage
 - recovery drill evidence now distinguishes checksum-valid restore lineage from current-backup targeting, and both readiness and health degrade when a drill was run against an older backup or when drill evidence is stale
 - those gates are now exercised through direct runtime tests and authenticated HTTP surfaces for operations health, recovery, and readiness review
+- the distributed runtime bundle, bundle verification, security token-abuse lane, and bounded-production operational drills are now all executed and release-gated through the consolidated report
 
-Current live workspace evidence on 2026-04-11 reinforces that assessment:
+Current live workspace evidence on 2026-04-28 reinforces that assessment:
 
-- the local API now serves the expected browser-bootstrap compatibility contract at `/api/v1/auth/iam/config`
-- the live IAM operations health route returns `overall_status=DEGRADED`
-- the most important active blocker remains `runtime-cutover-readiness=WARN`, because shared-durable v2 runtime activation has not yet been proven in a target environment
-- a dual-write rehearsal with `IDP_DDB_RUNTIME_DUAL_WRITE=true` correctly drives the live health route to `overall_status=FAILED` with explicit `NOOP_FALLBACK` for sessions, tickets, login transactions, and issued tokens, which confirms the current blocker is shared runtime infrastructure rather than missing cutover observability
-- a subsequent local Dynamo-backed rehearsal now proves the positive path as well: with `IDP_IAM_RUNTIME_DDB_TABLE` and `IDP_DYNAMODB_ENDPOINT` set to a reachable runtime table, `runtime-cutover-readiness=PASS` and all Sequence A entity families resolve to `DYNAMO_V2_ACTIVE`
-- a governed local Stage 2 ticket-path run now also exists for password reset, email verification, and MFA enrollment in [Headless IAM Ticket Local Dynamo Evidence](../implementation/deployment/headless-iam-ticket-local-dynamo-evidence.md), including direct v2 table evidence and post-restart continuity
-- one Dynamo-backed pending-MFA replacement semantic gap was discovered during that run and closed in code with targeted regression coverage, which improves local Phase 1 confidence but does not replace the shared-environment claim gate
-- a governed local Stage 2 session-path run now exists in [Headless IAM Session Local Dynamo Evidence](../implementation/deployment/headless-iam-session-local-dynamo-evidence.md), covering session creation, touch, listing, targeted revoke, revoke-other-sessions, restart continuity, and expired-session rejection on the Dynamo-backed runtime
-- two session read-path gaps were found during that run and corrected so `/account/sessions` and `/account/session` now honor the v2-backed async resolver path when runtime cutover flags are enabled
-- a governed local Stage 2 issued-token run now exists in [Headless IAM Issued Token Local Dynamo Evidence](../implementation/deployment/headless-iam-issued-token-local-dynamo-evidence.md), covering authorization-code issuance, password-grant issuance, refresh exchange, direct revoke, browser-session-linked revoke, subject-wide revoke, direct v2 table evidence, and restart continuity for active and revoked tokens
-- this means every `Sequence A` runtime entity family now has local positive-path proof on the Dynamo-backed Stage 2 runtime, while the formal claim gate still remains blocked on repetition in the intended shared target environment
+- the distributed runtime bundle now passes end-to-end, including cutover, session maintenance, token revocation, multi-instance correctness, and token-abuse evidence, with fresh artifacts recorded in [test-results-report.json](../../test-results-report.json)
+- bounded-production backup/restore rehearsal, signing-key rotation drill, and runtime dependency failure drill all pass and now degrade readiness correctly when evidence or durable artifacts are corrupted
+- supported deployment profile publication is now explicit: local proving, bounded single-region cost-optimized, and bounded single-region multi-instance profiles are supported; rolling-upgrade and multi-site profiles have governed explicit-deferment decisions rather than implied absence
+- the remaining credibility gap is no longer bounded-runtime correctness; it is the remaining protocol/federation breadth and the absence of external target-environment evidence beyond LocalStack-backed shared validation
 
 ## Status Matrix
 
@@ -105,7 +100,7 @@ Current live workspace evidence on 2026-04-11 reinforces that assessment:
 | SAML IdP lifecycle | Core release | Implemented, not yet supported | Internal runtime | Metadata, auth, continue, login, logout, and session handling exist, and ACS matching is now exact/non-wildcard, but the supported SP profile set is not yet fully hardened | [iamProtocolRuntime.ts](../../apps/api-server/src/platform/iamProtocolRuntime.ts), [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts), [tests/journeys/saml-idp.spec.ts](../../tests/journeys/saml-idp.spec.ts) | Define supported SAML profiles and harden assertions and logout |
 | Configurable auth flows and required actions | Core release | Implemented | Internal runtime | Runtime and admin surface are present | [server.ts](../../apps/api-server/src/server.ts) | Expand authenticator depth and declare supported execution combinations |
 | Identity brokering: OIDC and SAML | Core release | Experimental | Internal runtime | Broker catalog and broker login work, but the current posture still depends on synthetic-first external providers | [iamFederationRuntime.ts](../../apps/api-server/src/platform/iamFederationRuntime.ts), [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts), [server.ts](../../apps/api-server/src/server.ts) | Replace synthetic-first broker adapters with live supported profiles |
-| Backup, restore, key rotation, resilience, readiness review | Core release | Implemented, not yet supported | Internal runtime | Strong productized operations surface exists and now enforces freshness, secret-key-source hardening, restore lineage, and recovery-drill lineage gates, but the evidence still remains local/internal rather than production operational proof | [iamOperationsRuntime.ts](../../apps/api-server/src/platform/iamOperationsRuntime.ts), [iamRecoveryRuntime.ts](../../apps/api-server/src/platform/iamRecoveryRuntime.ts), [iamHealthRuntime.ts](../../apps/api-server/src/platform/iamHealthRuntime.ts), [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts), [server.ts](../../apps/api-server/src/server.ts) | Repeat these gated rehearsals in the intended shared target environment and capture operational evidence artifacts |
+| Backup, restore, key rotation, resilience, readiness review | Core release | Supported for a bounded profile | Operational | The operations surface is now release-gated through bounded-production rehearsals for backup/restore, signing-key rotation, recovery readiness, and dependency-failure degradation, but it is still not externally validated in a non-LocalStack target environment | [iamOperationsRuntime.ts](../../apps/api-server/src/platform/iamOperationsRuntime.ts), [iamRecoveryRuntime.ts](../../apps/api-server/src/platform/iamRecoveryRuntime.ts), [iamHealthRuntime.ts](../../apps/api-server/src/platform/iamHealthRuntime.ts), [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts), [server.ts](../../apps/api-server/src/server.ts), [test-results-report.json](../../test-results-report.json) | Repeat the bounded-production operator evidence in the intended shared target environment and publish that evidence as the next claim gate |
 | Dynamic client registration and client policies | Parity track | Supported for a bounded profile | External interoperability | Real routes, policy objects, initial and registration access tokens, and journey evidence exist | [iamAdvancedOAuthRuntime.ts](../../apps/api-server/src/platform/iamAdvancedOAuthRuntime.ts), [tests/journeys/oidc-dynamic-registration.spec.ts](../../tests/journeys/oidc-dynamic-registration.spec.ts) | Harden semantics and elevate from bounded support to parity-grade support |
 | PAR, device authorization, CIBA, token exchange | Parity track | Implemented to narrowly supported | External interoperability | Routed and partially journey-tested, but only bounded support should be claimed today | [server.ts](../../apps/api-server/src/server.ts), [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts), [tests/journeys/oidc-device-flow.spec.ts](../../tests/journeys/oidc-device-flow.spec.ts), [tests/journeys/oidc-token-exchange.spec.ts](../../tests/journeys/oidc-token-exchange.spec.ts) | Publish supported profile matrix and close remaining interoperability gaps |
 | Fine-grained admin authorization and impersonation | Parity track | Implemented | Internal runtime | Permission, policy, evaluation, and impersonation surfaces exist | [iamAdminAuthorization.ts](../../apps/api-server/src/platform/iamAdminAuthorization.ts), [server.ts](../../apps/api-server/src/server.ts) | Broaden coverage and prove resource-bound evaluation semantics |
@@ -116,10 +111,10 @@ Current live workspace evidence on 2026-04-11 reinforces that assessment:
 | Application-binding and consumer contracts | Differentiator track | Supported | Internal runtime | One of the strongest unique surfaces in the product | [server.ts](../../apps/api-server/src/server.ts), [apps/api-server/test/applicationConsumerRuntime.test.ts](../../apps/api-server/test/applicationConsumerRuntime.test.ts) | Preserve and document as a supported differentiator |
 | Privacy-aware projection and attribute governance | Differentiator track | Supported | Internal runtime | Concrete schema and governance model exists | [iamUserProfiles.ts](../../apps/api-server/src/platform/iamUserProfiles.ts) | Preserve and align to regulated-profile support matrices |
 | Explicit readiness, recovery, and review evidence | Differentiator track | Implemented | Internal runtime | Strong differentiator candidate with concrete policy gates for freshness, key-source hardening, restore lineage, and recovery-drill lineage, but evidence quality is still too internal for broader market claims | [iamOperationsRuntime.ts](../../apps/api-server/src/platform/iamOperationsRuntime.ts), [iamRecoveryRuntime.ts](../../apps/api-server/src/platform/iamRecoveryRuntime.ts), [iamHealthRuntime.ts](../../apps/api-server/src/platform/iamHealthRuntime.ts) | Move from internal gated evidence to operational evidence in the target environment |
-| AWS-native low-idle-cost posture | Differentiator track | Modeled | Synthetic | Architecture intent is strong, but the operating posture is not yet proven | [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts), [Platform Requirements](../specs/platform-requirements.md), [Platform Constitution](../foundation/constitution.md) | Convert architecture intent into deployment and cost evidence |
+| AWS-native low-idle-cost posture | Differentiator track | Implemented for a bounded profile | Operational | Bounded single-region deployment profiles, distributed runtime proof, and bounded-production operator drills now exist, but cost benchmarking and external target-environment evidence are still missing | [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts), [iamDeploymentRuntime.ts](../../apps/api-server/src/platform/iamDeploymentRuntime.ts), [Supported Deployment Profiles](../implementation/deployment/supported-deployment-profiles.md), [test-results-report.json](../../test-results-report.json) | Convert bounded deployment clarity into target-environment and cost evidence |
 | DPoP | Deferred | Modeled absent | Synthetic | Explicitly deferred and not implemented | [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts), [Headless IAM Gap Remediation Plan](../implementation/deployment/gap-remediation.md) | Explicitly defer or schedule |
 | Kerberos / SPNEGO | Deferred | Modeled absent | Synthetic | Explicitly deferred and not implemented | [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts), [Headless IAM Gap Remediation Plan](../implementation/deployment/gap-remediation.md) | Explicitly defer or schedule |
-| Multi-site / rolling-upgrade posture | Deferred | Modeled absent | Synthetic | Explicitly deferred and not implemented | [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts), [Headless IAM Gap Remediation Plan](../implementation/deployment/gap-remediation.md) | Explicitly defer or schedule |
+| Multi-site / rolling-upgrade posture | Deferred explicitly | Modeled absent | Synthetic | Explicit deferment is now governed and published; no implementation evidence exists today | [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts), [Supported Deployment Profiles](../implementation/deployment/supported-deployment-profiles.md) | Preserve explicit deferment until a later HA phase is intentionally opened |
 
 ## Current Release Readiness Assessment
 
@@ -130,17 +125,18 @@ The implementation is close to a credible `Core release`, but it is not yet ther
 - passkeys or WebAuthn are only `Implemented`, not yet `Supported`,
 - SAML is only `Implemented`, not yet `Supported`,
 - federation support is not yet backed by live adapters,
-- shared durable state is not yet `Production-grade`,
+- broader HA posture beyond bounded single-region is not yet supported,
+- external target-environment evidence is still missing beyond LocalStack-backed validation,
 - and support matrices are not yet fully established in governed documents.
 
-The readiness and recovery portion of that blocker is now narrower than before. In the local workspace, readiness no longer approves on artifact presence alone; it now requires:
+The runtime and readiness portion of that blocker is now narrower than before. In the current workspace, readiness no longer approves on artifact presence alone; it now requires:
 
 - environment-configured secret-store key material,
 - fresh backup, restore, and signing-key rotation evidence,
 - validated restore rehearsal against the current backup lineage,
 - and a fresh recovery drill that validates lineage and targets the latest available backup.
 
-That closes much of the internal semantics gap for operations credibility, but it still does not elevate the evidence class beyond `Internal runtime`.
+That closes the bounded-profile semantics gap for operations credibility, but it still does not elevate the product to broader external target-environment or multi-site claims.
 
 The runtime now exposes an explicit support-profile surface through [iamSupportProfileRuntime.ts](../../apps/api-server/src/platform/iamSupportProfileRuntime.ts) and `GET /api/v1/iam/support-profiles`, and the review runtime consumes that posture for claim-bearing areas. That closes the gap where review state could previously imply support from feature presence alone, but it does not by itself elevate any capability to supported or production-grade status.
 
@@ -166,13 +162,13 @@ These should be preserved, but they should not substitute for core protocol and 
 
 The next execution sequence should be:
 
-1. `Phase 0` — claim hygiene and support matrices
-2. `Phase 1` — shared durable state and concurrent-instance credibility
-3. `Phase 2` — narrow supported OIDC surface hardening
-4. `Phase 3` — passkey and SAML support hardening
-5. `Phase 4` — live federation adapter execution
-6. `Phase 5` — parity-track deepening and explicit defer/deliver decisions for remaining enterprise deltas
-7. `Phase 6` — operational proof for differentiator claims
+1. `Phase 0` — claim hygiene refresh after bounded runtime and operational-proof completion
+2. `Phase 1` — narrow supported OIDC surface hardening and external client interoperability
+3. `Phase 2` — passkey and SAML support hardening
+4. `Phase 3` — live federation adapter execution
+5. `Phase 4` — target-environment evidence beyond LocalStack-backed validation
+6. `Phase 5` — broader HA posture and explicit defer/deliver decisions for remaining enterprise topology gaps
+7. `Phase 6` — economic and differentiator proof deepening
 
 This order preserves the updated spec model:
 

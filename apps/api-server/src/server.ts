@@ -107,6 +107,13 @@ const canonicalApiBaseUrl = resolveCanonicalApiBaseUrl(idpListenHost, port, proc
 const canonicalUiBaseUrl = resolveCanonicalUiBaseUrl(canonicalApiBaseUrl, port, process.env.IDP_UI_BASE_URL);
 const IAM_REALM_HEADER = 'x-iam-realm-id';
 
+if ((process.env.IDP_LOG_RUNTIME_REPOSITORY_STATUS ?? '').trim().toLowerCase() === 'true') {
+  console.log('[idp] runtime repository status', JSON.stringify({
+    authentication: LocalIamAuthenticationRuntimeStore.getRuntimeRepositoryStatus(),
+    protocol: LocalIamProtocolRuntimeStore.getRuntimeRepositoryStatus(),
+  }));
+}
+
 const LocalAdminAuditStore = {
   record: (_entry: unknown) => {
     // Standalone baseline keeps audit writes in-process for now.
@@ -1826,8 +1833,7 @@ app.put('/api/v1/iam/operations/deployment', requireGlobalPermission({
     if (
       topologyMode &&
       topologyMode !== 'AWS_SINGLE_REGION_COST_OPTIMIZED' &&
-      topologyMode !== 'AWS_SINGLE_REGION_HA' &&
-      topologyMode !== 'AWS_MULTI_REGION_WARM_STANDBY'
+      topologyMode !== 'AWS_SINGLE_REGION_HA'
     ) {
       res.status(400).json({
         error: 'Unsupported topology_mode',

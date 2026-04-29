@@ -608,6 +608,12 @@ describe('server HTTP surface', () => {
     }
     const samlBody = JSON.parse(samlResponse.body) as {
       overall_support_decision: string
+      supported_profile_definition: {
+        profile_id: string
+        request_bindings: string[]
+        response_bindings: string[]
+        exact_acs_match_required: boolean
+      }
       rows: Array<{ id: string; current_maturity: string }>
     }
 
@@ -624,11 +630,17 @@ describe('server HTTP surface', () => {
 
     expect(samlResponse.statusCode).toBe(200)
     expect(samlBody.overall_support_decision).toBe('IMPLEMENTED_NOT_SUPPORTED')
+    expect(samlBody.supported_profile_definition).toMatchObject({
+      profile_id: 'saml-sp-bounded-redirect-post-v1',
+      request_bindings: ['REDIRECT'],
+      response_bindings: ['POST'],
+      exact_acs_match_required: true,
+    })
     expect(samlBody.rows).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           id: 'saml-supported-sp-profile-definition',
-          current_maturity: 'MODELED',
+          current_maturity: 'IMPLEMENTED',
         }),
       ]),
     )

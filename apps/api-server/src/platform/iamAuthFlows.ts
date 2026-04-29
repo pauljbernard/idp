@@ -541,6 +541,9 @@ function ensureRealmFlowSeeds(): void {
   let changed = false;
 
   for (const realm of realms) {
+    const flowCountBefore = state.flows.length;
+    const executionCountBefore = state.executions.length;
+    const realmBindingCountBefore = state.realm_bindings.length;
     const actorUserId = 'idp-super-admin';
 
     const browserFlow = seedFlow(`${realm.id}-browser-flow`, {
@@ -792,11 +795,17 @@ function ensureRealmFlowSeeds(): void {
       });
       changed = true;
     }
+
+    if (
+      state.flows.length !== flowCountBefore
+      || state.executions.length !== executionCountBefore
+      || state.realm_bindings.length !== realmBindingCountBefore
+    ) {
+      changed = true;
+    }
   }
 
   if (changed) {
-    persistStateSyncOnly();
-  } else {
     persistStateSyncOnly();
   }
 }
@@ -1310,6 +1319,43 @@ export const LocalIamAuthFlowStore = {
     const realmBinding = state.realm_bindings.find((candidate) => candidate.realm_id === realmId);
     if (!realmBinding) {
       throw new Error(`Missing IAM auth-flow binding for realm ${realmId}`);
+    }
+    if (flowKind === 'BROWSER') {
+      return realmBinding.browser_flow_id;
+    }
+    if (flowKind === 'DIRECT_GRANT') {
+      return realmBinding.direct_grant_flow_id;
+    }
+    return realmBinding.account_console_flow_id;
+  },
+
+  async resolveBoundFlowIdAsync(
+    realmId: string,
+    clientId: string | null | undefined,
+    flowKind: Exclude<IamAuthFlowKind, 'SUBFLOW'>,
+  ): Promise<string> {
+    const latestState = await loadStateAsync();
+    syncInMemoryState(latestState);
+
+    if (clientId) {
+      const clientBinding = latestState.client_bindings.find((candidate) => candidate.client_id === clientId);
+      if (clientBinding) {
+        if (flowKind === 'BROWSER' && clientBinding.browser_flow_id) {
+          return clientBinding.browser_flow_id;
+        }
+        if (flowKind === 'DIRECT_GRANT' && clientBinding.direct_grant_flow_id) {
+          return clientBinding.direct_grant_flow_id;
+        }
+        if (flowKind === 'ACCOUNT_CONSOLE' && clientBinding.account_console_flow_id) {
+          return clientBinding.account_console_flow_id;
+        }
+      }
+    }
+
+    const realmBinding = latestState.realm_bindings.find((candidate) => candidate.realm_id === realmId);
+    if (!realmBinding) {
+      ensureRealmFlowSeeds();
+      return this.resolveBoundFlowId(realmId, clientId, flowKind);
     }
     if (flowKind === 'BROWSER') {
       return realmBinding.browser_flow_id;

@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-04-28T18:32:36.900Z",
+  "environment": "http://127.0.0.1:4102",
+  "persistence_backend": "dynamodb-s3",
+  "runtime_table": "idp-iam-runtime-local",
+  "rate_limit_backend": "dynamodb",
+  "checks": {
+    "health_status": 200,
+    "realm_id": "realm-idp-default",
+    "client_id": "admin-console-demo",
+    "session_id": "iam-session-b87bc791-6a15-4783-97ae-9a1db5e6e997.iXfCPxB3VapNSwL5I5yrQQpHkMYG2dX2",
+    "account_session_user_id": "iam-user-idp-super-admin",
+    "password_reset_ticket_id": "iam-password-reset-89ce5f0f-a810-4485-bf92-584d3759ddf8",
+    "password_reset_user_id": "iam-user-idp-super-admin",
+    "introspection_active": true,
+    "userinfo_subject": "iam-user-idp-super-admin",
+    "logout_revoked": true
+  }
+}

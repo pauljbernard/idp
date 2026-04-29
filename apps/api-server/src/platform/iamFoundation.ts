@@ -3887,8 +3887,6 @@ function bumpFoundationStateRevision(): void {
   foundationStateRevision += 1;
 }
 
-persistStateSyncOnly();
-
 async function loadStateAsync(): Promise<IamFoundationState> {
   const [directoryState, delegatedConsentRequestsState] = await Promise.all([
     foundationDirectoryAsyncRepository.load(),

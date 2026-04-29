@@ -14,7 +14,7 @@ function assert(condition, message) {
 
 async function runAudit() {
   try {
-    const { stdout } = await execFileAsync('npm', ['audit', '--omit=dev', '--audit-level=high', '--json'], {
+    const { stdout } = await execFileAsync('npm', ['audit', '--omit=dev', '--audit-level=moderate', '--json'], {
       cwd: rootDir,
       maxBuffer: 1024 * 1024 * 10,
     })
@@ -57,7 +57,10 @@ async function main() {
     )
 
     const vulnerabilities = audit.metadata?.vulnerabilities ?? {}
-    const highOrCritical = Number(vulnerabilities.high ?? 0) + Number(vulnerabilities.critical ?? 0)
+    const moderateOrHigher =
+      Number(vulnerabilities.moderate ?? 0) +
+      Number(vulnerabilities.high ?? 0) +
+      Number(vulnerabilities.critical ?? 0)
 
     const report = {
       generated_at: new Date().toISOString(),
@@ -74,7 +77,7 @@ async function main() {
       },
       dependency_audit: {
         vulnerabilities,
-        high_or_critical_count: highOrCritical,
+        moderate_or_higher_count: moderateOrHigher,
       },
     }
 
@@ -82,7 +85,10 @@ async function main() {
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2))
     console.log(JSON.stringify(report, null, 2))
 
-    assert(highOrCritical === 0, `Expected no high/critical production dependency vulnerabilities, found ${highOrCritical}`)
+    assert(
+      moderateOrHigher === 0,
+      `Expected no moderate-or-higher production dependency vulnerabilities, found ${moderateOrHigher}`,
+    )
   } finally {
     await api.stop()
   }

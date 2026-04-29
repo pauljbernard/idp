@@ -17,4 +17,20 @@ export interface RateLimitRepository {
   getRecord(bucketKey: string): Promise<DynamoDbRateLimitRecord | null>;
   putRecord(record: DynamoDbRateLimitRecord): Promise<boolean>;
   updateRecord(currentRecord: DynamoDbRateLimitRecord, nextRecord: DynamoDbRateLimitRecord): Promise<boolean>;
+  incrementSameWindow(record: {
+    bucket_key: string;
+    scope_key: string;
+    client_key: string;
+    window_start: number;
+    blocked_until: number;
+    expires_at: number;
+    updated_at: string;
+  }, now: number): Promise<DynamoDbRateLimitRecord | null>;
+  markBlocked(record: {
+    bucket_key: string;
+    window_start: number;
+    blocked_until: number;
+    expires_at: number;
+    updated_at: string;
+  }): Promise<DynamoDbRateLimitRecord | null>;
 }

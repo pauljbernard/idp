@@ -31,6 +31,8 @@ This index covers the implementation and execution documents that are actually p
 | Document | Role |
 |----------|------|
 | [Headless IAM Standalone Product Assessment](planning/headless-iam-standalone-product-assessment.md) | Assessment of current standalone IAM product posture |
+| [IDP vs Keycloak Gap Analysis and Remediation Plan](planning/idp-keycloak-gap-analysis-and-remediation-plan.md) | Detailed parity-gap analysis and remediation plan against Keycloak |
+| [IDP vs Keycloak Gap Execution Backlog](planning/idp-keycloak-gap-execution-backlog.md) | Workstream, milestone, and issue-sized execution backlog for closing Keycloak gaps |
 | [Headless IAM Standalone Validation Review Guide](planning/headless-iam-standalone-validation-review-guide.md) | Minimum validation gate before downstream adoption |
 | [Headless IAM Production Remediation Plan](planning/headless-iam-production-remediation-plan.md) | Production-hardening remediation tracking |
 | [Headless IAM Education Readiness Implementation Plan](planning/headless-iam-education-readiness-implementation-plan.md) | Education-readiness implementation planning |
@@ -48,6 +50,10 @@ This index covers the implementation and execution documents that are actually p
 | [Roadmap](deployment/roadmap.md) | Phase sequencing and program posture |
 | [Gap Remediation](deployment/gap-remediation.md) | Gap-driven remediation plan |
 | [Environment Readiness](deployment/environment-readiness.md) | Environment readiness criteria |
+| [Supported Deployment Profiles](deployment/supported-deployment-profiles.md) | Current supported, bounded, and deferred deployment topology definitions |
+| [Rolling-Upgrade Posture](deployment/rolling-upgrade-posture.md) | Explicit current decision for rolling-upgrade support |
+| [Multi-Site Posture](deployment/multi-site-posture.md) | Explicit current decision for multi-site and warm-standby support |
+| [Bounded Production Operator Runbook](deployment/bounded-production-operator-runbook.md) | Operator workflow for the currently supported bounded production profiles |
 | [Cutover Runbook](deployment/cutover-runbook.md) | Cutover operations guide |
 | [Migration from Keycloak](deployment/migration-from-keycloak.md) | Migration planning reference |
 | [Headless IAM Adapter Cutover Sequence](deployment/headless-iam-adapter-cutover-sequence.md) | Adapter cutover sequencing |

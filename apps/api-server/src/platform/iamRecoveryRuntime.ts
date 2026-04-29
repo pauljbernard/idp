@@ -239,13 +239,17 @@ export const LocalIamRecoveryRuntimeStore = {
     latest_drill_lineage_validated: boolean;
   } {
     const latestDrill = state.drills[0] ?? null;
+    const latestBackupId = LocalIamOperationsRuntimeStore.listBackups().backups[0]?.id ?? null;
+    const latestDrillTargetsCurrentLatestBackup = latestDrill
+      ? latestDrill.backup_id === latestBackupId
+      : false;
     return {
       generated_at: nowIso(),
       recovery_profile_count: state.profile ? 1 : 0,
       recovery_drill_count: state.drills.length,
       latest_drill_status: latestDrill?.status ?? null,
       latest_drill_is_fresh: isFreshEnough(latestDrill?.executed_at, RECOVERY_DRILL_FRESHNESS_MS),
-      latest_drill_targets_latest_backup: latestDrill?.latest_backup_at_execution ?? false,
+      latest_drill_targets_latest_backup: latestDrillTargetsCurrentLatestBackup,
       latest_drill_lineage_validated: latestDrill?.backup_lineage_validated ?? false,
     };
   },

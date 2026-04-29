@@ -6,12 +6,12 @@ status: stable
 version: "1.0"
 dependencies: []
 tags: [reference, lookup, protocol-support-matrix.md]
-last_updated: "2024-04-12"
+last_updated: "2026-04-29"
 related: []
 ---
 # Headless IAM Protocol Support Matrix
 
-Last updated: 2026-04-11
+Last updated: 2026-04-29
 
 ## Purpose
 
@@ -36,12 +36,12 @@ The runtime mirror of these decisions is published through `GET /api/v1/iam/supp
 | CIBA | Implemented | Internal runtime | Route and runtime are present | Supported product claim | Add external validation and support-profile declaration |
 | Token exchange | Implemented to narrowly supported | External interoperability | Journey-tested bounded flow exists | Broad token-exchange support claim | Harden supported profile set and lineage semantics |
 | UMA / permission ticket token behavior | Implemented | Internal runtime plus narrow interoperability | Minimal UMA-style ticket and evaluation paths exist | Broad UMA parity claim | Define supported protected-resource profile and validate externally |
-| SAML IdP metadata | Implemented | Internal runtime | Metadata route is present | Product-grade SAML support claim | Define exact supported SAML SP profiles |
-| SAML auth / response / logout | Implemented | Internal runtime | Request tracking, continuation, login, logout, and session APIs exist | Supported SAML profile claim | Assertion, signing, and logout hardening with external SP validation |
+| SAML IdP metadata | Implemented to bounded profile with first external candidate | External interoperability candidate | Metadata route is present, declares a bounded Redirect/Post SP contract with exact ACS matching, and is exercised by a dedicated SP-facing artifact, a target-driven harness, and one live external SimpleSAMLphp target | Product-grade SAML support claim | More than one external SP target under the bounded profile |
+| SAML auth / response / logout | Implemented to bounded profile with first external candidate | External interoperability candidate | Request tracking, continuation, login, logout, and bounded request-shape rules are explicit in runtime and exercised by a dedicated SP-facing artifact, a target-driven harness, and one live external SimpleSAMLphp target | Supported SAML profile claim | Assertion, signing, logout, and broader external SP interoperability validation for the bounded profile |
 | Passkey / WebAuthn authentication | Implemented | Internal runtime | Browser-visible runtime exists | Supported standards-grade WebAuthn claim | Browser interoperability and standards-grade validation |
 
 ## Immediate Phase 0 Decisions
 
 - Supported product claims should currently be limited to the bounded OIDC browser and dynamic-registration profiles already covered by journey tests.
-- SAML and passkey flows should remain `Implemented` in product language until their support matrices are hardened with explicit supported-profile definitions and stronger evidence.
+- SAML and passkey flows should remain below `Supported` in product language until their bounded profiles have stronger external interoperability evidence.
 - PAR, CIBA, and broader advanced OAuth capabilities should be described as present or implemented, not broadly supported, unless and until their supported profiles are declared and validated.

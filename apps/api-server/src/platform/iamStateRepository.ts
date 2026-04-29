@@ -1,9 +1,26 @@
 import {
   loadOrCreatePersistedState,
   loadOrCreatePersistedStateAsync,
+  reloadOrCreatePersistedStateAsync,
   savePersistedState,
   savePersistedStateAsync,
 } from './persistence';
+
+const PROJECTED_ASYNC_SAVE_RETRIES = 10;
+const PROJECTED_ASYNC_SAVE_RETRY_BACKOFF_MS = 15;
+
+function isAsyncStateSaveConflict(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('Refusing to overwrite newer persisted state')
+    || message.includes('Conditional write failed for dynamodb://')
+    || message.includes('persisted state changed concurrently');
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 export interface IamStateRepository<TState> {
   load(): TState;
@@ -69,7 +86,7 @@ export function createPersistedAsyncIamStateRepository<TPersistedState, TState =
 ): IamAsyncStateRepository<TState> {
   return {
     async load(): Promise<TState> {
-      const persistedState = await loadOrCreatePersistedStateAsync<TPersistedState>(
+      const persistedState = await reloadOrCreatePersistedStateAsync<TPersistedState>(
         options.fileName,
         options.seedFactory,
         options.version,
@@ -78,10 +95,25 @@ export function createPersistedAsyncIamStateRepository<TPersistedState, TState =
     },
 
     async save(nextState: TState): Promise<void> {
-      const serialized = options.serialize
-        ? options.serialize(nextState)
-        : nextState as unknown as TPersistedState;
-      await savePersistedStateAsync(options.fileName, serialized, options.version);
+      let lastError: unknown = null;
+
+      for (let attempt = 0; attempt < PROJECTED_ASYNC_SAVE_RETRIES; attempt += 1) {
+        const serialized = options.serialize
+          ? options.serialize(nextState)
+          : nextState as unknown as TPersistedState;
+        try {
+          await savePersistedStateAsync(options.fileName, serialized, options.version);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (!isAsyncStateSaveConflict(error)) {
+            throw error;
+          }
+          await sleep(PROJECTED_ASYNC_SAVE_RETRY_BACKOFF_MS * (attempt + 1));
+        }
+      }
+
+      throw lastError instanceof Error ? lastError : new Error(String(lastError));
     },
   };
 }
@@ -111,9 +143,25 @@ export function createProjectedAsyncIamStateRepository<TParentState, TState>(
     },
 
     async save(nextState: TState): Promise<void> {
-      const parentState = await options.parentRepository.load();
-      options.assign(parentState, nextState);
-      await options.parentRepository.save(parentState);
+      let lastError: unknown = null;
+
+      for (let attempt = 0; attempt < PROJECTED_ASYNC_SAVE_RETRIES; attempt += 1) {
+        const parentState = await options.parentRepository.load();
+        options.assign(parentState, nextState);
+
+        try {
+          await options.parentRepository.save(parentState);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (!isAsyncStateSaveConflict(error)) {
+            throw error;
+          }
+          await sleep(PROJECTED_ASYNC_SAVE_RETRY_BACKOFF_MS * (attempt + 1));
+        }
+      }
+
+      throw lastError instanceof Error ? lastError : new Error(String(lastError));
     },
   };
 }

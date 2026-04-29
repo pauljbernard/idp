@@ -283,6 +283,20 @@ const authorizationRuntimeStateRepository: IamAuthorizationRuntimeStateRepositor
 
 let state = authorizationRuntimeStateRepository.load();
 const deferredPersistenceContext = new AsyncLocalStorage<{ dirty: boolean }>();
+const DEFERRED_PERSISTENCE_RETRIES = 8;
+const DEFERRED_PERSISTENCE_RETRY_BACKOFF_MS = 20;
+
+function isDeferredPersistenceConflict(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('Refusing to overwrite newer persisted state')
+    || message.includes('Conditional write failed for dynamodb://');
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 async function loadStateAsync(): Promise<IamAuthorizationRuntimeState> {
   return normalizeState(
@@ -317,21 +331,35 @@ async function runWithDeferredPersistence<T>(operation: () => T | Promise<T>): P
     return operation();
   }
 
-  syncInMemoryState(await loadStateAsync());
-  return deferredPersistenceContext.run({ dirty: false }, async () => {
+  let lastError: unknown = null;
+
+  for (let attempt = 0; attempt < DEFERRED_PERSISTENCE_RETRIES; attempt += 1) {
+    syncInMemoryState(await loadStateAsync());
     try {
-      const result = await operation();
-      if (deferredPersistenceContext.getStore()?.dirty) {
-        await persistStateAsync();
-      }
-      return result;
+      return await deferredPersistenceContext.run({ dirty: false }, async () => {
+        try {
+          const result = await operation();
+          if (deferredPersistenceContext.getStore()?.dirty) {
+            await persistStateAsync();
+          }
+          return result;
+        } catch (error) {
+          if (deferredPersistenceContext.getStore()?.dirty) {
+            await persistStateAsync();
+          }
+          throw error;
+        }
+      });
     } catch (error) {
-      if (deferredPersistenceContext.getStore()?.dirty) {
-        await persistStateAsync();
+      lastError = error;
+      if (!isDeferredPersistenceConflict(error)) {
+        throw error;
       }
-      throw error;
+      await sleep(DEFERRED_PERSISTENCE_RETRY_BACKOFF_MS * (attempt + 1));
     }
-  });
+  }
+
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
 }
 
 function toPublicRequest(record: StoredIamAuthorizationRequest): IamAuthorizationRequestRecord {
@@ -577,7 +605,7 @@ async function continueAuthorizationRequestRecordAsync(
   sessionId: string,
 ): Promise<IamAuthorizationContinuationResponse> {
   const request = assertActiveRequest(realmId, requestId);
-  const sessionContext = LocalIamAuthenticationRuntimeStore.resolveAccountSession(realmId, sessionId);
+  const sessionContext = await LocalIamAuthenticationRuntimeStore.resolveAccountSessionAsync(realmId, sessionId);
   const promptValues = new Set(request.prompt_values);
 
   const interaction = LocalIamAuthenticationRuntimeStore.evaluateSessionInteraction(realmId, sessionId, {

@@ -45,9 +45,15 @@ export class DualRunAsyncIssuedTokenStoreAdapter implements AsyncIssuedTokenStor
   }
 
   async put(token: StoredIamIssuedToken): Promise<void> {
-    await this.legacy.put(token);
-    if (this.mode.dualWrite || this.mode.readV2) {
+    if (this.mode.dualWrite) {
+      await this.legacy.put(token);
       await this.v2.put(token);
+      return;
     }
+    if (this.mode.readV2) {
+      await this.v2.put(token);
+      return;
+    }
+    await this.legacy.put(token);
   }
 }

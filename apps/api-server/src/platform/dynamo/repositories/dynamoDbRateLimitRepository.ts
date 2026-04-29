@@ -107,4 +107,110 @@ export class DynamoDbRateLimitRepository implements RateLimitRepository {
       throw error;
     }
   }
+
+  async incrementSameWindow(record: {
+    bucket_key: string;
+    scope_key: string;
+    client_key: string;
+    window_start: number;
+    blocked_until: number;
+    expires_at: number;
+    updated_at: string;
+  }, now: number): Promise<DynamoDbRateLimitRecord | null> {
+    try {
+      const response = await this.client.send(new UpdateCommand({
+        TableName: this.tableName,
+        Key: {
+          bucket_key: record.bucket_key,
+        },
+        UpdateExpression: [
+          'SET #scope_key = :scopeKey',
+          '#client_key = :clientKey',
+          '#window_start = :windowStart',
+          '#blocked_until = :blockedUntil',
+          '#expires_at = :expiresAt',
+          '#updated_at = :updatedAt',
+          '#version = if_not_exists(#version, :zero) + :one',
+        ].join(', ') + ' ADD #count :increment',
+        ConditionExpression: '#window_start = :windowStart AND (#blocked_until <= :now OR attribute_not_exists(#blocked_until))',
+        ExpressionAttributeNames: {
+          '#scope_key': 'scope_key',
+          '#client_key': 'client_key',
+          '#window_start': 'window_start',
+          '#count': 'count',
+          '#blocked_until': 'blocked_until',
+          '#expires_at': 'expires_at',
+          '#updated_at': 'updated_at',
+          '#version': 'version',
+        },
+        ExpressionAttributeValues: {
+          ':scopeKey': record.scope_key,
+          ':clientKey': record.client_key,
+          ':windowStart': record.window_start,
+          ':blockedUntil': record.blocked_until,
+          ':expiresAt': record.expires_at,
+          ':updatedAt': record.updated_at,
+          ':now': now,
+          ':increment': 1,
+          ':zero': 0,
+          ':one': 1,
+        },
+        ReturnValues: 'ALL_NEW',
+      }));
+
+      return (response.Attributes as DynamoDbRateLimitRecord | undefined) ?? null;
+    } catch (error) {
+      if (isConditionalCheckFailure(error)) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async markBlocked(record: {
+    bucket_key: string;
+    window_start: number;
+    blocked_until: number;
+    expires_at: number;
+    updated_at: string;
+  }): Promise<DynamoDbRateLimitRecord | null> {
+    try {
+      const response = await this.client.send(new UpdateCommand({
+        TableName: this.tableName,
+        Key: {
+          bucket_key: record.bucket_key,
+        },
+        UpdateExpression: [
+          'SET #blocked_until = :blockedUntil',
+          '#expires_at = :expiresAt',
+          '#updated_at = :updatedAt',
+          '#version = if_not_exists(#version, :zero) + :one',
+        ].join(', '),
+        ConditionExpression: '#window_start = :windowStart AND (attribute_not_exists(#blocked_until) OR #blocked_until < :blockedUntil)',
+        ExpressionAttributeNames: {
+          '#window_start': 'window_start',
+          '#blocked_until': 'blocked_until',
+          '#expires_at': 'expires_at',
+          '#updated_at': 'updated_at',
+          '#version': 'version',
+        },
+        ExpressionAttributeValues: {
+          ':windowStart': record.window_start,
+          ':blockedUntil': record.blocked_until,
+          ':expiresAt': record.expires_at,
+          ':updatedAt': record.updated_at,
+          ':zero': 0,
+          ':one': 1,
+        },
+        ReturnValues: 'ALL_NEW',
+      }));
+
+      return (response.Attributes as DynamoDbRateLimitRecord | undefined) ?? null;
+    } catch (error) {
+      if (isConditionalCheckFailure(error)) {
+        return null;
+      }
+      throw error;
+    }
+  }
 }

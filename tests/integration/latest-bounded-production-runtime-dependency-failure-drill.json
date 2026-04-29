@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-28T23:57:09.545Z",
+  "environment": "http://127.0.0.1:4115",
+  "persistence_backend": "dynamodb-s3",
+  "runtime_table": "idp-iam-runtime-local",
+  "state_table": "idp-platform-state-local",
+  "durable_bucket": "idp-durable-local",
+  "checks": {
+    "all_steps_passed": true,
+    "overall_pass": true,
+    "realm_id": "realm-idp-default",
+    "baseline_backup_id": "iam-backup-25a8c6fe-5620-4490-a387-ac7c473f6935",
+    "baseline_recovery_drill_id": "iam-recovery-drill-dde7db05-d913-40e3-9bef-76fa9758a221",
+    "injected_backup_id": "iam-backup-2673e766-e6e2-45de-ad29-d5d8586d3494",
+    "injected_object_key_corrupted": true,
+    "failed_restore_status": 500,
+    "failed_recovery_status": 500,
+    "readiness_restore_lineage_before": "PASS",
+    "readiness_restore_lineage_after": "WARN",
+    "readiness_recovery_lineage_before": "PASS",
+    "readiness_recovery_lineage_after": "WARN",
+    "recorded_readiness_decision_after_failure": "BLOCKED"
+  }
+}

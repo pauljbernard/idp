@@ -124,12 +124,60 @@
       "dependencies": ["platform-requirements", "headless-iam-status-matrix"],
       "criticality": "high"
     },
+    "idp-keycloak-gap-analysis-and-remediation-plan": {
+      "id": "idp-keycloak-gap-analysis-and-remediation-plan",
+      "path": "implementation/planning/idp-keycloak-gap-analysis-and-remediation-plan.md",
+      "type": "implementation",
+      "status": "stable",
+      "dependencies": ["platform-requirements", "headless-iam-status-matrix", "headless-iam-requirements-gap-matrix", "protocol-support-matrix", "federation-support-matrix", "webauthn-support-matrix", "saml-profile-matrix", "gap-remediation"],
+      "criticality": "high"
+    },
+    "idp-keycloak-gap-execution-backlog": {
+      "id": "idp-keycloak-gap-execution-backlog",
+      "path": "implementation/planning/idp-keycloak-gap-execution-backlog.md",
+      "type": "implementation",
+      "status": "stable",
+      "dependencies": ["idp-keycloak-gap-analysis-and-remediation-plan", "platform-requirements", "headless-iam-status-matrix", "headless-iam-requirements-gap-matrix", "gap-remediation"],
+      "criticality": "high"
+    },
     "gap-remediation": {
       "id": "gap-remediation",
       "path": "implementation/deployment/gap-remediation.md",
       "type": "implementation",
       "status": "stable",
       "dependencies": ["platform-requirements", "headless-iam-status-matrix"],
+      "criticality": "high"
+    },
+    "supported-deployment-profiles": {
+      "id": "supported-deployment-profiles",
+      "path": "implementation/deployment/supported-deployment-profiles.md",
+      "type": "implementation",
+      "status": "stable",
+      "dependencies": ["deployment-modes", "environment-readiness", "headless-iam-status-matrix", "idp-keycloak-gap-execution-backlog"],
+      "criticality": "high"
+    },
+    "rolling-upgrade-posture": {
+      "id": "rolling-upgrade-posture",
+      "path": "implementation/deployment/rolling-upgrade-posture.md",
+      "type": "implementation",
+      "status": "stable",
+      "dependencies": ["supported-deployment-profiles", "deployment-modes", "idp-keycloak-gap-execution-backlog"],
+      "criticality": "high"
+    },
+    "multi-site-posture": {
+      "id": "multi-site-posture",
+      "path": "implementation/deployment/multi-site-posture.md",
+      "type": "implementation",
+      "status": "stable",
+      "dependencies": ["supported-deployment-profiles", "deployment-modes", "idp-keycloak-gap-execution-backlog"],
+      "criticality": "high"
+    },
+    "bounded-production-operator-runbook": {
+      "id": "bounded-production-operator-runbook",
+      "path": "implementation/deployment/bounded-production-operator-runbook.md",
+      "type": "implementation",
+      "status": "stable",
+      "dependencies": ["supported-deployment-profiles", "environment-readiness", "cutover-runbook", "rolling-upgrade-posture", "multi-site-posture"],
       "criticality": "high"
     },
     "roadmap": {
@@ -170,6 +218,14 @@
       "type": "reference",
       "status": "stable",
       "dependencies": ["platform-requirements", "headless-iam-status-matrix"],
+      "criticality": "high"
+    },
+    "saml-third-party-sp-targets": {
+      "id": "saml-third-party-sp-targets",
+      "path": "reference/saml-third-party-sp-targets.md",
+      "type": "reference",
+      "status": "stable",
+      "dependencies": ["saml-profile-matrix", "protocol-support-matrix", "headless-iam-status-matrix"],
       "criticality": "high"
     },
     "webauthn-support-matrix": {

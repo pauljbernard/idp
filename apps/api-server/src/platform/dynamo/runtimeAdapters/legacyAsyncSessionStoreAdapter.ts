@@ -22,15 +22,31 @@ export class LegacyAsyncSessionStoreAdapter implements AsyncSessionStoreAdapter 
   }
 
   async put(session: StoredIamAccountSession): Promise<void> {
-    const nextState = await this.options.load();
-    const index = nextState.findIndex(
-      (candidate) => candidate.realm_id === session.realm_id && candidate.id === session.id,
-    );
-    if (index >= 0) {
-      nextState[index] = session;
-    } else {
-      nextState.push(session);
+    let lastError: unknown = null;
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const nextState = await this.options.load();
+      const index = nextState.findIndex(
+        (candidate) => candidate.realm_id === session.realm_id && candidate.id === session.id,
+      );
+      if (index >= 0) {
+        nextState[index] = session;
+      } else {
+        nextState.push(session);
+      }
+
+      try {
+        await this.options.save(nextState);
+        return;
+      } catch (error) {
+        lastError = error;
+        const message = error instanceof Error ? error.message : String(error);
+        if (!message.includes('Refusing to overwrite newer persisted state')) {
+          throw error;
+        }
+      }
     }
-    await this.options.save(nextState);
+
+    throw lastError instanceof Error ? lastError : new Error(String(lastError));
   }
 }

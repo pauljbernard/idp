@@ -101,8 +101,10 @@ const SUPPORT_PROFILES: IamSupportProfileRecord[] = [
     current_maturity: 'IMPLEMENTED',
     evidence_class: 'INTERNAL_RUNTIME',
     support_decision: 'IMPLEMENTED_NOT_SUPPORTED',
-    product_posture: 'Metadata, request tracking, response issuance, and logout exist, but supported SP profiles are not yet hardened enough for product claims.',
-    supported_profiles: [],
+    product_posture: 'Metadata, request tracking, response issuance, and logout exist, and one bounded Redirect/Post SP contract is now enforced in runtime, but external interoperability is still below supported claim level.',
+    supported_profiles: [
+      'Runtime-enforced bounded Redirect/Post SP contract with exact ACS matching, signed login/logout envelopes, and bounded NameID/AuthnContext rules.',
+    ],
     unsupported_profiles: [
       'Broad service-provider interoperability claims.',
       'Standards-grade SAML profile coverage claims.',

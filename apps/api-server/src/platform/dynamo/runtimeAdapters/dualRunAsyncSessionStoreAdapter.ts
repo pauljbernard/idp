@@ -24,9 +24,15 @@ export class DualRunAsyncSessionStoreAdapter implements AsyncSessionStoreAdapter
   }
 
   async put(session: StoredIamAccountSession): Promise<void> {
-    await this.legacy.put(session);
-    if (this.mode.dualWrite || this.mode.readV2) {
+    if (this.mode.dualWrite) {
+      await this.legacy.put(session);
       await this.v2.put(session);
+      return;
     }
+    if (this.mode.readV2) {
+      await this.v2.put(session);
+      return;
+    }
+    await this.legacy.put(session);
   }
 }

@@ -3,6 +3,7 @@ import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from
 import { existsSync } from 'fs';
 import {
   getPersistedStatePath,
+  reloadOrCreatePersistedStateAsync,
   readPersistedStateSnapshot,
 } from './persistence';
 import {
@@ -16,6 +17,7 @@ import {
 import { createDynamoDocumentClient } from './dynamo/ddbClient';
 import { getRuntimeRepositoryMode } from './dynamo/runtimeRepositoryMode';
 import { resolveRuntimeTableName } from './dynamo/runtimeTables';
+import { DynamoDbAuthenticationActivityRepository } from './dynamo/repositories/dynamoDbAuthenticationActivityRepository';
 import { DynamoDbLoginTransactionRepository } from './dynamo/repositories/dynamoDbLoginTransactionRepository';
 import { DynamoDbSessionRepository } from './dynamo/repositories/dynamoDbSessionRepository';
 import { DynamoDbTicketRepository } from './dynamo/repositories/dynamoDbTicketRepository';
@@ -70,6 +72,7 @@ type IamTicketStatus = 'PENDING' | 'CONSUMED' | 'EXPIRED';
 
 const LEGACY_IAM_AUTHENTICATION_RUNTIME_FILE = 'iam-authentication-runtime-state.json';
 const IAM_AUTHENTICATION_DIRECTORY_FILE = 'iam-authentication-directory-state.json';
+const IAM_AUTHENTICATION_ACTIVITY_FILE = 'iam-authentication-activity-state.json';
 const IAM_AUTHENTICATION_TRANSIENT_FILE = 'iam-authentication-transient-state.json';
 const LOGIN_TRANSACTION_TTL_MS = 1000 * 60 * 15;
 const ACCOUNT_SESSION_TTL_MS = 1000 * 60 * 60 * 8;
@@ -80,9 +83,18 @@ const LOGIN_FAILURE_WINDOW_MS = 1000 * 60 * 15;
 const LOGIN_LOCKOUT_DURATION_MS = 1000 * 60 * 15;
 const LOGIN_LOCKOUT_THRESHOLD = 5;
 const SESSION_PROOF_DELIMITER = '.';
-const deferredPersistenceContext = new AsyncLocalStorage<{ dirty: boolean }>();
+type DeferredPersistenceContextState = {
+  dirty_all: boolean;
+  dirty_directory: boolean;
+  dirty_activity: boolean;
+  dirty_transient: boolean;
+};
 
-interface StoredIamAccountSecurityState {
+const deferredPersistenceContext = new AsyncLocalStorage<DeferredPersistenceContextState>();
+const accountSecurityStateCache = new Map<string, StoredIamAccountSecurityState>();
+const userLockoutStateCache = new Map<string, StoredIamUserLockoutState>();
+
+export interface StoredIamAccountSecurityState {
   realm_id: string;
   user_id: string;
   email_verified_at: string | null;
@@ -199,9 +211,9 @@ export interface StoredIamEmailVerificationTicket {
   consumed_at: string | null;
 }
 
-type IamLoginAttemptOutcome = 'SUCCESS' | 'FAILED_CREDENTIALS' | 'FAILED_MFA' | 'FAILED_PASSKEY' | 'LOCKED';
+export type IamLoginAttemptOutcome = 'SUCCESS' | 'FAILED_CREDENTIALS' | 'FAILED_MFA' | 'FAILED_PASSKEY' | 'LOCKED';
 
-interface StoredIamLoginAttempt {
+export interface StoredIamLoginAttempt {
   id: string;
   realm_id: string;
   user_id: string | null;
@@ -212,7 +224,7 @@ interface StoredIamLoginAttempt {
   occurred_at: string;
 }
 
-interface StoredIamUserLockoutState {
+export interface StoredIamUserLockoutState {
   realm_id: string;
   user_id: string;
   failed_attempt_count: number;
@@ -235,9 +247,13 @@ interface IamAuthenticationRuntimeState {
 }
 
 interface IamAuthenticationDirectoryState {
-  account_security_states: StoredIamAccountSecurityState[];
   mfa_states: StoredIamMfaState[];
   consent_records: StoredIamConsentRecord[];
+}
+
+interface IamAuthenticationActivityState {
+  account_security_states: StoredIamAccountSecurityState[];
+  login_attempts: StoredIamLoginAttempt[];
   user_lockout_states: StoredIamUserLockoutState[];
 }
 
@@ -247,7 +263,6 @@ interface IamAuthenticationTransientState {
   login_transactions: StoredIamLoginTransaction[];
   password_reset_tickets: StoredIamPasswordResetTicket[];
   email_verification_tickets: StoredIamEmailVerificationTicket[];
-  login_attempts: StoredIamLoginAttempt[];
 }
 
 export interface IamPublicRealmCatalogClient {
@@ -657,6 +672,42 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
+function accountSecurityStateCacheKey(realmId: string, userId: string): string {
+  return `${realmId}:${userId}`;
+}
+
+function userLockoutStateCacheKey(realmId: string, userId: string): string {
+  return `${realmId}:${userId}`;
+}
+
+const logLoginTimings = (process.env.IDP_LOG_LOGIN_TIMINGS ?? '').trim().toLowerCase() === 'true';
+
+function durationMs(start: bigint): number {
+  return Number((process.hrtime.bigint() - start) / BigInt(1_000_000));
+}
+
+function emitLoginTiming(label: string, details: Record<string, unknown>): void {
+  if (!logLoginTimings) {
+    return;
+  }
+  console.log(`[idp-login-timing] ${JSON.stringify({ label, ...details })}`);
+}
+
+const DEFERRED_PERSISTENCE_RETRIES = 8;
+const DEFERRED_PERSISTENCE_RETRY_BACKOFF_MS = 20;
+
+function isDeferredPersistenceConflict(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('Refusing to overwrite newer persisted state')
+    || message.includes('Conditional write failed for dynamodb://');
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 function hashCode(value: string): string {
   return createHash('sha256').update(value).digest('hex');
 }
@@ -822,9 +873,15 @@ function createEmptyState(): IamAuthenticationRuntimeState {
 
 function splitDirectoryState(state: IamAuthenticationRuntimeState): IamAuthenticationDirectoryState {
   return {
-    account_security_states: clone(state.account_security_states),
     mfa_states: clone(state.mfa_states),
     consent_records: clone(state.consent_records),
+  };
+}
+
+function splitActivityState(state: IamAuthenticationRuntimeState): IamAuthenticationActivityState {
+  return {
+    account_security_states: clone(state.account_security_states),
+    login_attempts: clone(state.login_attempts),
     user_lockout_states: clone(state.user_lockout_states),
   };
 }
@@ -836,22 +893,27 @@ function splitTransientState(state: IamAuthenticationRuntimeState): IamAuthentic
     login_transactions: clone(state.login_transactions),
     password_reset_tickets: clone(state.password_reset_tickets),
     email_verification_tickets: clone(state.email_verification_tickets),
-    login_attempts: clone(state.login_attempts),
   };
 }
 
 function combineState(
   directoryState: IamAuthenticationDirectoryState,
+  activityState: IamAuthenticationActivityState,
   transientState: IamAuthenticationTransientState,
 ): IamAuthenticationRuntimeState {
   return normalizeState({
     ...directoryState,
+    ...activityState,
     ...transientState,
   });
 }
 
 function normalizeDirectoryState(input: Partial<IamAuthenticationDirectoryState>): IamAuthenticationDirectoryState {
   return splitDirectoryState(normalizeState(input as Partial<IamAuthenticationRuntimeState>));
+}
+
+function normalizeActivityState(input: Partial<IamAuthenticationActivityState>): IamAuthenticationActivityState {
+  return splitActivityState(normalizeState(input as Partial<IamAuthenticationRuntimeState>));
 }
 
 function normalizeTransientState(input: Partial<IamAuthenticationTransientState>): IamAuthenticationTransientState {
@@ -866,6 +928,7 @@ function readLegacyAuthenticationStateSnapshot(): IamAuthenticationRuntimeState 
 
 function shouldSeedAuthenticationFromLegacy(): boolean {
   return !existsSync(getPersistedStatePath(IAM_AUTHENTICATION_DIRECTORY_FILE))
+    || !existsSync(getPersistedStatePath(IAM_AUTHENTICATION_ACTIVITY_FILE))
     || !existsSync(getPersistedStatePath(IAM_AUTHENTICATION_TRANSIENT_FILE));
 }
 
@@ -877,6 +940,10 @@ function authenticationDirectorySeedFactory(): IamAuthenticationDirectoryState {
   return splitDirectoryState(getAuthenticationSeedState());
 }
 
+function authenticationActivitySeedFactory(): IamAuthenticationActivityState {
+  return splitActivityState(getAuthenticationSeedState());
+}
+
 function authenticationTransientSeedFactory(): IamAuthenticationTransientState {
   return splitTransientState(getAuthenticationSeedState());
 }
@@ -885,6 +952,8 @@ interface IamAuthenticationRuntimeStateRepository extends IamStateRepository<Iam
 interface IamAuthenticationAsyncRuntimeStateRepository extends IamAsyncStateRepository<IamAuthenticationRuntimeState> {}
 interface IamAuthenticationDirectoryRepository extends IamStateRepository<IamAuthenticationDirectoryState> {}
 interface IamAsyncAuthenticationDirectoryRepository extends IamAsyncStateRepository<IamAuthenticationDirectoryState> {}
+interface IamAuthenticationActivityRepository extends IamStateRepository<IamAuthenticationActivityState> {}
+interface IamAsyncAuthenticationActivityRepository extends IamAsyncStateRepository<IamAuthenticationActivityState> {}
 interface IamAuthenticationTransientRepository extends IamStateRepository<IamAuthenticationTransientState> {}
 interface IamAsyncAuthenticationTransientRepository extends IamAsyncStateRepository<IamAuthenticationTransientState> {}
 interface IamAccountSessionRepository extends IamStateRepository<StoredIamAccountSession[]> {}
@@ -939,6 +1008,24 @@ const authenticationTransientRepository: IamAuthenticationTransientRepository = 
   normalize: normalizeTransientState,
 });
 
+const authenticationActivityRepository: IamAuthenticationActivityRepository = createPersistedIamStateRepository<
+  Partial<IamAuthenticationActivityState>,
+  IamAuthenticationActivityState
+>({
+  fileName: IAM_AUTHENTICATION_ACTIVITY_FILE,
+  seedFactory: authenticationActivitySeedFactory,
+  normalize: normalizeActivityState,
+});
+
+const authenticationActivityAsyncRepository: IamAsyncAuthenticationActivityRepository = createPersistedAsyncIamStateRepository<
+  Partial<IamAuthenticationActivityState>,
+  IamAuthenticationActivityState
+>({
+  fileName: IAM_AUTHENTICATION_ACTIVITY_FILE,
+  seedFactory: authenticationActivitySeedFactory,
+  normalize: normalizeActivityState,
+});
+
 const authenticationTransientAsyncRepository: IamAsyncAuthenticationTransientRepository = createPersistedAsyncIamStateRepository<
   Partial<IamAuthenticationTransientState>,
   IamAuthenticationTransientState
@@ -950,28 +1037,57 @@ const authenticationTransientAsyncRepository: IamAsyncAuthenticationTransientRep
 
 function loadStateSync(): IamAuthenticationRuntimeState {
   const directoryState = authenticationDirectoryRepository.load();
+  const activityState = authenticationActivityRepository.load();
   const transientState = authenticationTransientRepository.load();
-  return combineState(directoryState, transientState);
+  return combineState(directoryState, activityState, transientState);
 }
 
 async function loadStateAsync(): Promise<IamAuthenticationRuntimeState> {
-  const [directoryState, transientState] = await Promise.all([
-    authenticationDirectoryAsyncRepository.load(),
-    authenticationTransientAsyncRepository.load(),
+  const [directoryState, activityState, transientState] = await Promise.all([
+    reloadOrCreatePersistedStateAsync<Partial<IamAuthenticationDirectoryState>>(
+      IAM_AUTHENTICATION_DIRECTORY_FILE,
+      authenticationDirectorySeedFactory,
+    ),
+    reloadOrCreatePersistedStateAsync<Partial<IamAuthenticationActivityState>>(
+      IAM_AUTHENTICATION_ACTIVITY_FILE,
+      authenticationActivitySeedFactory,
+    ),
+    reloadOrCreatePersistedStateAsync<Partial<IamAuthenticationTransientState>>(
+      IAM_AUTHENTICATION_TRANSIENT_FILE,
+      authenticationTransientSeedFactory,
+    ),
   ]);
-  return combineState(directoryState, transientState);
+  return combineState(
+    normalizeDirectoryState(directoryState),
+    normalizeActivityState(activityState),
+    normalizeTransientState(transientState),
+  );
 }
 
 function persistStateSnapshotSync(nextState: IamAuthenticationRuntimeState): void {
   authenticationDirectoryRepository.save(splitDirectoryState(nextState));
+  authenticationActivityRepository.save(splitActivityState(nextState));
   authenticationTransientRepository.save(splitTransientState(nextState));
 }
 
-async function persistStateSnapshotAsync(nextState: IamAuthenticationRuntimeState): Promise<void> {
-  await Promise.all([
-    authenticationDirectoryAsyncRepository.save(splitDirectoryState(nextState)),
-    authenticationTransientAsyncRepository.save(splitTransientState(nextState)),
-  ]);
+async function persistStateSnapshotAsync(
+  nextState: IamAuthenticationRuntimeState,
+  context?: DeferredPersistenceContextState,
+): Promise<void> {
+  const saveAll = !context || context.dirty_all;
+  const writes: Promise<void>[] = [];
+
+  if (saveAll || context.dirty_directory) {
+    writes.push(authenticationDirectoryAsyncRepository.save(splitDirectoryState(nextState)));
+  }
+  if (saveAll || context.dirty_activity) {
+    writes.push(authenticationActivityAsyncRepository.save(splitActivityState(nextState)));
+  }
+  if (saveAll || context.dirty_transient) {
+    writes.push(authenticationTransientAsyncRepository.save(splitTransientState(nextState)));
+  }
+
+  await Promise.all(writes);
 }
 
 const state = loadStateSync();
@@ -981,6 +1097,11 @@ const authenticationRuntimeStateRepository: IamAuthenticationRuntimeStateReposit
   },
   save(nextState: IamAuthenticationRuntimeState): void {
     syncInMemoryState(nextState);
+    const context = deferredPersistenceContext.getStore();
+    if (context) {
+      markAllSlicesDirty();
+      return;
+    }
     persistStateSnapshotSync(state);
   },
 };
@@ -1083,6 +1204,17 @@ const useRuntimeRepositoryPath = runtimeRepositoryMode.dualWrite || runtimeRepos
 let sessionRuntimeRepositoryStatus: IamRuntimeRepositoryAdapterStatus = useRuntimeRepositoryPath ? 'NOOP_FALLBACK' : 'LEGACY_ONLY';
 let ticketRuntimeRepositoryStatus: IamRuntimeRepositoryAdapterStatus = useRuntimeRepositoryPath ? 'NOOP_FALLBACK' : 'LEGACY_ONLY';
 let loginTransactionRuntimeRepositoryStatus: IamRuntimeRepositoryAdapterStatus = useRuntimeRepositoryPath ? 'NOOP_FALLBACK' : 'LEGACY_ONLY';
+const authenticationActivityRuntimeRepository = (() => {
+  if (!useRuntimeRepositoryPath) {
+    return null;
+  }
+
+  try {
+    return new DynamoDbAuthenticationActivityRepository(createDynamoDocumentClient(), resolveRuntimeTableName());
+  } catch {
+    return null;
+  }
+})();
 const sessionStore = new LegacySessionStoreAdapter({
   list: () => accountSessionRepository.load(),
   getById: (realmId: string, sessionId: string) =>
@@ -1189,6 +1321,186 @@ function syncInMemoryState(nextState: IamAuthenticationRuntimeState): void {
   rebuildAccountSessionIndex();
 }
 
+function buildDefaultSecurityState(user: IamUserRecord): StoredIamAccountSecurityState {
+  return {
+    realm_id: user.realm_id,
+    user_id: user.id,
+    email_verified_at: user.required_actions.includes('VERIFY_EMAIL') ? null : user.created_at,
+    last_login_at: null,
+    last_password_updated_at: user.created_at,
+    last_mfa_authenticated_at: null,
+    last_passkey_authenticated_at: null,
+  };
+}
+
+function buildDefaultLockoutState(realmId: string, userId: string): StoredIamUserLockoutState {
+  return {
+    realm_id: realmId,
+    user_id: userId,
+    failed_attempt_count: 0,
+    last_failed_at: null,
+    lockout_until: null,
+    locked_at: null,
+  };
+}
+
+async function getSecurityStateAsync(user: IamUserRecord): Promise<StoredIamAccountSecurityState> {
+  if (!useRuntimeRepositoryPath || !authenticationActivityRuntimeRepository) {
+    return getSecurityState(user);
+  }
+  const cacheKey = accountSecurityStateCacheKey(user.realm_id, user.id);
+  const cached = accountSecurityStateCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+  const record = (await authenticationActivityRuntimeRepository.getAccountSecurityState(user.realm_id, user.id))
+    ?? buildDefaultSecurityState(user);
+  accountSecurityStateCache.set(cacheKey, record);
+  return record;
+}
+
+async function saveSecurityStateAsync(record: StoredIamAccountSecurityState): Promise<void> {
+  if (!useRuntimeRepositoryPath || !authenticationActivityRuntimeRepository) {
+    persistActivityStateSyncOnly();
+    return;
+  }
+  accountSecurityStateCache.set(accountSecurityStateCacheKey(record.realm_id, record.user_id), record);
+  await authenticationActivityRuntimeRepository.putAccountSecurityState(record);
+}
+
+async function getLockoutStateAsync(realmId: string, userId: string): Promise<StoredIamUserLockoutState> {
+  if (!useRuntimeRepositoryPath || !authenticationActivityRuntimeRepository) {
+    return getLockoutState(realmId, userId);
+  }
+
+  const cacheKey = userLockoutStateCacheKey(realmId, userId);
+  const cached = userLockoutStateCache.get(cacheKey);
+  if (cached) {
+    if (cached.lockout_until && Date.parse(cached.lockout_until) <= Date.now()) {
+      cached.failed_attempt_count = 0;
+      cached.last_failed_at = null;
+      cached.lockout_until = null;
+      cached.locked_at = null;
+      await authenticationActivityRuntimeRepository.putUserLockoutState(cached);
+    }
+    return cached;
+  }
+
+  const record = (await authenticationActivityRuntimeRepository.getUserLockoutState(realmId, userId))
+    ?? buildDefaultLockoutState(realmId, userId);
+  if (record.lockout_until && Date.parse(record.lockout_until) <= Date.now()) {
+    record.failed_attempt_count = 0;
+    record.last_failed_at = null;
+    record.lockout_until = null;
+    record.locked_at = null;
+    await authenticationActivityRuntimeRepository.putUserLockoutState(record);
+  }
+  userLockoutStateCache.set(cacheKey, record);
+  return record;
+}
+
+async function saveLockoutStateAsync(record: StoredIamUserLockoutState): Promise<void> {
+  if (!useRuntimeRepositoryPath || !authenticationActivityRuntimeRepository) {
+    persistActivityStateSyncOnly();
+    return;
+  }
+  userLockoutStateCache.set(userLockoutStateCacheKey(record.realm_id, record.user_id), record);
+  await authenticationActivityRuntimeRepository.putUserLockoutState(record);
+}
+
+async function recordLoginAttemptAsync(input: {
+  realmId: string;
+  userId: string | null;
+  usernameOrEmail: string;
+  clientIdentifier: string | null;
+  outcome: IamLoginAttemptOutcome;
+  summary: string;
+}): Promise<StoredIamLoginAttempt> {
+  if (!useRuntimeRepositoryPath || !authenticationActivityRuntimeRepository) {
+    return recordLoginAttempt(input);
+  }
+
+  const record: StoredIamLoginAttempt = {
+    id: `iam-login-attempt-${randomUUID()}`,
+    realm_id: input.realmId,
+    user_id: input.userId,
+    username_or_email: input.usernameOrEmail.trim(),
+    client_identifier: input.clientIdentifier,
+    outcome: input.outcome,
+    summary: input.summary,
+    occurred_at: nowIso(),
+  };
+  await authenticationActivityRuntimeRepository.putLoginAttempt(record);
+  return record;
+}
+
+async function clearUserLockoutStateAsync(realmId: string, userId: string): Promise<{ cleared: boolean }> {
+  if (!useRuntimeRepositoryPath || !authenticationActivityRuntimeRepository) {
+    return clearUserLockoutState(realmId, userId);
+  }
+
+  const lockout = await getLockoutStateAsync(realmId, userId);
+  const hadState = Boolean(lockout.failed_attempt_count || lockout.last_failed_at || lockout.lockout_until || lockout.locked_at);
+  if (!hadState) {
+    return { cleared: false };
+  }
+  lockout.failed_attempt_count = 0;
+  lockout.last_failed_at = null;
+  lockout.lockout_until = null;
+  lockout.locked_at = null;
+  await saveLockoutStateAsync(lockout);
+  return { cleared: hadState };
+}
+
+async function registerFailedLoginAsync(user: IamUserRecord): Promise<StoredIamUserLockoutState> {
+  if (!useRuntimeRepositoryPath || !authenticationActivityRuntimeRepository) {
+    return registerFailedLogin(user);
+  }
+
+  const lockout = await getLockoutStateAsync(user.realm_id, user.id);
+  if (!lockout.last_failed_at || (Date.now() - Date.parse(lockout.last_failed_at)) > LOGIN_FAILURE_WINDOW_MS) {
+    lockout.failed_attempt_count = 0;
+  }
+  lockout.failed_attempt_count += 1;
+  lockout.last_failed_at = nowIso();
+  if (lockout.failed_attempt_count >= LOGIN_LOCKOUT_THRESHOLD) {
+    lockout.locked_at = nowIso();
+    lockout.lockout_until = new Date(Date.now() + LOGIN_LOCKOUT_DURATION_MS).toISOString();
+  }
+  await saveLockoutStateAsync(lockout);
+  return lockout;
+}
+
+async function assertUserNotLockedAsync(user: IamUserRecord): Promise<void> {
+  if (!useRuntimeRepositoryPath || !authenticationActivityRuntimeRepository) {
+    assertUserNotLocked(user);
+    return;
+  }
+
+  const lockout = await getLockoutStateAsync(user.realm_id, user.id);
+  if (lockout.lockout_until && Date.parse(lockout.lockout_until) > Date.now()) {
+    await recordLoginAttemptAsync({
+      realmId: user.realm_id,
+      userId: user.id,
+      usernameOrEmail: user.username,
+      clientIdentifier: null,
+      outcome: 'LOCKED',
+      summary: `Blocked login while account lockout is active until ${lockout.lockout_until}.`,
+    });
+    throw new Error(`Account is temporarily locked until ${lockout.lockout_until}`);
+  }
+}
+
+async function getOutstandingRequiredActionsAsync(user: IamUserRecord): Promise<string[]> {
+  const security = await getSecurityStateAsync(user);
+  return user.required_actions.filter((action) => {
+    if (action === 'VERIFY_EMAIL') {
+      return !security.email_verified_at;
+    }
+    return true;
+  });
+}
+
 function accountSessionIndexKey(realmId: string, sessionId: string): string {
   return `${realmId}:${sessionId}`;
 }
@@ -1201,17 +1513,79 @@ function rebuildAccountSessionIndex(): void {
 }
 rebuildAccountSessionIndex();
 
+function markAllSlicesDirty(): void {
+  const context = deferredPersistenceContext.getStore();
+  if (!context) {
+    return;
+  }
+  context.dirty_all = true;
+  context.dirty_directory = true;
+  context.dirty_activity = true;
+  context.dirty_transient = true;
+}
+
+function markDirectorySliceDirty(): void {
+  const context = deferredPersistenceContext.getStore();
+  if (!context) {
+    return;
+  }
+  context.dirty_directory = true;
+}
+
+function markActivitySliceDirty(): void {
+  const context = deferredPersistenceContext.getStore();
+  if (!context) {
+    return;
+  }
+  context.dirty_activity = true;
+}
+
+function markTransientSliceDirty(): void {
+  const context = deferredPersistenceContext.getStore();
+  if (!context) {
+    return;
+  }
+  context.dirty_transient = true;
+}
+
 function persistStateSyncOnly(): void {
   const context = deferredPersistenceContext.getStore();
   if (context) {
-    context.dirty = true;
+    markAllSlicesDirty();
     return;
   }
   authenticationRuntimeStateRepository.save(state);
 }
 
-async function persistStateAsync(): Promise<void> {
-  await persistStateSnapshotAsync(state);
+function persistActivityStateSyncOnly(): void {
+  const context = deferredPersistenceContext.getStore();
+  if (context) {
+    markActivitySliceDirty();
+    return;
+  }
+  authenticationActivityRepository.save(splitActivityState(state));
+}
+
+function persistDirectoryStateSyncOnly(): void {
+  const context = deferredPersistenceContext.getStore();
+  if (context) {
+    markDirectorySliceDirty();
+    return;
+  }
+  authenticationDirectoryRepository.save(splitDirectoryState(state));
+}
+
+function persistTransientStateSyncOnly(): void {
+  const context = deferredPersistenceContext.getStore();
+  if (context) {
+    markTransientSliceDirty();
+    return;
+  }
+  authenticationTransientRepository.save(splitTransientState(state));
+}
+
+async function persistStateAsync(context?: DeferredPersistenceContextState): Promise<void> {
+  await persistStateSnapshotAsync(state, context);
 }
 
 async function runWithDeferredPersistence<T>(operation: () => T | Promise<T>): Promise<T> {
@@ -1220,22 +1594,46 @@ async function runWithDeferredPersistence<T>(operation: () => T | Promise<T>): P
     return operation();
   }
 
-  syncInMemoryState(await loadStateAsync());
-  return deferredPersistenceContext.run({ dirty: false }, async () => {
-    const context = deferredPersistenceContext.getStore()!;
-    try {
-      const result = await operation();
-      if (context.dirty) {
-        await persistStateAsync();
+  const run = async (): Promise<T> => {
+    let lastError: unknown = null;
+
+    for (let attempt = 0; attempt < DEFERRED_PERSISTENCE_RETRIES; attempt += 1) {
+      syncInMemoryState(await loadStateAsync());
+
+      try {
+        return await deferredPersistenceContext.run({
+          dirty_all: false,
+          dirty_directory: false,
+          dirty_activity: false,
+          dirty_transient: false,
+        }, async () => {
+          const context = deferredPersistenceContext.getStore()!;
+          try {
+            const result = await operation();
+            if (context.dirty_all || context.dirty_directory || context.dirty_activity || context.dirty_transient) {
+              await persistStateAsync(context);
+            }
+            return result;
+          } catch (error) {
+            if (context.dirty_all || context.dirty_directory || context.dirty_activity || context.dirty_transient) {
+              await persistStateAsync(context);
+            }
+            throw error;
+          }
+        });
+      } catch (error) {
+        lastError = error;
+        if (!isDeferredPersistenceConflict(error)) {
+          throw error;
+        }
+        await sleep(DEFERRED_PERSISTENCE_RETRY_BACKOFF_MS * (attempt + 1));
       }
-      return result;
-    } catch (error) {
-      if (context.dirty) {
-        await persistStateAsync();
-      }
-      throw error;
     }
-  });
+
+    throw lastError instanceof Error ? lastError : new Error(String(lastError));
+  };
+
+  return run();
 }
 
 function listRealmUsers(realmId: string): IamUserRecord[] {
@@ -1292,7 +1690,7 @@ function getSecurityState(user: IamUserRecord): StoredIamAccountSecurityState {
       last_passkey_authenticated_at: null,
     };
     securityStates.push(record);
-    persistStateSyncOnly();
+    persistActivityStateSyncOnly();
   }
   return record;
 }
@@ -1312,14 +1710,14 @@ function getLockoutState(realmId: string, userId: string): StoredIamUserLockoutS
       locked_at: null,
     };
     lockoutStates.push(record);
-    persistStateSyncOnly();
+    persistActivityStateSyncOnly();
   }
   if (record.lockout_until && Date.parse(record.lockout_until) <= Date.now()) {
     record.failed_attempt_count = 0;
     record.last_failed_at = null;
     record.lockout_until = null;
     record.locked_at = null;
-    persistStateSyncOnly();
+    persistActivityStateSyncOnly();
   }
   return record;
 }
@@ -1347,18 +1745,21 @@ function recordLoginAttempt(input: {
   if (loginAttempts.length > 2500) {
     loginAttempts.length = 2500;
   }
-  persistStateSyncOnly();
+  persistActivityStateSyncOnly();
   return record;
 }
 
 function clearUserLockoutState(realmId: string, userId: string): { cleared: boolean } {
   const lockout = getLockoutState(realmId, userId);
   const hadState = Boolean(lockout.failed_attempt_count || lockout.last_failed_at || lockout.lockout_until || lockout.locked_at);
+  if (!hadState) {
+    return { cleared: false };
+  }
   lockout.failed_attempt_count = 0;
   lockout.last_failed_at = null;
   lockout.lockout_until = null;
   lockout.locked_at = null;
-  persistStateSyncOnly();
+  persistActivityStateSyncOnly();
   return { cleared: hadState };
 }
 
@@ -1373,7 +1774,7 @@ function registerFailedLogin(user: IamUserRecord): StoredIamUserLockoutState {
     lockout.locked_at = nowIso();
     lockout.lockout_until = new Date(Date.now() + LOGIN_LOCKOUT_DURATION_MS).toISOString();
   }
-  persistStateSyncOnly();
+  persistActivityStateSyncOnly();
   return lockout;
 }
 
@@ -1821,6 +2222,7 @@ function createSession(
   if (assuranceLevel === 'PASSKEY') {
     security.last_passkey_authenticated_at = authenticatedAt;
   }
+  persistActivityStateSyncOnly();
   return {
     session,
     session_token: buildSessionToken(session.id, sessionProof),
@@ -1857,15 +2259,20 @@ async function createSessionAsync(
     federated_login_context: options?.federated_login_context ?? null,
     synthetic: true,
   };
-  await sessionAsyncStore.put(session);
-  const security = getSecurityState(user);
-  security.last_login_at = authenticatedAt;
-  if (assuranceLevel === 'MFA') {
-    security.last_mfa_authenticated_at = authenticatedAt;
-  }
-  if (assuranceLevel === 'PASSKEY') {
-    security.last_passkey_authenticated_at = authenticatedAt;
-  }
+  await Promise.all([
+    sessionAsyncStore.put(session),
+    (async () => {
+      const security = await getSecurityStateAsync(user);
+      security.last_login_at = authenticatedAt;
+      if (assuranceLevel === 'MFA') {
+        security.last_mfa_authenticated_at = authenticatedAt;
+      }
+      if (assuranceLevel === 'PASSKEY') {
+        security.last_passkey_authenticated_at = authenticatedAt;
+      }
+      await saveSecurityStateAsync(security);
+    })(),
+  ]);
   return {
     session,
     session_token: buildSessionToken(session.id, sessionProof),
@@ -1963,7 +2370,12 @@ async function revokeIssuedTokensForBrowserSessionsAsync(
   }
 }
 
-function resolveAccountSession(realmId: string, sessionId: string, touch: boolean): StoredIamAccountSession {
+function resolveAccountSessionWithActivityOption(
+  realmId: string,
+  sessionId: string,
+  touch: boolean,
+  requireActive: boolean,
+): StoredIamAccountSession {
   revokeExpiredSessions();
   const parsedSessionToken = parseSessionToken(sessionId);
   const session = sessionStore.getById(realmId, parsedSessionToken.session_id);
@@ -1986,7 +2398,7 @@ function resolveAccountSession(realmId: string, sessionId: string, touch: boolea
       throw new Error('Invalid account session proof');
     }
   }
-  if (sessionStatus(session) !== 'ACTIVE') {
+  if (requireActive && sessionStatus(session) !== 'ACTIVE') {
     throw new Error('Account session is no longer active');
   }
   if (touch) {
@@ -1996,13 +2408,18 @@ function resolveAccountSession(realmId: string, sessionId: string, touch: boolea
   return session;
 }
 
-async function resolveAccountSessionAsync(
+function resolveAccountSession(realmId: string, sessionId: string, touch: boolean): StoredIamAccountSession {
+  return resolveAccountSessionWithActivityOption(realmId, sessionId, touch, true);
+}
+
+async function resolveAccountSessionAsyncWithActivityOption(
   realmId: string,
   sessionId: string,
   touch: boolean,
+  requireActive: boolean,
 ): Promise<StoredIamAccountSession> {
   if (!useRuntimeRepositoryPath) {
-    return resolveAccountSession(realmId, sessionId, touch);
+    return resolveAccountSessionWithActivityOption(realmId, sessionId, touch, requireActive);
   }
 
   const parsedSessionToken = parseSessionToken(sessionId);
@@ -2026,12 +2443,12 @@ async function resolveAccountSessionAsync(
       throw new Error('Invalid account session proof');
     }
   }
-  if (!session.revoked_at && Date.parse(session.expires_at) <= Date.now()) {
+  if (requireActive && !session.revoked_at && Date.parse(session.expires_at) <= Date.now()) {
     session.revoked_at = session.expires_at;
     await sessionAsyncStore.put(session);
     throw new Error('Account session is no longer active');
   }
-  if (sessionStatus(session) !== 'ACTIVE') {
+  if (requireActive && sessionStatus(session) !== 'ACTIVE') {
     throw new Error('Account session is no longer active');
   }
   if (touch) {
@@ -2039,6 +2456,14 @@ async function resolveAccountSessionAsync(
     await sessionAsyncStore.put(session);
   }
   return session;
+}
+
+async function resolveAccountSessionAsync(
+  realmId: string,
+  sessionId: string,
+  touch: boolean,
+): Promise<StoredIamAccountSession> {
+  return resolveAccountSessionAsyncWithActivityOption(realmId, sessionId, touch, true);
 }
 
 async function syncSessionsAsync(sessions: StoredIamAccountSession[]): Promise<void> {
@@ -2104,7 +2529,7 @@ async function createLoginTransactionAsync(
     id: `iam-login-${randomUUID()}`,
     realm_id: user.realm_id,
     user_id: user.id,
-    flow_id: LocalIamAuthFlowStore.resolveBoundFlowId(user.realm_id, client?.id ?? null, 'BROWSER'),
+    flow_id: await LocalIamAuthFlowStore.resolveBoundFlowIdAsync(user.realm_id, client?.id ?? null, 'BROWSER'),
     client_id: client?.id ?? null,
     client_identifier: client?.client_id ?? null,
     client_name: client?.name ?? null,
@@ -2120,7 +2545,6 @@ async function createLoginTransactionAsync(
     cancelled_at: null,
     status: 'PENDING_REQUIRED_ACTIONS',
   };
-  await loginTransactionAsyncStore.put(transaction);
   return transaction;
 }
 
@@ -2281,7 +2705,7 @@ async function completeLoginStateAsync(
 ): Promise<{ session: StoredIamAccountSession | null; response: IamLoginResponse }> {
   const user = getRealmUserById(transaction.realm_id, transaction.user_id);
   const client = transaction.client_identifier ? getClientByPublicIdentifier(transaction.realm_id, transaction.client_identifier) : null;
-  const requiredActions = getOutstandingRequiredActions(user);
+  const requiredActions = await getOutstandingRequiredActionsAsync(user);
   const pendingConsent = determinePendingConsentScopes(user, client, transaction.requested_scope_names);
   const activeMfa = options?.skip_mfa ? null : getMfaState(user.realm_id, user.id);
   const credentialAuthenticator = options?.credential_authenticator ?? 'USERNAME_PASSWORD';
@@ -2339,15 +2763,16 @@ async function completeLoginStateAsync(
     },
   );
   const session = createdSession.session;
-  await recordFederatedLoginSessionLinkAsync(
-    user.realm_id,
-    user.id,
-    createdSession.session_token,
-    transaction.federated_login_context,
-  );
   transaction.status = 'COMPLETE';
   transaction.completed_at = nowIso();
-  await loginTransactionAsyncStore.put(transaction);
+  await Promise.all([
+    recordFederatedLoginSessionLinkAsync(
+      user.realm_id,
+      user.id,
+      createdSession.session_token,
+      transaction.federated_login_context,
+    ),
+  ]);
   return {
     session,
     response: {
@@ -2497,15 +2922,24 @@ export const LocalIamAuthenticationRuntimeStore = {
   },
 
   login(realmId: string, input: RequestIamLoginInput): IamLoginResponse {
+    const loginStartedAt = process.hrtime.bigint();
+    const stepTimings: Record<string, number> = {};
+    let outcome = 'UNKNOWN';
     const candidateUser = findRealmUserByIdentifier(realmId, input.username);
+    stepTimings.user_lookup_ms = durationMs(loginStartedAt);
     if (candidateUser) {
+      const lockoutStartedAt = process.hrtime.bigint();
       assertUserNotLocked(candidateUser);
+      stepTimings.lockout_check_ms = durationMs(lockoutStartedAt);
     }
     let user: IamUserRecord;
     try {
+      const credentialStartedAt = process.hrtime.bigint();
       user = LocalIamProtocolRuntimeStore.validateUserCredentials(realmId, input.username, input.password);
+      stepTimings.credential_validation_ms = durationMs(credentialStartedAt);
     } catch (_error) {
       if (candidateUser) {
+        const failedAttemptStartedAt = process.hrtime.bigint();
         const lockout = registerFailedLogin(candidateUser);
         recordLoginAttempt({
           realmId,
@@ -2518,9 +2952,22 @@ export const LocalIamAuthenticationRuntimeStore = {
             : 'Credential validation failed for browser login.',
         });
         if (lockout.lockout_until && Date.parse(lockout.lockout_until) > Date.now()) {
+          outcome = 'LOCKED';
+          emitLoginTiming('browser_login_core', {
+            realm_id: realmId,
+            username: input.username,
+            outcome,
+            total_core_ms: durationMs(loginStartedAt),
+            steps: {
+              ...stepTimings,
+              failed_attempt_record_ms: durationMs(failedAttemptStartedAt),
+            },
+          });
           throw new Error(`Account is temporarily locked until ${lockout.lockout_until}`);
         }
+        stepTimings.failed_attempt_record_ms = durationMs(failedAttemptStartedAt);
       } else {
+        const failedAttemptStartedAt = process.hrtime.bigint();
         recordLoginAttempt({
           realmId,
           userId: null,
@@ -2529,12 +2976,30 @@ export const LocalIamAuthenticationRuntimeStore = {
           outcome: 'FAILED_CREDENTIALS',
           summary: 'Credential validation failed for an unknown user identifier.',
         });
+        stepTimings.failed_attempt_record_ms = durationMs(failedAttemptStartedAt);
       }
+      outcome = 'FAILED_CREDENTIALS';
+      emitLoginTiming('browser_login_core', {
+        realm_id: realmId,
+        username: input.username,
+        outcome,
+        total_core_ms: durationMs(loginStartedAt),
+        steps: stepTimings,
+      });
       throw new Error('Invalid username or password');
     }
     if (user.status !== 'ACTIVE') {
+      outcome = 'INACTIVE';
+      emitLoginTiming('browser_login_core', {
+        realm_id: realmId,
+        username: input.username,
+        outcome,
+        total_core_ms: durationMs(loginStartedAt),
+        steps: stepTimings,
+      });
       throw new Error('User is not active');
     }
+    const securityStateStartedAt = process.hrtime.bigint();
     clearUserLockoutState(realmId, user.id);
     recordLoginAttempt({
       realmId,
@@ -2544,10 +3009,26 @@ export const LocalIamAuthenticationRuntimeStore = {
       outcome: 'SUCCESS',
       summary: 'Browser login credential validation succeeded.',
     });
+    stepTimings.security_state_ms = durationMs(securityStateStartedAt);
+    const clientLookupStartedAt = process.hrtime.bigint();
     const client = getClientByPublicIdentifier(realmId, input.client_id);
+    stepTimings.client_lookup_ms = durationMs(clientLookupStartedAt);
     const requestedScopeNames = Array.from(new Set((input.scope ?? []).map((scope) => scope.trim()).filter(Boolean))).sort();
+    const createTransactionStartedAt = process.hrtime.bigint();
     const transaction = createLoginTransaction(user, client, requestedScopeNames);
-    return completeLoginState(transaction).response;
+    stepTimings.create_transaction_ms = durationMs(createTransactionStartedAt);
+    const completeStateStartedAt = process.hrtime.bigint();
+    const response = completeLoginState(transaction).response;
+    stepTimings.complete_state_ms = durationMs(completeStateStartedAt);
+    outcome = response.next_step;
+    emitLoginTiming('browser_login_core', {
+      realm_id: realmId,
+      username: input.username,
+      outcome,
+      total_core_ms: durationMs(loginStartedAt),
+      steps: stepTimings,
+    });
+    return response;
   },
 
   async loginAsync(realmId: string, input: RequestIamLoginInput): Promise<IamLoginResponse> {
@@ -2556,17 +3037,28 @@ export const LocalIamAuthenticationRuntimeStore = {
     }
 
     return runWithDeferredPersistence(async () => {
+      const loginStartedAt = process.hrtime.bigint();
+      const stepTimings: Record<string, number> = {};
+      let outcome = 'UNKNOWN';
       const candidateUser = findRealmUserByIdentifier(realmId, input.username);
+      stepTimings.user_lookup_ms = durationMs(loginStartedAt);
+
       if (candidateUser) {
-        assertUserNotLocked(candidateUser);
+        const lockoutStartedAt = process.hrtime.bigint();
+        await assertUserNotLockedAsync(candidateUser);
+        stepTimings.lockout_check_ms = durationMs(lockoutStartedAt);
       }
+
       let user: IamUserRecord;
       try {
-        user = LocalIamProtocolRuntimeStore.validateUserCredentials(realmId, input.username, input.password);
+        const credentialStartedAt = process.hrtime.bigint();
+        user = await LocalIamProtocolRuntimeStore.validateUserCredentialsAsync(realmId, input.username, input.password);
+        stepTimings.credential_validation_ms = durationMs(credentialStartedAt);
       } catch (_error) {
         if (candidateUser) {
-          const lockout = registerFailedLogin(candidateUser);
-          recordLoginAttempt({
+          const failedAttemptStartedAt = process.hrtime.bigint();
+          const lockout = await registerFailedLoginAsync(candidateUser);
+          await recordLoginAttemptAsync({
             realmId,
             userId: candidateUser.id,
             usernameOrEmail: input.username,
@@ -2577,10 +3069,23 @@ export const LocalIamAuthenticationRuntimeStore = {
               : 'Credential validation failed for browser login.',
           });
           if (lockout.lockout_until && Date.parse(lockout.lockout_until) > Date.now()) {
+            outcome = 'LOCKED';
+            emitLoginTiming('browser_login_core', {
+              realm_id: realmId,
+              username: input.username,
+              outcome,
+              total_core_ms: durationMs(loginStartedAt),
+              steps: {
+                ...stepTimings,
+                failed_attempt_record_ms: durationMs(failedAttemptStartedAt),
+              },
+            });
             throw new Error(`Account is temporarily locked until ${lockout.lockout_until}`);
           }
+          stepTimings.failed_attempt_record_ms = durationMs(failedAttemptStartedAt);
         } else {
-          recordLoginAttempt({
+          const failedAttemptStartedAt = process.hrtime.bigint();
+          await recordLoginAttemptAsync({
             realmId,
             userId: null,
             usernameOrEmail: input.username,
@@ -2588,25 +3093,67 @@ export const LocalIamAuthenticationRuntimeStore = {
             outcome: 'FAILED_CREDENTIALS',
             summary: 'Credential validation failed for an unknown user identifier.',
           });
+          stepTimings.failed_attempt_record_ms = durationMs(failedAttemptStartedAt);
         }
+        outcome = 'FAILED_CREDENTIALS';
+        emitLoginTiming('browser_login_core', {
+          realm_id: realmId,
+          username: input.username,
+          outcome,
+          total_core_ms: durationMs(loginStartedAt),
+          steps: stepTimings,
+        });
         throw new Error('Invalid username or password');
       }
+
       if (user.status !== 'ACTIVE') {
+        outcome = 'INACTIVE';
+        emitLoginTiming('browser_login_core', {
+          realm_id: realmId,
+          username: input.username,
+          outcome,
+          total_core_ms: durationMs(loginStartedAt),
+          steps: stepTimings,
+        });
         throw new Error('User is not active');
       }
-      clearUserLockoutState(realmId, user.id);
-      recordLoginAttempt({
-        realmId,
-        userId: user.id,
-        usernameOrEmail: input.username,
-        clientIdentifier: input.client_id?.trim() || null,
-        outcome: 'SUCCESS',
-        summary: 'Browser login credential validation succeeded.',
-      });
+
+      const securityStateStartedAt = process.hrtime.bigint();
+      await Promise.all([
+        clearUserLockoutStateAsync(realmId, user.id),
+        recordLoginAttemptAsync({
+          realmId,
+          userId: user.id,
+          usernameOrEmail: input.username,
+          clientIdentifier: input.client_id?.trim() || null,
+          outcome: 'SUCCESS',
+          summary: 'Browser login credential validation succeeded.',
+        }),
+      ]);
+      stepTimings.security_state_ms = durationMs(securityStateStartedAt);
+
+      const clientLookupStartedAt = process.hrtime.bigint();
       const client = getClientByPublicIdentifier(realmId, input.client_id);
+      stepTimings.client_lookup_ms = durationMs(clientLookupStartedAt);
       const requestedScopeNames = Array.from(new Set((input.scope ?? []).map((scope) => scope.trim()).filter(Boolean))).sort();
+
+      const createTransactionStartedAt = process.hrtime.bigint();
       const transaction = await createLoginTransactionAsync(user, client, requestedScopeNames);
-      return (await completeLoginStateAsync(transaction)).response;
+      stepTimings.create_transaction_ms = durationMs(createTransactionStartedAt);
+
+      const completeStateStartedAt = process.hrtime.bigint();
+      const response = (await completeLoginStateAsync(transaction)).response;
+      stepTimings.complete_state_ms = durationMs(completeStateStartedAt);
+      outcome = response.next_step;
+
+      emitLoginTiming('browser_login_core', {
+        realm_id: realmId,
+        username: input.username,
+        outcome,
+        total_core_ms: durationMs(loginStartedAt),
+        steps: stepTimings,
+      });
+      return response;
     });
   },
 
@@ -3454,8 +4001,10 @@ export const LocalIamAuthenticationRuntimeStore = {
   },
 
   logout(realmId: string, sessionId: string): { revoked: boolean; revoked_at: string | null } {
-    const session = resolveAccountSession(realmId, sessionId, false);
-    session.revoked_at = nowIso();
+    const session = resolveAccountSessionWithActivityOption(realmId, sessionId, false, false);
+    if (!session.revoked_at) {
+      session.revoked_at = nowIso();
+    }
     persistStateSyncOnly();
     return {
       revoked: true,
@@ -3475,8 +4024,10 @@ export const LocalIamAuthenticationRuntimeStore = {
     }
 
     return runWithDeferredPersistence(async () => {
-      const session = await resolveAccountSessionAsync(realmId, sessionId, false);
-      session.revoked_at = nowIso();
+      const session = await resolveAccountSessionAsyncWithActivityOption(realmId, sessionId, false, false);
+      if (!session.revoked_at) {
+        session.revoked_at = nowIso();
+      }
       await sessionAsyncStore.put(session);
       await revokeIssuedTokensForBrowserSessionsAsync(realmId, [sessionId]);
       await terminateLinkedSamlSessionsForBrowserSessionsAsync(realmId, [sessionId]);

@@ -17,9 +17,15 @@ export class DualRunAsyncLoginTransactionStoreAdapter implements AsyncLoginTrans
   }
 
   async put(transaction: StoredIamLoginTransaction): Promise<void> {
-    await this.legacy.put(transaction);
-    if (this.mode.dualWrite || this.mode.readV2) {
+    if (this.mode.dualWrite) {
+      await this.legacy.put(transaction);
       await this.v2.put(transaction);
+      return;
     }
+    if (this.mode.readV2) {
+      await this.v2.put(transaction);
+      return;
+    }
+    await this.legacy.put(transaction);
   }
 }

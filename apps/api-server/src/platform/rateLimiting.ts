@@ -31,6 +31,7 @@ interface InMemoryRateLimitBucket {
 
 const DEFAULT_CLEANUP_INTERVAL_MS = 30_000;
 const MAX_DYNAMODB_WRITE_RETRIES = 6;
+const DYNAMODB_WRITE_RETRY_BACKOFF_MS = 10;
 
 function normalizeBackendName(value: string | undefined): string {
   const normalized = value?.trim().toLowerCase();
@@ -72,6 +73,12 @@ function buildBlockedEvaluation(limit: number, blockedUntil: number, now: number
 function computeExpiresAtSeconds(now: number, resetAt: number, blockedUntil: number, windowMs: number): number {
   const expiryTimestamp = Math.max(resetAt, blockedUntil) + (windowMs * 2);
   return Math.ceil(expiryTimestamp / 1000);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 function resolveRateLimitTableName(): string {
@@ -160,6 +167,45 @@ export class DynamoDbRateLimitBackend implements RateLimitBackend {
         return buildBlockedEvaluation(policy.limit, record.blocked_until, now);
       }
 
+      if (record?.window_start === currentWindowStart) {
+        if (record.count >= policy.limit) {
+          const blockedUntil = Math.max(record.blocked_until ?? 0, now + policy.blockMs);
+          await this.repository.markBlocked({
+            bucket_key: bucketKey,
+            window_start: currentWindowStart,
+            blocked_until: blockedUntil,
+            expires_at: computeExpiresAtSeconds(now, resetAt, blockedUntil, policy.windowMs),
+            updated_at: nowIso(now),
+          });
+          return buildBlockedEvaluation(policy.limit, blockedUntil, now);
+        }
+
+        const incrementedRecord = await this.repository.incrementSameWindow({
+          bucket_key: bucketKey,
+          scope_key: scopeKey,
+          client_key: clientKey,
+          window_start: currentWindowStart,
+          blocked_until: 0,
+          expires_at: computeExpiresAtSeconds(now, resetAt, 0, policy.windowMs),
+          updated_at: nowIso(now),
+        }, now);
+        if (incrementedRecord) {
+          if (incrementedRecord.count > policy.limit) {
+            const blockedUntil = Math.max(incrementedRecord.blocked_until ?? 0, now + policy.blockMs);
+            await this.repository.markBlocked({
+              bucket_key: bucketKey,
+              window_start: currentWindowStart,
+              blocked_until: blockedUntil,
+              expires_at: computeExpiresAtSeconds(now, resetAt, blockedUntil, policy.windowMs),
+              updated_at: nowIso(now),
+            });
+            return buildBlockedEvaluation(policy.limit, blockedUntil, now);
+          }
+
+          return buildAllowedEvaluation(policy.limit, incrementedRecord.count, resetAt);
+        }
+      }
+
       if (!record || record.window_start !== currentWindowStart) {
         const nextRecord: DynamoDbRateLimitRecord = {
           bucket_key: bucketKey,
@@ -179,38 +225,10 @@ export class DynamoDbRateLimitBackend implements RateLimitBackend {
         if (wrote) {
           return buildAllowedEvaluation(policy.limit, 1, resetAt);
         }
+        await sleep(DYNAMODB_WRITE_RETRY_BACKOFF_MS * (attempt + 1));
         continue;
       }
-
-      const nextCount = record.count + 1;
-      if (nextCount > policy.limit) {
-        const blockedUntil = Math.max(record.blocked_until ?? 0, now + policy.blockMs);
-        const blockedRecord: DynamoDbRateLimitRecord = {
-          ...record,
-          blocked_until: blockedUntil,
-          expires_at: computeExpiresAtSeconds(now, resetAt, blockedUntil, policy.windowMs),
-          updated_at: nowIso(now),
-          version: (record.version ?? 0) + 1,
-        };
-
-        if (await this.repository.updateRecord(record, blockedRecord)) {
-          return buildBlockedEvaluation(policy.limit, blockedUntil, now);
-        }
-        continue;
-      }
-
-      const nextRecord: DynamoDbRateLimitRecord = {
-        ...record,
-        count: nextCount,
-        blocked_until: 0,
-        expires_at: computeExpiresAtSeconds(now, resetAt, 0, policy.windowMs),
-        updated_at: nowIso(now),
-        version: (record.version ?? 0) + 1,
-      };
-
-      if (await this.repository.updateRecord(record, nextRecord)) {
-        return buildAllowedEvaluation(policy.limit, nextCount, resetAt);
-      }
+      await sleep(DYNAMODB_WRITE_RETRY_BACKOFF_MS * (attempt + 1));
     }
 
     throw new Error(
