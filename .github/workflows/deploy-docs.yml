@@ -9,6 +9,9 @@ on:
       - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
   pages: write
@@ -26,29 +29,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '18'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: 'docs-site/package-lock.json'
 
       - name: Install dependencies
-        run: npm install --prefix docs-site
+        run: npm ci --prefix docs-site
 
       - name: Build documentation
         run: npm run docs:build
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v6
+        with:
+          # When GH_PAGES_TOKEN is configured, this also repairs a freshly recreated
+          # repository whose Pages site has not been initialized yet.
+          enablement: ${{ secrets.GH_PAGES_TOKEN != '' }}
+          token: ${{ secrets.GH_PAGES_TOKEN != '' && secrets.GH_PAGES_TOKEN || github.token }}
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: './docs-site/dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
